@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import { MODES, FalaiPreset, QRONMode } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 const StaticImageGallery = dynamic(() => import('@/components/StaticImageGallery').then(m => m.StaticImageGallery), { ssr: false });
 
 export default function Home() {
