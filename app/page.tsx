@@ -5,7 +5,8 @@ import { Sparkles, Download, CreditCard, CheckCircle } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { MODES, FalaiPreset, QRONMode } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
-import { StaticImageGallery } from '@/components/StaticImageGallery';
+import dynamic from 'next/dynamic';
+const StaticImageGallery = dynamic(() => import('@/components/StaticImageGallery').then(m => m.StaticImageGallery), { ssr: false });
 
 export default function Home() {
   const supabase = createClient();
