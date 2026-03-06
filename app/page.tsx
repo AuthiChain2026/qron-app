@@ -22,17 +22,19 @@ export default function Home() {
   const [userTier, setUserTier] = useState('free'); // Default to free
   const [generationsUsed, setGenerationsUsed] = useState(0);
   const [generationsLimit, setGenerationsLimit] = useState(10);
+  const [user, setUser] = useState<any>(null);
   const [presets, setPresets] = useState<FalaiPreset[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<FalaiPreset | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      setUser(authUser);
+      if (authUser) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('tier, generations_used, generations_limit')
-          .eq('id', user.id)
+          .eq('id', authUser.id)
           .single();
 
         if (profile && !profileError) {
@@ -124,14 +126,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white">
-      <video
-        className="absolute inset-0 object-cover w-full h-full z-0"
-        src="/hero-qron-flow-1920x1080.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-      ></video>
+      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }}></div>
       <div className="container mx-auto px-4 py-16 max-w-6xl relative z-10">
 
         {/* Header */}
@@ -255,23 +250,33 @@ export default function Home() {
           )}
 
           {/* Generate Button */}
-          <button
-            onClick={handleGenerate}
-            disabled={loading || !isTierSufficient(selectedMode.tier) || (generationsUsed >= generationsLimit && userTier !== 'enterprise')}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                Generating QRON...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Generate QRON
-              </>
-            )}
-          </button>
+          {!user ? (
+            <a
+              href="/login"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-5 h-5" />
+              Sign In to Generate
+            </a>
+          ) : (
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !isTierSufficient(selectedMode.tier) || (generationsUsed >= generationsLimit && userTier !== 'enterprise')}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Generating QRON...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  Generate QRON
+                </>
+              )}
+            </button>
+          )}
 
           {/* Result Display */}
           {result && (
@@ -398,7 +403,7 @@ export default function Home() {
             ✓ 100% scannable guarantee • ✓ Real-time AI generation • ✓ Secure user authentication
           </p>
           <p className="text-slate-500 text-xs">
-            Powered by Fal.ai • Supabase • Stripe
+            Powered by Replicate • Supabase • Stripe
           </p>
         </div>
       </div>
