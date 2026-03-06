@@ -12,12 +12,12 @@ const supabase = createClient(
  * QRON Ownership Claim Endpoint
  * --------------------------------
  * This endpoint allows a user to claim ownership of a product
- * after verifying a QRON code.
+ * after a successful QRON verification.
  *
- * Beneficial logic for people:
+ * Human-beneficial logic:
  *  - Prevents fraudulent ownership claims
- *  - Ensures transparency and traceability
- *  - Protects consumer rights with clear audit logs
+ *  - Ensures transparent chain of custody
+ *  - Protects consumer rights with audit logs
  */
 export async function POST(req: Request) {
   try {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // Validate verification token (must match last verification event)
+    // Validate verification token
     const { data: lastVerification, error: verificationError } = await supabase
       .from('verification_logs')
       .select('*')
