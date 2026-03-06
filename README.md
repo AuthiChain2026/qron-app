@@ -1,1 +1,4 @@
-This README is ready for code insertion.
+# qron-app
+
+This README.md is a placeholder and ready for full implementation.
+
