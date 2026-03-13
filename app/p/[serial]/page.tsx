@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -7,7 +8,7 @@ interface PageProps {
 }
 
 export default async function CertificationPage({ params }: PageProps) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: cert, error } = await supabase
     .from('certifications')
     .select('*, products(*)')

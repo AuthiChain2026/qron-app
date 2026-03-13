@@ -3,7 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { product_id, metadata } = await request.json();
 
     // Generate serial number using DB function
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 

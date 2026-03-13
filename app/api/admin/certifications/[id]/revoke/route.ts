@@ -6,7 +6,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { revoked_by, revocation_reason } = await request.json();
 
     const { data, error } = await supabase

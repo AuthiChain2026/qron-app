@@ -1,8 +1,9 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
 
 export default async function AdminProductsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: products, error } = await supabase
     .from('products')
     .select('*')
