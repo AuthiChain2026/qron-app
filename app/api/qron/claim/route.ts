@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
 
-// Supabase client (service role)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 /**
  * QRON Ownership Claim Endpoint
  * --------------------------------
@@ -20,6 +14,11 @@ const supabase = createClient(
  *  - Protects consumer rights with audit logs
  */
 export async function POST(req: Request) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   try {
     const body = await req.json()
     const { product_id, owner_id, verification_token } = body

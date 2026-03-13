@@ -3,16 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 import nacl from 'tweetnacl'
 import { decodeUTF8 } from 'tweetnacl-util'
 
-// Supabase client (service role)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-// Public key for verifying Ed25519 signatures
-const PUBLIC_KEY_HEX = process.env.QRON_PUBLIC_KEY!
-const PUBLIC_KEY = Buffer.from(PUBLIC_KEY_HEX, 'hex')
-
 /**
  * QRON Verification Endpoint
  * --------------------------------
@@ -24,6 +14,13 @@ const PUBLIC_KEY = Buffer.from(PUBLIC_KEY_HEX, 'hex')
  *  5. Log verification event
  */
 export async function POST(req: Request) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const PUBLIC_KEY = Buffer.from(process.env.QRON_PUBLIC_KEY!, 'hex')
+
   try {
     const body = await req.json()
     const { product_id, payload, signature } = body
@@ -110,4 +107,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
-

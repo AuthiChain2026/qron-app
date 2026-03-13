@@ -4,18 +4,14 @@ import { randomUUID } from 'crypto'
 import nacl from 'tweetnacl'
 import { encodeUTF8 } from 'tweetnacl-util'
 
-// Initialize Supabase client (service role recommended for server-side routes)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-// Load Ed25519 private key from environment variable
-// Must be a 64-byte hex string
-const PRIVATE_KEY_HEX = process.env.QRON_PRIVATE_KEY!
-const PRIVATE_KEY = Buffer.from(PRIVATE_KEY_HEX, 'hex')
-
 export async function POST(req: Request) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const PRIVATE_KEY = Buffer.from(process.env.QRON_PRIVATE_KEY!, 'hex')
+
   try {
     const body = await req.json()
     const { name, description, brand, metadata } = body
