@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Download, CreditCard, CheckCircle } from 'lucide-react';
+import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { MODES, FalaiPreset, QRONMode } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
@@ -15,11 +15,11 @@ export default function Home() {
   const [targetUrl, setTargetUrl] = useState('');
   const [prompt, setPrompt] = useState('');
   const [selectedMode, setSelectedMode] = useState<QRONMode>(MODES[0]);
-  const [presetId, setPresetId] = useState<string>(''); // Placeholder for actual preset ID
+  const [presetId, setPresetId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [userTier, setUserTier] = useState('free'); // Default to free
+  const [userTier, setUserTier] = useState('free');
   const [generationsUsed, setGenerationsUsed] = useState(0);
   const [generationsLimit, setGenerationsLimit] = useState(10);
   const [user, setUser] = useState<any>(null);
@@ -36,7 +36,6 @@ export default function Home() {
           .select('tier, generations_used, generations_limit')
           .eq('id', authUser.id)
           .single();
-
         if (profile && !profileError) {
           setUserTier(profile.tier);
           setGenerationsUsed(profile.generations_used);
@@ -46,8 +45,6 @@ export default function Home() {
     };
 
     const fetchPresets = async () => {
-      // Assuming you have an API endpoint to list Fal.ai presets
-      // For now, using a placeholder if API is not yet implemented
       const dummyPresets: FalaiPreset[] = [
         { id: 'preset_1', name: 'Vibrant Flow', is_premium: false, tier: 'free' },
         { id: 'preset_2', name: 'Cybernetic Bloom', is_premium: true, tier: 'pro' },
@@ -74,28 +71,19 @@ export default function Home() {
       setError('Please fill in all required fields.');
       return;
     }
-
     setLoading(true);
     setError('');
     setResult(null);
-
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetUrl,
-          prompt,
-          presetId: selectedPreset?.id,
-          mode: selectedMode.id,
-        }),
+        body: JSON.stringify({ targetUrl, prompt, presetId: selectedPreset?.id, mode: selectedMode.id }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
         setResult(data.qron.imageUrl);
-        setGenerationsUsed(prev => prev + 1); // Optimistically update count
+        setGenerationsUsed(prev => prev + 1);
       } else {
         setError(data.message || 'Generation failed.');
       }
@@ -110,302 +98,409 @@ export default function Home() {
   const handleUpgrade = (planId: string) => {
     const plan = PLANS.find(p => p.id === planId);
     if (plan?.price === 0) {
-        // Free plan, might trigger a signup flow or just update user tier
-        console.log('User selected Free plan');
+      console.log('User selected Free plan');
     } else if (planId === 'enterprise') {
-        window.location.assign('mailto:sales@qron.space');
+      window.location.assign('mailto:Z@authichain.com');
     } else {
-        // Redirect to Stripe checkout for Pro plan
-        // This is a placeholder for actual Stripe checkout logic
-        console.log(`Redirecting to checkout for ${plan?.name}`);
+      console.log(`Redirecting to checkout for ${plan?.name}`);
     }
   };
 
   const userPlan = PLANS.find(p => p.id === userTier) || PLANS[0];
 
-
   return (
-    <div className="min-h-screen relative overflow-hidden text-white">
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }}></div>
-      <div className="container mx-auto px-4 py-16 max-w-6xl relative z-10">
+    <div className="min-h-screen protocol-bg text-white">
+      <div className="container mx-auto px-4 py-12 max-w-6xl">
 
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
-            QRON Generator
+        {/* ─── Hero ──────────────────────────────────────────────────────── */}
+        <div className="text-center mb-14">
+          {/* Protocol badge */}
+          <div className="flex justify-center mb-6">
+            <span className="protocol-badge">
+              <Shield className="w-3 h-3" />
+              Creative Layer of the AuthiChain Protocol
+            </span>
+          </div>
+
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <div style={{
+              width: 96, height: 96,
+              borderRadius: '50%',
+              border: '2px solid rgba(201,162,39,0.4)',
+              boxShadow: '0 0 32px rgba(255,215,0,0.2), 0 0 64px rgba(201,162,39,0.1)',
+              overflow: 'hidden',
+              background: '#0d0d0d',
+            }}>
+              <Image
+                src="/authichain-logo.png"
+                alt="AuthiChain Protocol"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            </div>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight tracking-tight">
+            <span className="gold-text">QRON</span>
           </h1>
-          <p className="text-xl md:text-2xl text-purple-200 font-light mb-4">
-            Artistic, on-brand QR experiences that increase scans and engagement.
+          <p className="text-xl md:text-2xl font-light mb-3" style={{ color: '#c8c8c8' }}>
+            Cryptographically verified QR art.
           </p>
-          <p className="text-lg text-purple-300">
-            Custom QR codes can lift scan and conversion rates by roughly 20-30%.
+          <p className="text-base max-w-xl mx-auto" style={{ color: '#6b6b6b' }}>
+            Where authentication meets artistry — every QRON is signed by the{' '}
+            <a href="https://authichain.com" target="_blank" rel="noreferrer"
+               style={{ color: '#c9a227', textDecoration: 'none', fontWeight: 600 }}>
+              AuthiChain Protocol
+            </a>{' '}
+            and verifiable by anyone, anywhere.
           </p>
+
+          {/* Stat strip */}
+          <div className="flex flex-wrap justify-center gap-8 mt-10">
+            {[
+              { icon: <Zap className="w-4 h-4" />, stat: '~25%', label: 'scan lift vs plain QR' },
+              { icon: <Lock className="w-4 h-4" />, stat: 'Ed25519', label: 'cryptographic signature' },
+              { icon: <Shield className="w-4 h-4" />, stat: '99.7%', label: 'verification accuracy' },
+            ].map(({ icon, stat, label }) => (
+              <div key={label} className="flex items-center gap-2" style={{ color: '#9e9e9e', fontSize: '13px' }}>
+                <span style={{ color: '#c9a227' }}>{icon}</span>
+                <span style={{ color: '#e8c547', fontWeight: 700 }}>{stat}</span>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Generator Section */}
-        <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/20 shadow-2xl mb-12">
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">Create Your QRON</h2>
+        <div className="gold-divider mb-12" />
 
-          {/* User Tier & Limits */}
-          <div className="text-center text-sm text-purple-300 mb-6">
-            <p>Current Plan: {userPlan?.name.toUpperCase()} (Generations: {generationsUsed}/{generationsLimit})</p>
-            {userTier !== 'enterprise' && generationsUsed >= generationsLimit && (
-                <p className="text-red-400 mt-2">Generation limit reached. Please upgrade your plan.</p>
-            )}
+        {/* ─── Generator ────────────────────────────────────────────────── */}
+        <div className="protocol-card p-8 mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">Create Your QRON</h2>
+            <span className="protocol-badge">
+              <Shield className="w-3 h-3" />
+              AuthiChain Protocol
+            </span>
           </div>
 
-          {/* Target URL Input */}
-          <div className="mb-4">
-            <label htmlFor="targetUrl" className="block text-white font-semibold mb-2">
-              Destination URL
-            </label>
-            <input
-              type="url"
-              id="targetUrl"
-              value={targetUrl}
-              onChange={(e) => setTargetUrl(e.target.value)}
-              placeholder="https://yourwebsite.com"
-              className="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-purple-500 focus:outline-none"
-            />
+          {/* Tier / limit indicator */}
+          <div className="flex items-center justify-between mb-6 px-4 py-3 rounded-lg"
+               style={{ background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.15)' }}>
+            <span style={{ color: '#9e9e9e', fontSize: '13px' }}>
+              Plan: <span style={{ color: '#e8c547', fontWeight: 700 }}>{userPlan?.name.toUpperCase()}</span>
+            </span>
+            <span style={{ color: '#9e9e9e', fontSize: '13px' }}>
+              Generations:{' '}
+              <span style={{ color: generationsUsed >= generationsLimit ? '#ff4444' : '#e8c547', fontWeight: 700 }}>
+                {generationsUsed}/{generationsLimit}
+              </span>
+            </span>
           </div>
 
-          {/* Prompt Input */}
-          <div className="mb-4">
-            <label htmlFor="prompt" className="block text-white font-semibold mb-2">
-              Creative Prompt
-            </label>
-            <textarea
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="A cyberpunk city skyline at dusk with neon lights reflecting on wet streets"
-              rows={3}
-              className="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-purple-500 focus:outline-none resize-none"
-            />
-          </div>
-
-          {/* Mode Selector */}
-          <div className="mb-4">
-            <label htmlFor="mode" className="block text-white font-semibold mb-2">
-              QRON Mode
-            </label>
-            <select
-              id="mode"
-              value={selectedMode.id}
-              onChange={(e) => {
-                const mode = MODES.find(m => m.id === e.target.value);
-                if (mode) setSelectedMode(mode);
-              }}
-              className="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-purple-500 focus:outline-none"
-            >
-              {MODES.map((modeOption) => (
-                <option key={modeOption.id} value={modeOption.id} disabled={!isTierSufficient(modeOption.tier)}>
-                  {modeOption.name} ({modeOption.tier === 'free' ? 'Free' : `Requires ${modeOption.tier.toUpperCase()}`})
-                </option>
-              ))}
-            </select>
-            {!isTierSufficient(selectedMode.tier) && (
-              <p className="text-red-400 text-sm mt-2">
-                Your current plan ({userPlan?.name.toUpperCase()}) does not support the {selectedMode.name} mode. Please upgrade.
-              </p>
-            )}
-          </div>
-
-          {/* Preset Selector */}
-          <div className="mb-6">
-            <label htmlFor="preset" className="block text-white font-semibold mb-2">
-              Style Preset
-            </label>
-            <select
-              id="preset"
-              value={selectedPreset?.id || ''}
-              onChange={(e) => {
-                const preset = presets.find(p => p.id === e.target.value);
-                if (preset) {
-                  setSelectedPreset(preset);
-                  setPresetId(preset.id);
-                }
-              }}
-              className="w-full px-4 py-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-purple-500 focus:outline-none"
-            >
-              {presets.map((presetOption) => (
-                <option key={presetOption.id} value={presetOption.id} disabled={presetOption.is_premium && !isTierSufficient('pro')}>
-                  {presetOption.name} {presetOption.is_premium ? '(Premium)' : ''}
-                </option>
-              ))}
-            </select>
-            {selectedPreset?.is_premium && !isTierSufficient('pro') && (
-              <p className="text-red-400 text-sm mt-2">
-                This is a premium preset. Please upgrade to a Pro plan to use it.
-              </p>
-            )}
-          </div>
-
-
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
-              {error}
+          <div className="space-y-4">
+            {/* Destination URL */}
+            <div>
+              <label htmlFor="targetUrl" className="block text-sm font-semibold mb-2" style={{ color: '#c8c8c8' }}>
+                Destination URL
+              </label>
+              <input
+                type="url"
+                id="targetUrl"
+                value={targetUrl}
+                onChange={(e) => setTargetUrl(e.target.value)}
+                placeholder="https://yourwebsite.com"
+                className="protocol-input w-full px-4 py-3"
+              />
             </div>
-          )}
 
-          {/* Generate Button */}
-          {!user ? (
-            <a
-              href="/login"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-5 h-5" />
-              Sign In to Generate
-            </a>
-          ) : (
-            <button
-              onClick={handleGenerate}
-              disabled={loading || !isTierSufficient(selectedMode.tier) || (generationsUsed >= generationsLimit && userTier !== 'enterprise')}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Generating QRON...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Generate QRON
-                </>
-              )}
-            </button>
-          )}
+            {/* Creative Prompt */}
+            <div>
+              <label htmlFor="prompt" className="block text-sm font-semibold mb-2" style={{ color: '#c8c8c8' }}>
+                Creative Prompt
+              </label>
+              <textarea
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="A warrior shield forged from gold and steel, blockchain circuitry, dark armored aesthetic…"
+                rows={3}
+                className="protocol-input w-full px-4 py-3 resize-none"
+              />
+            </div>
 
-          {/* Result Display */}
-          {result && (
-            <div className="mt-8 space-y-4 text-center">
-              <h3 className="text-xl font-bold text-white">Your QRON is Ready!</h3>
-              <div className="bg-white p-4 rounded-lg inline-block">
-                <img
-                  src={result}
-                  alt="Generated QRON Code"
-                  className="w-full max-w-sm mx-auto rounded-lg shadow-xl"
-                />
+            {/* Mode + Preset row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="mode" className="block text-sm font-semibold mb-2" style={{ color: '#c8c8c8' }}>
+                  QRON Mode
+                </label>
+                <select
+                  id="mode"
+                  value={selectedMode.id}
+                  onChange={(e) => {
+                    const mode = MODES.find(m => m.id === e.target.value);
+                    if (mode) setSelectedMode(mode);
+                  }}
+                  className="protocol-input w-full px-4 py-3"
+                >
+                  {MODES.map((modeOption) => (
+                    <option key={modeOption.id} value={modeOption.id} disabled={!isTierSufficient(modeOption.tier)}>
+                      {modeOption.name} {modeOption.tier !== 'free' ? `(${modeOption.tier.toUpperCase()})` : ''}
+                    </option>
+                  ))}
+                </select>
+                {!isTierSufficient(selectedMode.tier) && (
+                  <p className="text-xs mt-1" style={{ color: '#ff6b6b' }}>
+                    Requires {selectedMode.tier.toUpperCase()} — upgrade to unlock.
+                  </p>
+                )}
               </div>
-              <p className="text-purple-300">Scan this code to test it out.</p>
+
+              <div>
+                <label htmlFor="preset" className="block text-sm font-semibold mb-2" style={{ color: '#c8c8c8' }}>
+                  Style Preset
+                </label>
+                <select
+                  id="preset"
+                  value={selectedPreset?.id || ''}
+                  onChange={(e) => {
+                    const preset = presets.find(p => p.id === e.target.value);
+                    if (preset) { setSelectedPreset(preset); setPresetId(preset.id); }
+                  }}
+                  className="protocol-input w-full px-4 py-3"
+                >
+                  {presets.map((presetOption) => (
+                    <option key={presetOption.id} value={presetOption.id} disabled={presetOption.is_premium && !isTierSufficient('pro')}>
+                      {presetOption.name}{presetOption.is_premium ? ' ◆ Premium' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', color: '#ff9999' }}>
+                {error}
+              </div>
+            )}
+
+            {/* CTA */}
+            {!user ? (
+              <a href="/login" className="btn-gold w-full py-4 rounded-xl flex items-center justify-center gap-2 text-base no-underline">
+                <Sparkles className="w-5 h-5" />
+                Sign In to Generate
+              </a>
+            ) : (
+              <button
+                onClick={handleGenerate}
+                disabled={loading || !isTierSufficient(selectedMode.tier) || (generationsUsed >= generationsLimit && userTier !== 'enterprise')}
+                className="btn-gold w-full py-4 rounded-xl flex items-center justify-center gap-2 text-base"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2" style={{ borderColor: '#0a0a0a', borderTopColor: 'transparent' }} />
+                    Generating QRON…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    Generate QRON
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* Result */}
+          {result && (
+            <div className="mt-8 text-center space-y-4">
+              <div className="protocol-badge justify-center inline-flex mb-2">
+                <Shield className="w-3 h-3" />
+                AuthiChain Protocol — Verified
+              </div>
+              <h3 className="text-xl font-bold gold-text">Your QRON is Ready</h3>
+              <div className="inline-block p-4 rounded-xl" style={{ background: '#ffffff' }}>
+                <img src={result} alt="Generated QRON" className="w-full max-w-sm mx-auto rounded-lg shadow-2xl" />
+              </div>
+              <p className="text-sm" style={{ color: '#9e9e9e' }}>
+                Cryptographically signed · Blockchain-anchored · Publicly verifiable
+              </p>
               <a
                 href={result}
-                download={`${selectedMode.id}-qron-${Date.now()}.png`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors mt-4"
+                download={`qron-${selectedMode.id}-${Date.now()}.png`}
+                className="btn-outline-gold inline-flex items-center gap-2 px-6 py-3 rounded-xl"
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-4 h-4" />
                 Download QRON
               </a>
             </div>
           )}
-        </div> {/* End of Generator Section */}
+        </div>
 
-        {/* Artsy Presets Gallery */}
+        {/* ─── Gallery Sections ──────────────────────────────────────────── */}
         <StaticImageGallery
           title="Artsy Presets"
-          description="Explore a selection of our beautifully designed QRON presets."
+          description="Beautifully designed QRON styles — each one cryptographically signed by the AuthiChain Protocol."
           images={[
-            { src: '/media/gallery-static-portal-1080.png', alt: 'Centered scannable QR with simple cyan/blue glowing ring.', width: 1080, height: 1080 },
+            { src: '/media/gallery-static-portal-1080.png', alt: 'Centered scannable QR with cyan/blue glowing ring.', width: 1080, height: 1080 },
             { src: '/media/gallery-chromatic-portal-1080.png', alt: 'Chromatic portal QR code.', width: 1080, height: 1080 },
           ]}
         />
 
-        {/* Business Use Cases Gallery */}
         <StaticImageGallery
           title="Business Use Cases"
-          description="See how QRONs can be applied across various business contexts."
+          description="Enterprise-grade QR authentication across luxury, retail, events, and supply chain."
           images={[
-            { src: '/media/gallery-event-poster-1350x1080.png', alt: 'Wooden table with table-tent sign and vibrant QRON QR.', width: 1350, height: 1080 },
-            { src: '/media/gallery-event-badge-1080.png', alt: 'Night city wall poster with glowing QR portal CTA bottom.', width: 1080, height: 1080 },
-            { src: '/media/gallery-ecommerce-card-1080.png', alt: 'Lanyard badge in hand with chromatic QRON.', width: 1080, height: 1080 },
-            { src: '/media/gallery-creator-merch-1080.png', alt: 'Tech gadget product card with blue/purple living QR corner.', width: 1080, height: 1080 },
+            { src: '/media/gallery-event-poster-1350x1080.png', alt: 'Event poster with AuthiChain-verified QRON.', width: 1350, height: 1080 },
+            { src: '/media/gallery-event-badge-1080.png', alt: 'Night city wall poster with QRON CTA.', width: 1080, height: 1080 },
+            { src: '/media/gallery-ecommerce-card-1080.png', alt: 'Product card with chromatic QRON.', width: 1080, height: 1080 },
+            { src: '/media/gallery-creator-merch-1080.png', alt: 'Tech gadget with living QR corner.', width: 1080, height: 1080 },
           ]}
         />
 
-        <div className="relative text-center mb-12 py-16 rounded-2xl overflow-hidden" style={{ backgroundImage: 'url("/media/pricing-background-soft-grid-2560x1440.png")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-            <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
-            <h2 className="relative z-10 text-4xl font-bold text-white mb-8">Choose Your Plan</h2>
-            <div className="relative z-10 grid md:grid-cols-3 gap-8 mb-16 px-4">
-            {PLANS.map((plan) => (
-                <div key={plan.id} className={`bg-slate-800/50 backdrop-blur-lg rounded-2xl p-8 border ${plan.id === userTier ? 'border-purple-500' : 'border-purple-500/20'} shadow-2xl flex flex-col`}>
-                    <div className="mb-4">
-                        <Image
-                            src={`/media/pricing-${plan.id}-icon-512.png`}
-                            alt={`${plan.name} plan icon`}
-                            width={80}
-                            height={80}
-                            className="mx-auto"
-                        />
-                    </div>
-                    <h2 className="text-3xl font-bold text-white mb-4">{plan.name}</h2>
-                    {plan.price === 0 ? (
-                    <p className="text-5xl font-bold mb-6">Free</p>
-                    ) : (
-                    <p className="text-5xl font-bold mb-6">${plan.price}<span className="text-lg font-normal">{plan.price_suffix}</span></p>
-                    )}
-                    <ul className="space-y-4 mb-8 text-purple-200 flex-grow">
-                    {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-400" />
-                        {feature}
-                        </li>
-                    ))}
-                    </ul>
-                    <button
-                    onClick={() => handleUpgrade(plan.id)}
-                    className={`w-full font-bold py-4 rounded-lg transition-all flex items-center justify-center gap-2 ${
-                        plan.id === userTier
-                        ? 'bg-purple-700 text-white cursor-not-allowed'
-                        : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
-                    }`}
-                    disabled={plan.id === userTier}
-                    >
-                    <CreditCard className="w-5 h-5" />
-                    {plan.id === userTier ? 'Current Plan' : plan.cta}
-                    </button>
-                </div>
-            ))}
-            </div>
-       
-        </div>
+        <div className="gold-divider my-12" />
 
-        {/* How It Works / Docs */}
-        <section className="py-16">
-            <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold text-white mb-4">How It Works</h2>
-                <p className="text-xl text-purple-200 font-light max-w-2xl mx-auto">
-                    Understand the seamless flow from URL to a scannable, intelligent QRON.
-                </p>
-            </div>
-            <div className="flex flex-col items-center space-y-8">
-                <Image
-                    src="/media/docs-flow-1080.png"
-                    alt="Flow: URL to AI QR Art to Scan to Analytics"
-                    width={1080}
-                    height={1080}
-                    className="rounded-lg shadow-lg max-w-full h-auto"
-                />
-                <Image
-                    src="/media/docs-scannability-1080.png"
-                    alt="Plain QR vs Living QRON side-by-side comparison with scan checkmarks"
-                    width={1080}
-                    height={1080}
-                    className="rounded-lg shadow-lg max-w-full h-auto"
-                />
-            </div>
+        {/* ─── Pricing ──────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <div className="text-center mb-10">
+            <span className="protocol-badge mb-4 inline-flex">
+              <Shield className="w-3 h-3" />
+              AuthiChain Protocol Plans
+            </span>
+            <h2 className="text-4xl font-bold mt-4 mb-3">
+              <span className="gold-text">Choose Your Tier</span>
+            </h2>
+            <p className="text-base max-w-lg mx-auto" style={{ color: '#6b6b6b' }}>
+              All plans include AuthiChain Protocol verification.{' '}
+              <a href="https://authichain.com" target="_blank" rel="noreferrer"
+                 style={{ color: '#c9a227', textDecoration: 'none' }}>
+                Enterprise operations →
+              </a>
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {PLANS.map((plan) => (
+              <div key={plan.id} className={`protocol-card p-8 flex flex-col ${plan.id === userTier ? 'ring-1 ring-yellow-500/50' : ''}`}>
+                <div className="mb-4 flex justify-center">
+                  <Image
+                    src={`/media/pricing-${plan.id}-icon-512.png`}
+                    alt={`${plan.name} plan`}
+                    width={64}
+                    height={64}
+                    className="mx-auto"
+                  />
+                </div>
+                {plan.id === userTier && (
+                  <div className="protocol-badge justify-center mb-3">Current Plan</div>
+                )}
+                <h3 className="text-2xl font-bold text-center mb-2">{plan.name}</h3>
+                <div className="text-center mb-6">
+                  {plan.price === 0 ? (
+                    <span className="text-4xl font-bold gold-text">Free</span>
+                  ) : (
+                    <span className="text-4xl font-bold gold-text">
+                      ${plan.price}<span className="text-base font-normal" style={{ color: '#6b6b6b' }}>{plan.price_suffix}</span>
+                    </span>
+                  )}
+                </div>
+                <ul className="space-y-3 mb-8 flex-grow text-sm" style={{ color: '#9e9e9e' }}>
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#c9a227' }} />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleUpgrade(plan.id)}
+                  disabled={plan.id === userTier}
+                  className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition-all ${
+                    plan.id === userTier ? 'btn-outline-gold opacity-40 cursor-not-allowed' : 'btn-gold'
+                  }`}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  {plan.id === userTier ? 'Current Plan' : plan.cta}
+                </button>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* Trust Signals */}
-        <div className="mt-8 text-center space-y-2">
-          <p className="text-slate-400 text-sm">
-            ✓ 100% scannable guarantee • ✓ Real-time AI generation • ✓ Secure user authentication
+        <div className="gold-divider my-12" />
+
+        {/* ─── How It Works ─────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <div className="text-center mb-10">
+            <span className="protocol-badge mb-4 inline-flex">
+              <Shield className="w-3 h-3" />
+              AuthiChain Protocol
+            </span>
+            <h2 className="text-4xl font-bold mt-4 mb-3">
+              <span className="gold-text">How It Works</span>
+            </h2>
+            <p className="text-base max-w-2xl mx-auto" style={{ color: '#6b6b6b' }}>
+              Every QRON is an Ed25519-signed cryptographic payload — scannable by anyone, verifiable by the AuthiChain Protocol.
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-6">
+            <Image
+              src="/media/docs-flow-1080.png"
+              alt="URL → AI QR Art → AuthiChain Verify → Analytics"
+              width={1080}
+              height={1080}
+              className="rounded-xl shadow-2xl max-w-full h-auto"
+              style={{ border: '1px solid rgba(201,162,39,0.15)' }}
+            />
+            <Image
+              src="/media/docs-scannability-1080.png"
+              alt="Plain QR vs AuthiChain QRON — scan rate comparison"
+              width={1080}
+              height={1080}
+              className="rounded-xl shadow-2xl max-w-full h-auto"
+              style={{ border: '1px solid rgba(201,162,39,0.15)' }}
+            />
+          </div>
+        </section>
+
+        {/* ─── Cross-link Banner ────────────────────────────────────────── */}
+        <div className="protocol-card p-8 text-center mb-8"
+             style={{ background: 'linear-gradient(135deg, #111100 0%, #0d0d0d 50%, #110d00 100%)' }}>
+          <div className="protocol-badge mb-4 inline-flex">
+            <Shield className="w-3 h-3" />
+            AuthiChain Protocol — Enterprise
+          </div>
+          <h3 className="text-2xl font-bold mb-3">
+            Need the <span className="gold-text">Executive Platform?</span>
+          </h3>
+          <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: '#9e9e9e' }}>
+            QRON is the creative studio. <strong style={{ color: '#c8c8c8' }}>authichain.com</strong> is the enterprise authentication command center — NFT marketplace, supply chain tracking, government-grade verification, and DHS SVIP compliance.
           </p>
-          <p className="text-slate-500 text-xs">
-            Powered by Replicate • Supabase • Stripe
+          <a
+            href="https://authichain.com"
+            target="_blank"
+            rel="noreferrer"
+            className="btn-gold inline-flex items-center gap-2 px-8 py-3 rounded-xl no-underline"
+          >
+            <Shield className="w-4 h-4" />
+            Visit AuthiChain Enterprise →
+          </a>
+        </div>
+
+        {/* ─── Trust Strip ──────────────────────────────────────────────── */}
+        <div className="text-center space-y-2 py-6">
+          <p className="text-xs" style={{ color: '#6b6b6b' }}>
+            ◆ 100% scannable guarantee &nbsp;·&nbsp; Ed25519 cryptographic signing &nbsp;·&nbsp; AuthiChain blockchain anchoring
+          </p>
+          <p className="text-xs" style={{ color: '#3a3a3a' }}>
+            Powered by Fal.ai · Supabase · Stripe · AuthiChain Protocol
           </p>
         </div>
+
       </div>
     </div>
   );
