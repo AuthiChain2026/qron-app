@@ -1,27 +1,31 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!stripeSecretKey || !webhookSecret) {
+      return NextResponse.json({ error: 'Stripe webhook is not configured' }, { status: 500 });
+    }
+
+    const signature = request.headers.get('stripe-signature');
+    if (!signature) {
+      return NextResponse.json({ error: 'No signature' }, { status: 400 });
+    }
+
     // Dynamic imports to avoid build-time initialization
     const Stripe = (await import('stripe')).default;
     const QRCode = (await import('qrcode')).default;
     
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2024-06-20',
     });
 
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-
     const body = await request.text();
-    const signature = request.headers.get('stripe-signature');
-
-    if (!signature) {
-      return NextResponse.json({ error: 'No signature' }, { status: 400 });
-    }
 
     let event: Stripe.Event;
 
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
+      const session = event.data.object as Stripe.Checkout.Session;
       
       console.log('✅ Payment received!');
       console.log('📧 Customer email:', session.customer_email);
@@ -49,6 +53,11 @@ export async function POST(request: Request) {
       }
 
       try {
+        if (!process.env.FAL_KEY) {
+          console.warn('FAL_KEY missing; skipping post-checkout image generation');
+          return NextResponse.json({ received: true, skipped: 'missing_fal_key' });
+        }
+
         // Generate basic QR
         const qrDataUrl = await QRCode.toDataURL(url, {
           errorCorrectionLevel: 'H',

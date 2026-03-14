@@ -51,9 +51,8 @@ export default function RootLayout({
           </span>
           <span style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <a href="https://authichain.com" target="_blank" rel="noreferrer"
-               style={{ color: '#9e9e9e', textDecoration: 'none', letterSpacing: '0.05em' }}
-               onMouseOver={(e) => (e.currentTarget.style.color = '#c9a227')}
-               onMouseOut={(e) => (e.currentTarget.style.color = '#9e9e9e')}
+               className="protocol-header-link"
+               style={{ textDecoration: 'none', letterSpacing: '0.05em' }}
             >
               authichain.com ↗
             </a>

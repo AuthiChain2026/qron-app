@@ -2,15 +2,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from '@supabase/supabase-js';
 
-// Load environment variables (ensure .env.local is configured)
-// For a standalone script, you might need a different way to load, or pass directly.
-// For this example, we assume it's run in a Node.js environment where these are accessible.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dbwoikpflfruikspdnfc.supabase.co';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '***REMOVED_SUPABASE_ANON_KEY***';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '***REMOVED_SUPABASE_SERVICE_ROLE_KEY***';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_SERVICE_ROLE_KEY === 'YOUR_SUPABASE_SERVICE_ROLE_KEY') {
-  console.error('Supabase environment variables are not set. Please check your .env.local file.');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('Missing required env vars: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
   process.exit(1);
 }
 

@@ -5,7 +5,10 @@ import { createClient } from '@/utils/supabase/client';
 import { Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
-  const supabase = createClient();
+  const hasSupabaseEnv =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const supabase = hasSupabaseEnv ? createClient() : null;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -13,6 +16,10 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!supabase) {
+      setError('Authentication is temporarily unavailable.');
+      return;
+    }
     setLoading(true);
     setError('');
     const { error } = await supabase.auth.signInWithOtp({
@@ -35,7 +42,7 @@ export default function LoginPage() {
             <Sparkles className="w-10 h-10 text-purple-400" />
           </div>
           <h1 className="text-3xl font-bold text-white">Sign in to QRON</h1>
-          <p className="text-purple-300 mt-2">We'll send a magic link to your email.</p>
+          <p className="text-purple-300 mt-2">We&apos;ll send a magic link to your email.</p>
         </div>
 
         {sent ? (
@@ -56,7 +63,7 @@ export default function LoginPage() {
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !supabase}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-all"
             >
               {loading ? 'Sending…' : 'Send Magic Link'}

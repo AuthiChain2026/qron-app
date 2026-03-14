@@ -15,6 +15,9 @@ const isTierSufficient = (userTier: string, requiredTier: string) => {
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.json({ message: 'Supabase is not configured.' }, { status: 500 });
+    }
     if (!process.env.REPLICATE_API_TOKEN) {
       return NextResponse.json({ message: 'Image generation is not configured.' }, { status: 500 });
     }
@@ -27,7 +30,14 @@ export async function POST(request: Request) {
       .eq('id', user.id).single();
     if (profileError || !profile) return NextResponse.json({ message: 'Could not fetch user profile.' }, { status: 500 });
 
-    const { targetUrl, prompt: userPrompt, mode } = await request.json();
+    let body: { targetUrl?: string; prompt?: string; mode?: string };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ message: 'Invalid JSON body.' }, { status: 400 });
+    }
+
+    const { targetUrl, prompt: userPrompt, mode } = body;
     if (!targetUrl) return NextResponse.json({ message: 'Destination URL is required.' }, { status: 400 });
     if (!userPrompt) return NextResponse.json({ message: 'A creative prompt is required.' }, { status: 400 });
 
