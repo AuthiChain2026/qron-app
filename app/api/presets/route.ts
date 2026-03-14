@@ -5,11 +5,14 @@ export const runtime = 'edge';
 
 export async function GET() {
   const presets: FalaiPreset[] = [
-    { id: 'preset_1', name: 'Vibrant Flow', description: 'Dynamic and colorful patterns.', is_premium: false, tier: 'free' },
-    { id: 'preset_2', name: 'Cybernetic Bloom', description: 'Futuristic, glowing, and organic.', is_premium: true, tier: 'pro' },
-    { id: 'preset_3', name: 'Subtle Hues', description: 'Minimalist, soft, and elegant.', is_premium: false, tier: 'free' },
-    { id: 'preset_4', name: 'Geometric Grid', description: 'Sharp lines and intricate geometric forms.', is_premium: true, tier: 'pro' },
-    { id: 'preset_5', name: 'Organic Swirl', description: 'Smooth, natural curves and flowing shapes.', is_premium: true, tier: 'pro' },
+    { id: 'static-portal',      name: 'Static Portal',      description: 'Clean black-and-gold geometry. AuthiChain Protocol seal at center.', is_premium: false, tier: 'free' },
+    { id: 'chromatic-portal',   name: 'Chromatic Portal',   description: 'Full-spectrum AI art woven around the QR matrix. Maximum visual impact.', is_premium: false, tier: 'free' },
+    { id: 'cybernetic-bloom',   name: 'Cybernetic Bloom',   description: 'Circuit-board aesthetics, neon traces, organic glow. Futuristic and alive.', is_premium: true, tier: 'pro' },
+    { id: 'dark-matter',        name: 'Dark Matter',        description: 'Void-black deep space with gravitational light distortion.', is_premium: true, tier: 'pro' },
+    { id: 'neon-drift',         name: 'Neon Drift',         description: 'Synthwave neon gradients. Retro-futurist night drive energy.', is_premium: true, tier: 'pro' },
+    { id: 'holographic-seal',   name: 'Holographic Seal',   description: 'Rainbow prismatic shimmer. Premium foil-effect authentication mark.', is_premium: true, tier: 'pro' },
+    { id: 'living-archive',     name: 'Living Archive',     description: 'Biomorphic, self-similar fractal forms. Organic intelligence encoded.', is_premium: true, tier: 'enterprise' },
+    { id: 'dimensional-gate',   name: 'Dimensional Gate',   description: 'AR-depth layering with shadow and parallax. Spatial anchor for physical media.', is_premium: true, tier: 'enterprise' },
   ];
 
   return NextResponse.json(presets);

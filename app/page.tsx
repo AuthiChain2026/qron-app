@@ -45,14 +45,16 @@ export default function Home() {
     };
 
     const fetchPresets = async () => {
-      const dummyPresets: FalaiPreset[] = [
-        { id: 'preset_1', name: 'Vibrant Flow', is_premium: false, tier: 'free' },
-        { id: 'preset_2', name: 'Cybernetic Bloom', is_premium: true, tier: 'pro' },
-        { id: 'preset_3', name: 'Subtle Hues', is_premium: false, tier: 'free' },
-      ];
-      setPresets(dummyPresets);
-      setSelectedPreset(dummyPresets[0]);
-      setPresetId(dummyPresets[0].id);
+      try {
+        const res = await fetch('/api/presets');
+        if (res.ok) {
+          const data: FalaiPreset[] = await res.json();
+          setPresets(data);
+          if (data[0]) { setSelectedPreset(data[0]); setPresetId(data[0].id); }
+        }
+      } catch {
+        // silently fail — presets will be empty
+      }
     };
 
     fetchUserData();
@@ -95,14 +97,27 @@ export default function Home() {
     }
   };
 
-  const handleUpgrade = (planId: string) => {
+  const handleUpgrade = async (planId: string) => {
     const plan = PLANS.find(p => p.id === planId);
-    if (plan?.price === 0) {
-      console.log('User selected Free plan');
-    } else if (planId === 'enterprise') {
+    if (!plan || plan.price === 0) {
+      window.location.assign('/login');
+      return;
+    }
+    if (planId === 'enterprise') {
       window.location.assign('mailto:Z@authichain.com');
-    } else {
-      console.log(`Redirecting to checkout for ${plan?.name}`);
+      return;
+    }
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: planId, email: user?.email }),
+      });
+      const { url, error: checkoutError } = await res.json();
+      if (url) window.location.assign(url);
+      else if (checkoutError) setError(checkoutError);
+    } catch {
+      setError('Could not start checkout. Please try again.');
     }
   };
 
@@ -129,17 +144,10 @@ export default function Home() {
               borderRadius: '50%',
               border: '2px solid rgba(201,162,39,0.4)',
               boxShadow: '0 0 32px rgba(255,215,0,0.2), 0 0 64px rgba(201,162,39,0.1)',
-              overflow: 'hidden',
               background: '#0d0d0d',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Image
-                src="/authichain-logo.png"
-                alt="AuthiChain Protocol"
-                width={96}
-                height={96}
-                className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
+              <span style={{ color: '#c9a227', fontSize: '44px', fontWeight: 900, lineHeight: 1, letterSpacing: '-2px' }}>Q</span>
             </div>
           </div>
 
