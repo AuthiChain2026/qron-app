@@ -1,1 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080"><defs><radialGradient id="bg" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#150010"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient></defs><rect width="1080" height="1080" fill="url(#bg)"/><circle cx="540" cy="480" r="300" fill="none" stroke="#ff0080" stroke-width="3" opacity="0.5"/><circle cx="540" cy="480" r="260" fill="none" stroke="#7700ff" stroke-width="2" opacity="0.4"/><circle cx="540" cy="480" r="220" fill="none" stroke="#00ffcc" stroke-width="2" opacity="0.35"/><circle cx="540" cy="480" r="180" fill="none" stroke="#c9a227" stroke-width="3" opacity="0.8"/><circle cx="540" cy="480" r="140" fill="none" stroke="#ff0080" stroke-width="2" opacity="0.4"/><rect x="480" y="420" width="120" height="120" rx="8" fill="none" stroke="#c9a227" stroke-width="4"/><rect x="500" y="440" width="28" height="28" fill="#ff0080"/><rect x="552" y="440" width="28" height="28" fill="#7700ff"/><rect x="500" y="492" width="28" height="28" fill="#00ffcc"/><rect x="552" y="492" width="28" height="28" fill="#c9a227"/><circle cx="540" cy="480" r="10" fill="white" opacity="0.8"/><text x="540" y="860" text-anchor="middle" font-family="system-ui,sans-serif" font-size="36" font-weight="900" fill="white">Chromatic Portal</text><text x="540" y="900" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#ff0080">Full Spectrum QR Art</text><text x="540" y="935" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" fill="#6b6b6b">AuthiChain Protocol · Ed25519 Signed · 100% Scannable</text><rect x="60" y="960" width="960" height="60" rx="12" fill="#110011" stroke="#c9a22733" stroke-width="1"/><text x="540" y="998" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#c9a227">QRON · AI Living QR Art · qron.space</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0d0a1a"/>
+      <stop offset="100%" stop-color="#050508"/>
+    </radialGradient>
+    <radialGradient id="prismGlow" cx="50%" cy="44%" r="45%">
+      <stop offset="0%" stop-color="#ff0080" stop-opacity="0.2"/>
+      <stop offset="30%" stop-color="#8800ff" stop-opacity="0.15"/>
+      <stop offset="60%" stop-color="#00ccff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="spectrumH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff0080"/>
+      <stop offset="16%" stop-color="#ff6600"/>
+      <stop offset="33%" stop-color="#ffee00"/>
+      <stop offset="50%" stop-color="#00ff66"/>
+      <stop offset="67%" stop-color="#00aaff"/>
+      <stop offset="83%" stop-color="#8800ff"/>
+      <stop offset="100%" stop-color="#ff0080"/>
+    </linearGradient>
+    <filter id="glow6">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow12">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <rect width="1080" height="1080" fill="url(#prismGlow)"/>
+  <circle cx="540" cy="475" r="370" fill="none" stroke="url(#spectrumH)" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="540" cy="475" r="345" fill="none" stroke="url(#spectrumH)" stroke-width="2" opacity="0.25"/>
+  <circle cx="540" cy="475" r="318" fill="none" stroke="url(#spectrumH)" stroke-width="2.5" opacity="0.3" stroke-dasharray="16 8"/>
+  <circle cx="540" cy="475" r="290" fill="none" stroke="url(#spectrumH)" stroke-width="3" opacity="0.4"/>
+  <circle cx="540" cy="475" r="260" fill="none" stroke="url(#spectrumH)" stroke-width="3.5" opacity="0.5" filter="url(#glow6)"/>
+  <circle cx="540" cy="475" r="228" fill="none" stroke="url(#spectrumH)" stroke-width="2.5" opacity="0.35"/>
+  <circle cx="540" cy="475" r="198" fill="none" stroke="url(#spectrumH)" stroke-width="2" opacity="0.3" stroke-dasharray="6 10"/>
+  <rect x="382" y="317" width="316" height="316" rx="7" fill="#080808" stroke="url(#spectrumH)" stroke-width="3" filter="url(#glow6)"/>
+  <rect x="400" y="335" width="58" height="58" rx="3" fill="none" stroke="#ff0080" stroke-width="3"/>
+  <rect x="410" y="345" width="38" height="38" rx="1" fill="#ff0080" opacity="0.9"/>
+  <rect x="418" y="353" width="22" height="22" rx="1" fill="#080808"/>
+  <rect x="424" y="359" width="10" height="10" fill="#ff0080"/>
+  <rect x="622" y="335" width="58" height="58" rx="3" fill="none" stroke="#00aaff" stroke-width="3"/>
+  <rect x="632" y="345" width="38" height="38" rx="1" fill="#00aaff" opacity="0.9"/>
+  <rect x="640" y="353" width="22" height="22" rx="1" fill="#080808"/>
+  <rect x="646" y="359" width="10" height="10" fill="#00aaff"/>
+  <rect x="400" y="557" width="58" height="58" rx="3" fill="none" stroke="#00ff88" stroke-width="3"/>
+  <rect x="410" y="567" width="38" height="38" rx="1" fill="#00ff88" opacity="0.9"/>
+  <rect x="418" y="575" width="22" height="22" rx="1" fill="#080808"/>
+  <rect x="424" y="581" width="10" height="10" fill="#00ff88"/>
+  <g opacity="0.85">
+    <rect x="476" y="335" width="13" height="13" fill="#ffee00"/><rect x="497" y="335" width="13" height="13" fill="#ccee00"/>
+    <rect x="518" y="335" width="13" height="13" fill="#99ee00"/><rect x="539" y="335" width="13" height="13" fill="#66ee00"/>
+    <rect x="560" y="335" width="13" height="13" fill="#33ee44"/><rect x="598" y="335" width="13" height="13" fill="#00ee88"/>
+    <rect x="476" y="356" width="13" height="13" fill="#ffcc00"/><rect x="518" y="356" width="13" height="13" fill="#aacc00"/>
+    <rect x="560" y="356" width="13" height="13" fill="#44cc44"/><rect x="598" y="356" width="13" height="13" fill="#00aaff"/>
+    <rect x="476" y="377" width="13" height="13" fill="#00aaff"/><rect x="518" y="377" width="13" height="13" fill="#0088ff"/>
+    <rect x="560" y="377" width="13" height="13" fill="#0066ff"/><rect x="598" y="377" width="13" height="13" fill="#4444ff"/>
+    <rect x="476" y="398" width="13" height="13" fill="#6644ff"/><rect x="497" y="398" width="13" height="13" fill="#8822ff"/>
+    <rect x="539" y="398" width="13" height="13" fill="#aa00ff"/><rect x="560" y="398" width="13" height="13" fill="#cc00ee"/>
+    <rect x="400" y="419" width="13" height="13" fill="#ff0080"/><rect x="421" y="419" width="13" height="13" fill="#ff2255"/>
+    <rect x="463" y="419" width="13" height="13" fill="#ff4422"/><rect x="484" y="419" width="13" height="13" fill="#ff8800"/>
+    <rect x="505" y="419" width="13" height="13" fill="#ffcc00"/><rect x="547" y="419" width="13" height="13" fill="#88ff00"/>
+    <rect x="568" y="419" width="13" height="13" fill="#00ff88"/><rect x="589" y="419" width="13" height="13" fill="#00aaff"/>
+    <rect x="622" y="419" width="13" height="13" fill="#8800ff"/><rect x="663" y="419" width="13" height="13" fill="#ff0080"/>
+    <rect x="400" y="440" width="13" height="13" fill="#ff0044"/><rect x="442" y="440" width="13" height="13" fill="#ff6600"/>
+    <rect x="484" y="440" width="13" height="13" fill="#ffff00"/><rect x="526" y="440" width="13" height="13" fill="#00ff44"/>
+    <rect x="568" y="440" width="13" height="13" fill="#0088ff"/><rect x="610" y="440" width="13" height="13" fill="#8800ee"/>
+    <rect x="421" y="461" width="13" height="13" fill="#ff4400"/><rect x="463" y="461" width="13" height="13" fill="#ffcc00"/>
+    <rect x="505" y="461" width="13" height="13" fill="#00ff88"/><rect x="547" y="461" width="13" height="13" fill="#00aaff"/>
+    <rect x="589" y="461" width="13" height="13" fill="#aa00ff"/><rect x="631" y="461" width="13" height="13" fill="#ff0066"/>
+    <rect x="400" y="482" width="13" height="13" fill="#ff6600"/><rect x="442" y="482" width="13" height="13" fill="#ffee00"/>
+    <rect x="484" y="482" width="13" height="13" fill="#00ff44"/><rect x="526" y="482" width="13" height="13" fill="#00ccff"/>
+    <rect x="568" y="482" width="13" height="13" fill="#6600ff"/><rect x="610" y="482" width="13" height="13" fill="#ff0044"/>
+    <rect x="476" y="557" width="13" height="13" fill="#ffee00"/><rect x="518" y="557" width="13" height="13" fill="#00ff44"/>
+    <rect x="560" y="557" width="13" height="13" fill="#00ccff"/><rect x="598" y="557" width="13" height="13" fill="#8800ff"/>
+    <rect x="476" y="578" width="13" height="13" fill="#ffaa00"/><rect x="539" y="578" width="13" height="13" fill="#00aaff"/>
+    <rect x="622" y="557" width="13" height="13" fill="#ff0080"/><rect x="643" y="557" width="13" height="13" fill="#ff4400"/>
+    <rect x="664" y="557" width="13" height="13" fill="#ffcc00"/><rect x="622" y="578" width="13" height="13" fill="#00ff88"/>
+    <rect x="664" y="578" width="13" height="13" fill="#00aaff"/><rect x="622" y="599" width="13" height="13" fill="#8800ff"/>
+  </g>
+  <circle cx="540" cy="475" r="22" fill="none" stroke="url(#spectrumH)" stroke-width="3" filter="url(#glow12)"/>
+  <circle cx="540" cy="475" r="8" fill="white" opacity="0.9" filter="url(#glow6)"/>
+  <text x="540" y="700" text-anchor="middle" font-family="monospace" font-size="13" fill="#c9a227" opacity="0.5" letter-spacing="2">Ed25519: 9b4e2f...7a1c | AuthiChain Protocol</text>
+  <text x="540" y="778" text-anchor="middle" font-family="system-ui,sans-serif" font-size="52" font-weight="900" fill="url(#spectrumH)" filter="url(#glow6)">Chromatic Portal</text>
+  <text x="540" y="824" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" fill="#c9a227" letter-spacing="1">Full Spectrum | AI QR Art</text>
+  <g transform="translate(230, 860)">
+    <rect width="140" height="36" rx="18" fill="#08080d" stroke="#ff0080" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#ff0080">100% Scannable</text>
+  </g>
+  <g transform="translate(470, 860)">
+    <rect width="140" height="36" rx="18" fill="#08080d" stroke="#00aaff" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#00aaff">Spectrum Art</text>
+  </g>
+  <g transform="translate(710, 860)">
+    <rect width="140" height="36" rx="18" fill="#08080d" stroke="#00ff88" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#00ff88">AuthiChain</text>
+  </g>
+  <rect x="0" y="990" width="1080" height="90" fill="#080808"/>
+  <rect x="0" y="990" width="1080" height="1" fill="#c9a22744"/>
+  <text x="540" y="1028" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="url(#spectrumH)">QRON | AI Living QR Art</text>
+  <text x="540" y="1055" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#444" letter-spacing="2">qron.space | AuthiChain Protocol | Cryptographically Verified</text>
+</svg>

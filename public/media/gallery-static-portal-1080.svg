@@ -1,1 +1,111 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080"><defs><radialGradient id="bg" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#0d0d1a"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#00bfff" stop-opacity="0.3"/><stop offset="100%" stop-color="#00bfff" stop-opacity="0"/></radialGradient></defs><rect width="1080" height="1080" fill="url(#bg)"/><circle cx="540" cy="480" r="320" fill="url(#glow)"/><circle cx="540" cy="480" r="300" fill="none" stroke="#00bfff" stroke-width="2" opacity="0.4"/><circle cx="540" cy="480" r="260" fill="none" stroke="#00bfff" stroke-width="1" opacity="0.25"/><circle cx="540" cy="480" r="220" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.5"/><circle cx="540" cy="480" r="180" fill="none" stroke="#c9a227" stroke-width="3" opacity="0.7"/><circle cx="540" cy="480" r="140" fill="none" stroke="#00bfff" stroke-width="2" opacity="0.5"/><rect x="480" y="420" width="120" height="120" rx="8" fill="none" stroke="#c9a227" stroke-width="4"/><rect x="500" y="440" width="32" height="32" fill="#c9a227"/><rect x="548" y="440" width="32" height="32" fill="#c9a227"/><rect x="500" y="488" width="32" height="32" fill="#c9a227"/><rect x="548" y="488" width="32" height="32" fill="#c9a227" opacity="0.4"/><circle cx="540" cy="480" r="12" fill="#c9a227"/><circle cx="540" cy="480" r="6" fill="white"/><text x="540" y="860" text-anchor="middle" font-family="system-ui,sans-serif" font-size="36" font-weight="900" fill="white">Static Portal</text><text x="540" y="900" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#00bfff">Cyan Glowing Ring QR Art</text><text x="540" y="935" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" fill="#6b6b6b">AuthiChain Protocol · Ed25519 Signed · 100% Scannable</text><rect x="60" y="960" width="960" height="60" rx="12" fill="#111111" stroke="#c9a22733" stroke-width="1"/><text x="540" y="998" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#c9a227">QRON · AI Living QR Art · qron.space</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#060608"/>
+    </radialGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="44%" r="38%">
+      <stop offset="0%" stop-color="#00bfff" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#c9a227" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="44%" r="25%">
+      <stop offset="0%" stop-color="#c9a227" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="labelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#c9a227"/>
+      <stop offset="50%" stop-color="#e8c547"/>
+      <stop offset="100%" stop-color="#c9a227"/>
+    </linearGradient>
+    <filter id="glow4">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow8">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow16">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <rect width="1080" height="1080" fill="url(#centerGlow)"/>
+  <g opacity="0.04" stroke="#00bfff" stroke-width="0.5">
+    <line x1="0" y1="108" x2="1080" y2="108"/><line x1="0" y1="216" x2="1080" y2="216"/>
+    <line x1="0" y1="324" x2="1080" y2="324"/><line x1="0" y1="432" x2="1080" y2="432"/>
+    <line x1="0" y1="540" x2="1080" y2="540"/><line x1="108" y1="0" x2="108" y2="1080"/>
+    <line x1="216" y1="0" x2="216" y2="1080"/><line x1="324" y1="0" x2="324" y2="1080"/>
+    <line x1="432" y1="0" x2="432" y2="1080"/><line x1="540" y1="0" x2="540" y2="1080"/>
+    <line x1="648" y1="0" x2="648" y2="1080"/><line x1="756" y1="0" x2="756" y2="1080"/>
+    <line x1="864" y1="0" x2="864" y2="1080"/>
+  </g>
+  <circle cx="540" cy="475" r="370" fill="none" stroke="#00bfff" stroke-width="1" opacity="0.12"/>
+  <circle cx="540" cy="475" r="340" fill="none" stroke="#00bfff" stroke-width="1.5" opacity="0.18"/>
+  <circle cx="540" cy="475" r="310" fill="none" stroke="#00bfff" stroke-width="1" opacity="0.25" stroke-dasharray="12 6"/>
+  <circle cx="540" cy="475" r="278" fill="none" stroke="#c9a227" stroke-width="2" opacity="0.4"/>
+  <circle cx="540" cy="475" r="250" fill="none" stroke="#c9a227" stroke-width="3" opacity="0.65" filter="url(#glow4)"/>
+  <circle cx="540" cy="475" r="220" fill="none" stroke="#00bfff" stroke-width="2" opacity="0.4"/>
+  <circle cx="540" cy="475" r="192" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.3" stroke-dasharray="8 4"/>
+  <rect x="380" y="315" width="320" height="320" rx="4" fill="url(#goldGlow)" filter="url(#glow16)"/>
+  <rect x="388" y="323" width="304" height="304" rx="6" fill="#0a0a0a" stroke="#c9a227" stroke-width="3.5" filter="url(#glow4)"/>
+  <rect x="406" y="341" width="56" height="56" rx="3" fill="none" stroke="#c9a227" stroke-width="3"/>
+  <rect x="416" y="351" width="36" height="36" rx="1" fill="#c9a227"/>
+  <rect x="424" y="359" width="20" height="20" rx="1" fill="#0a0a0a"/>
+  <rect x="430" y="365" width="8" height="8" fill="#c9a227"/>
+  <rect x="618" y="341" width="56" height="56" rx="3" fill="none" stroke="#c9a227" stroke-width="3"/>
+  <rect x="628" y="351" width="36" height="36" rx="1" fill="#c9a227"/>
+  <rect x="636" y="359" width="20" height="20" rx="1" fill="#0a0a0a"/>
+  <rect x="642" y="365" width="8" height="8" fill="#c9a227"/>
+  <rect x="406" y="553" width="56" height="56" rx="3" fill="none" stroke="#c9a227" stroke-width="3"/>
+  <rect x="416" y="563" width="36" height="36" rx="1" fill="#c9a227"/>
+  <rect x="424" y="571" width="20" height="20" rx="1" fill="#0a0a0a"/>
+  <rect x="430" y="577" width="8" height="8" fill="#c9a227"/>
+  <g fill="#c9a227" opacity="0.85">
+    <rect x="476" y="341" width="12" height="12"/><rect x="496" y="341" width="12" height="12"/>
+    <rect x="516" y="341" width="12" height="12"/><rect x="536" y="341" width="12" height="12"/>
+    <rect x="556" y="341" width="12" height="12"/><rect x="596" y="341" width="12" height="12"/>
+    <rect x="476" y="361" width="12" height="12"/><rect x="516" y="361" width="12" height="12"/>
+    <rect x="556" y="361" width="12" height="12"/><rect x="576" y="361" width="12" height="12"/>
+    <rect x="496" y="381" width="12" height="12"/><rect x="516" y="381" width="12" height="12"/>
+    <rect x="556" y="381" width="12" height="12"/><rect x="476" y="401" width="12" height="12"/>
+    <rect x="496" y="401" width="12" height="12"/><rect x="536" y="401" width="12" height="12"/>
+    <rect x="406" y="421" width="12" height="12"/><rect x="426" y="421" width="12" height="12"/>
+    <rect x="466" y="421" width="12" height="12"/><rect x="486" y="421" width="12" height="12"/>
+    <rect x="506" y="421" width="12" height="12"/><rect x="546" y="421" width="12" height="12"/>
+    <rect x="566" y="421" width="12" height="12"/><rect x="618" y="421" width="12" height="12"/>
+    <rect x="406" y="441" width="12" height="12"/><rect x="446" y="441" width="12" height="12"/>
+    <rect x="486" y="441" width="12" height="12"/><rect x="526" y="441" width="12" height="12"/>
+    <rect x="421" y="461" width="12" height="12"/><rect x="463" y="461" width="12" height="12"/>
+    <rect x="505" y="461" width="12" height="12"/><rect x="547" y="461" width="12" height="12"/>
+    <rect x="406" y="481" width="12" height="12"/><rect x="446" y="481" width="12" height="12"/>
+    <rect x="486" y="481" width="12" height="12"/><rect x="526" y="481" width="12" height="12"/>
+    <rect x="618" y="553" width="12" height="12"/><rect x="638" y="553" width="12" height="12"/>
+    <rect x="658" y="553" width="12" height="12"/><rect x="618" y="573" width="12" height="12"/>
+    <rect x="476" y="553" width="12" height="12"/><rect x="516" y="553" width="12" height="12"/>
+    <rect x="556" y="553" width="12" height="12"/><rect x="476" y="573" width="12" height="12"/>
+    <rect x="496" y="573" width="12" height="12"/><rect x="536" y="573" width="12" height="12"/>
+  </g>
+  <circle cx="540" cy="475" r="6" fill="#00bfff" opacity="0.8" filter="url(#glow4)"/>
+  <text x="540" y="698" text-anchor="middle" font-family="monospace" font-size="13" fill="#c9a227" opacity="0.6" letter-spacing="2">Ed25519: a7f2c9...3e8b | AuthiChain Verified</text>
+  <text x="540" y="780" text-anchor="middle" font-family="system-ui,sans-serif" font-size="52" font-weight="900" fill="url(#labelGrad)" filter="url(#glow4)">Static Portal</text>
+  <text x="540" y="826" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" fill="#00bfff" letter-spacing="1">Cyan Glowing Ring | AI QR Art</text>
+  <g transform="translate(230, 860)">
+    <rect width="140" height="36" rx="18" fill="#0a1a0a" stroke="#c9a227" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#c9a227">100% Scannable</text>
+  </g>
+  <g transform="translate(470, 860)">
+    <rect width="140" height="36" rx="18" fill="#0a0a1a" stroke="#00bfff" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#00bfff">Ed25519 Signed</text>
+  </g>
+  <g transform="translate(710, 860)">
+    <rect width="140" height="36" rx="18" fill="#1a0a0a" stroke="#c9a227" stroke-width="1.5"/>
+    <text x="70" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#c9a227">Blockchain Anchored</text>
+  </g>
+  <rect x="0" y="990" width="1080" height="90" fill="#080808"/>
+  <rect x="0" y="990" width="1080" height="1" fill="#c9a22766"/>
+  <text x="540" y="1028" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#c9a227">QRON | AI Living QR Art</text>
+  <text x="540" y="1056" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#555" letter-spacing="3">qron.space | AuthiChain Protocol | Cryptographically Verified</text>
+</svg>
