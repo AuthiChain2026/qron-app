@@ -51,7 +51,7 @@ export async function generateQRWithSeal(options: QROptions) {
 </svg>`;
 
   // Upload to Supabase Storage
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Upload QR image
   const qrBuffer = Buffer.from(qrDataUrl.split(',')[1], 'base64');

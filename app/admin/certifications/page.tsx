@@ -98,9 +98,17 @@ export default function AdminCertificationsPage() {
     <div className="max-w-6xl mx-auto p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Certifications</h1>
-        <Link href="/admin/products" className="text-slate-600 hover:text-slate-900">
-          &larr; Products
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/admin/products" className="text-slate-600 hover:text-slate-900">
+            &larr; Products
+          </Link>
+          <Link
+            href="/admin/certifications/new"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            + New Certification
+          </Link>
+        </div>
       </div>
 
       {error && (
