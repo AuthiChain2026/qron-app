@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { QronThirdwebProvider } from '@/components/ThirdwebProvider';
+import { WalletBar } from '@/components/WalletBar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <QronThirdwebProvider>
         {/* Protocol Header Band */}
         <div style={{
           background: 'linear-gradient(90deg, #0a0a0a 0%, #1a1300 50%, #0a0a0a 100%)',
@@ -58,6 +61,7 @@ export default function RootLayout({
             </a>
             <span style={{ color: '#3a3a3a' }}>|</span>
             <span style={{ color: '#6b6b6b' }}>QRON Creative Studio</span>
+            <WalletBar />
           </span>
         </div>
 
@@ -96,6 +100,7 @@ export default function RootLayout({
 
         <Analytics />
         <SpeedInsights />
+        </QronThirdwebProvider>
       </body>
     </html>
   );

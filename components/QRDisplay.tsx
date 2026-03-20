@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { GeneratedQRON, QRONMode } from '@/lib/types';
-import { Download, Share2, Wallet, ExternalLink, Loader2 } from 'lucide-react';
+import { Download, Share2, Wallet, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { useActiveAccount } from 'thirdweb/react';
+import { ConnectButton } from 'thirdweb/react';
+import { thirdwebClient, activeChain } from '@/lib/thirdweb';
 
 interface QRDisplayProps {
   qron: GeneratedQRON | null;
@@ -12,9 +16,12 @@ interface QRDisplayProps {
 }
 
 export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
+  const account = useActiveAccount();
+  const [minting, setMinting] = useState(false);
+  const [mintedTokenId, setMintedTokenId] = useState<string | null>(null);
+
   const handleDownload = async () => {
     if (!qron?.imageUrl) return;
-    
     try {
       const response = await fetch(qron.imageUrl);
       const blob = await response.blob();
@@ -27,24 +34,17 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
       toast.success('Downloaded!');
-    } catch (error) {
+    } catch {
       toast.error('Download failed');
     }
   };
 
   const handleShare = async () => {
     if (!qron?.imageUrl) return;
-    
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: 'My QRON',
-          text: 'Check out this AI-generated QR code!',
-          url: qron.imageUrl,
-        });
-      } catch (err) {
-        // User cancelled or error
-      }
+        await navigator.share({ title: 'My QRON', text: 'Check out this AI-generated QR code!', url: qron.imageUrl });
+      } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(qron.imageUrl);
       toast.success('Link copied to clipboard!');
@@ -53,11 +53,37 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
 
   const handleMint = async () => {
     if (!qron) return;
-    toast.info('NFT minting coming soon!');
-    // TODO: Implement thirdweb minting flow
+
+    // If no wallet, the button below opens the connect modal instead
+    if (!account?.address) return;
+
+    setMinting(true);
+    try {
+      const res = await fetch('/api/qron/mint-nft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: account.address,
+          imageUrl: qron.imageUrl,
+          destinationUrl: qron.destinationUrl,
+          qronId: qron.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Mint failed');
+
+      setMintedTokenId(data.tokenId ?? data.txHash ?? 'minted');
+      toast.success('NFT minted to your wallet!');
+    } catch (err: any) {
+      toast.error(err.message || 'Minting failed');
+    } finally {
+      setMinting(false);
+    }
   };
 
-  // Loading State
+  // ── Loading ──────────────────────────────────────────────────────────────────
   if (isGenerating) {
     return (
       <div className="qron-card h-full min-h-[400px] flex flex-col items-center justify-center">
@@ -73,7 +99,7 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
     );
   }
 
-  // Empty State
+  // ── Empty ────────────────────────────────────────────────────────────────────
   if (!qron) {
     return (
       <div className="qron-card h-full min-h-[400px] flex flex-col items-center justify-center text-center">
@@ -98,20 +124,12 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
     );
   }
 
-  // Display Generated QRON
+  // ── Display ──────────────────────────────────────────────────────────────────
   return (
     <div className="qron-card">
-      {/* QR Code Display */}
+      {/* QR Code Image */}
       <div className="relative aspect-square max-w-sm mx-auto mb-6 rounded-xl overflow-hidden qr-container">
-        <Image
-          src={qron.imageUrl}
-          alt="Generated QRON"
-          fill
-          className="object-cover"
-          priority
-        />
-        
-        {/* Holographic Overlay for holographic mode */}
+        <Image src={qron.imageUrl} alt="Generated QRON" fill className="object-cover" priority />
         {mode === 'holographic' && (
           <div className="absolute inset-0 holographic opacity-30 pointer-events-none" />
         )}
@@ -127,24 +145,65 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           <Share2 className="w-4 h-4" />
           Share
         </button>
+
+        {/* Mint NFT — memory mode only */}
         {mode === 'memory' && (
-          <button onClick={handleMint} className="qron-button flex-1 flex items-center justify-center gap-2">
-            <Wallet className="w-4 h-4" />
-            Mint NFT
-          </button>
+          mintedTokenId ? (
+            <div className="flex-1 flex items-center justify-center gap-2 text-sm text-green-400 font-medium">
+              <CheckCircle2 className="w-4 h-4" />
+              Minted!
+            </div>
+          ) : account?.address ? (
+            <button
+              onClick={handleMint}
+              disabled={minting}
+              className="qron-button flex-1 flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {minting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
+              {minting ? 'Minting…' : 'Mint NFT'}
+            </button>
+          ) : (
+            /* Wallet not connected — show inline connect button */
+            <div className="flex-1">
+              <ConnectButton
+                client={thirdwebClient}
+                chain={activeChain}
+                connectButton={{
+                  label: '🔗 Connect to Mint',
+                  style: {
+                    width: '100%',
+                    background: 'linear-gradient(135deg, #c9a227, #a07c10)',
+                    color: '#000',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    borderRadius: '8px',
+                    border: 'none',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    height: 'auto',
+                    minHeight: 'unset',
+                  },
+                }}
+              />
+            </div>
+          )
         )}
       </div>
+
+      {/* Mint success detail */}
+      {mintedTokenId && (
+        <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-sm text-green-400">
+          <p className="font-semibold mb-1">NFT minted successfully</p>
+          <p className="text-xs font-mono break-all opacity-80">{mintedTokenId}</p>
+        </div>
+      )}
 
       {/* Metadata */}
       <div className="space-y-2 text-sm">
         <div className="flex justify-between text-slate-400">
           <span>Target URL</span>
-          <a 
-            href={qron.destinationUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-qron-primary hover:underline flex items-center gap-1"
-          >
+          <a href={qron.destinationUrl} target="_blank" rel="noopener noreferrer"
+             className="text-qron-primary hover:underline flex items-center gap-1">
             {new URL(qron.destinationUrl).hostname}
             <ExternalLink className="w-3 h-3" />
           </a>
@@ -153,16 +212,14 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           <span>Mode</span>
           <span className="text-slate-300 capitalize">{mode}</span>
         </div>
-        {/* <div className="flex justify-between text-slate-400">
-          <span>Style</span>
-          <span className="text-slate-300">{qron.metadata.style}</span>
-        </div>
-        <div className="flex justify-between text-slate-400">
-          <span>Generated</span>
-          <span className="text-slate-300">
-            {qron.metadata.generationTime.toFixed(1)}s
-          </span>
-        </div> */}
+        {account?.address && (
+          <div className="flex justify-between text-slate-400">
+            <span>Wallet</span>
+            <span className="text-slate-300 font-mono text-xs">
+              {account.address.slice(0, 6)}…{account.address.slice(-4)}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
