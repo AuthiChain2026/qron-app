@@ -1,44 +1,132 @@
-export const PLANS = [
+// ─── QRON Plans — mapped to real Stripe products/prices ───────────────────────
+// Products and prices are pre-created in the Stripe dashboard.
+// priceId values are LIVE; keep in sync with Stripe.
+
+export type PlanId = 'free' | 'starter' | 'creator' | 'studio' | 'business'
+
+export interface Plan {
+  id: PlanId
+  name: string
+  price: number
+  price_suffix?: string
+  description: string
+  generations: number          // 0 = unlimited
+  stripe_price_id: string | null
+  stripe_mode: 'payment' | 'subscription' | null
+  tier: 'free' | 'pro' | 'enterprise'
+  features: string[]
+  cta: string
+  highlighted?: boolean
+}
+
+export const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Free',
     price: 0,
+    description: 'Get started with AI QR codes',
+    generations: 10,
+    stripe_price_id: null,
+    stripe_mode: null,
+    tier: 'free',
     features: [
-      '10 Generations/Month',
-      'Static Mode Only',
-      'Basic Styles',
-      'Supabase Auth',
+      '10 generations / month',
+      'Static & Stereographic modes',
+      'Basic styles',
+      'Download as PNG',
     ],
     cta: 'Get Started Free',
-    tier_level: 'free',
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    price: 9.99,
-    price_suffix: '/month',
+    id: 'starter',
+    name: 'Starter Pack',
+    price: 29,
+    description: '100 AI QR generations, never expire',
+    generations: 100,
+    stripe_price_id: 'price_1TCrKfPUXqpBpzb3G88BPGlg',
+    stripe_mode: 'payment',
+    tier: 'pro',
     features: [
-      'Unlimited Generations',
-      'All Modes (except Enterprise)',
-      'Premium Styles',
-      'Plausible.io Analytics',
+      '100 generations (one-time)',
+      'All free modes',
+      'Holographic & Memory modes',
+      'Ed25519-signed on AuthiChain',
     ],
-    cta: 'Go Pro',
-    tier_level: 'pro',
+    cta: 'Buy Starter Pack',
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 499,
-    price_suffix: '/month',
+    id: 'creator',
+    name: 'Creator Pack',
+    price: 99,
+    description: '500 AI QR generations — best value',
+    generations: 500,
+    stripe_price_id: 'price_1TCrKgPUXqpBpzb3IoVBwxmu',
+    stripe_mode: 'payment',
+    tier: 'pro',
     features: [
-      'Unlimited Generations',
-      'All Modes',
-      'API Access & White-Label',
-      'Priority Support',
-      'Custom Integrations',
+      '500 generations (one-time)',
+      'All Pro modes',
+      'Premium styles',
+      'Priority generation queue',
+      'Ed25519-signed on AuthiChain',
     ],
-    cta: 'Contact Sales',
-    tier_level: 'enterprise',
+    cta: 'Buy Creator Pack',
+    highlighted: true,
   },
-];
+  {
+    id: 'studio',
+    name: 'Studio Pack',
+    price: 299,
+    description: '2,000 generations for agencies & studios',
+    generations: 2000,
+    stripe_price_id: 'price_1TCrKhPUXqpBpzb3ppIhyP1i',
+    stripe_mode: 'payment',
+    tier: 'pro',
+    features: [
+      '2,000 generations (one-time)',
+      'All Pro modes',
+      'White-label ready',
+      'API access (1,000 calls/mo)',
+      'Ed25519-signed on AuthiChain',
+    ],
+    cta: 'Buy Studio Pack',
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    price: 49,
+    price_suffix: '/month',
+    description: 'Unlimited generations for growing teams',
+    generations: 0,
+    stripe_price_id: 'price_1TCtPmPUXqpBpzb3z4RNZBDo',
+    stripe_mode: 'subscription',
+    tier: 'enterprise',
+    features: [
+      'Unlimited generations',
+      'All modes including Enterprise',
+      'API access (1,000 calls/mo)',
+      'AuthiChain verification dashboard',
+      '5 team seats',
+      'Priority support',
+    ],
+    cta: 'Start Business Plan',
+  },
+]
+
+// Credit grants per plan (added to generations_limit on purchase)
+export const PLAN_CREDITS: Record<PlanId, number> = {
+  free:     0,
+  starter:  100,
+  creator:  500,
+  studio:   2000,
+  business: 999999, // effectively unlimited
+}
+
+// Tier granted per plan
+export const PLAN_TIER: Record<PlanId, 'free' | 'pro' | 'enterprise'> = {
+  free:     'free',
+  starter:  'pro',
+  creator:  'pro',
+  studio:   'pro',
+  business: 'enterprise',
+}
