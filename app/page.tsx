@@ -38,7 +38,7 @@ export default function Home() {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('tier, generations_used, generations_limit')
-          .eq('id', authUser.id)
+          .eq('user_id', authUser.id)
           .single();
         if (profile && !profileError) {
           setUserTier(profile.tier);

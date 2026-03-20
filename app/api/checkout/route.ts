@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PLANS } from '@/lib/plans';
+import { createClient } from '@/utils/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -24,6 +25,16 @@ export async function POST(request: Request) {
     }
 
     const { mode, email, targetUrl, prompt } = body;
+
+    // Capture authenticated user ID for post-payment tier upgrade
+    let userId: string | null = null;
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        userId = user?.id ?? null;
+      } catch { /* non-fatal — guest checkout still works */ }
+    }
 
     if (!mode) {
       return NextResponse.json(
@@ -81,6 +92,7 @@ export async function POST(request: Request) {
         mode: plan.id,
         url: targetUrl ?? '',
         prompt: prompt ?? '',
+        ...(userId ? { userId } : {}),
       },
       customer_email: email,
     });

@@ -47,6 +47,29 @@ async function sendQrEmail(to: string, imageUrl: string, qrUrl: string, prompt: 
   console.log('[email] QR delivered to', to);
 }
 
+// ─── Profile tier upgrade ─────────────────────────────────────────────────────
+
+const PLAN_LIMITS: Record<string, { tier: string; generations_limit: number }> = {
+  pro:        { tier: 'pro',        generations_limit: 999999 },
+  enterprise: { tier: 'enterprise', generations_limit: 999999 },
+}
+
+async function upgradeTier(userId: string | null | undefined, planId: string | null | undefined) {
+  if (!userId || !planId) return
+  const upgrade = PLAN_LIMITS[planId]
+  if (!upgrade) return
+  try {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    await supabase.from('profiles')
+      .update({ tier: upgrade.tier, generations_limit: upgrade.generations_limit, updated_at: new Date().toISOString() })
+      .eq('user_id', userId)
+    console.log(`[webhook] Upgraded user ${userId} to ${upgrade.tier}`)
+  } catch (err) {
+    console.error('[webhook] Tier upgrade error (non-fatal):', err)
+  }
+}
+
 // ─── Delivery record ──────────────────────────────────────────────────────────
 
 async function recordDelivery(sessionId: string, email: string, imageUrl: string, qrUrl: string, prompt: string) {
@@ -103,8 +126,11 @@ export async function POST(request: Request) {
       console.log('💰 Amount:', (session.amount_total || 0) / 100);
       console.log('📦 Metadata:', session.metadata);
 
-      const { mode, url, prompt } = session.metadata || {};
+      const { mode, url, prompt, userId, planId } = session.metadata || {};
       const customerEmail = session.customer_email || session.customer_details?.email;
+
+      // Upgrade user tier if this is a plan purchase
+      await upgradeTier(userId, planId ?? mode);
 
       if (!mode || !url || !prompt || !customerEmail) {
         console.error('[webhook] Missing metadata or email — cannot fulfill', { mode, url, prompt: !!prompt, email: !!customerEmail });
