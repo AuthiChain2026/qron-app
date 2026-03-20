@@ -10,7 +10,10 @@ import Image from 'next/image';
 const StaticImageGallery = dynamic(() => import('@/components/StaticImageGallery').then(m => m.StaticImageGallery), { ssr: false });
 
 export default function Home() {
-  const supabase = createClient();
+  const hasSupabaseEnv =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  const supabase = hasSupabaseEnv ? createClient() : null;
 
   const [targetUrl, setTargetUrl] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -28,6 +31,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!supabase) return;
       const { data: { user: authUser } } = await supabase.auth.getUser();
       setUser(authUser);
       if (authUser) {
