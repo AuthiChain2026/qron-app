@@ -1,14 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
+import { readRecentActivityEvents } from '@/lib/activity-store'
 
-export async function GET(request: Request) {
-  // Placeholder for activity GET handler
-  // This route is ready for full implementation.
-  return NextResponse.json({ message: 'Activity route placeholder' });
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+  const events = await readRecentActivityEvents(100)
+  return NextResponse.json(events)
 }
-
-export async function POST(request: Request) {
-  // Placeholder for activity POST handler
-  // This route is ready for full implementation.
-  return NextResponse.json({ message: 'Activity route placeholder' });
-}
-
