@@ -1,1 +1,123 @@
-// Placeholder
+/**
+ * POST /api/qron/generate
+ *
+ * Generate an artistic QR code using Fal.ai illusion-diffusion.
+ * Requires authentication. Rate-limited by subscription tier.
+ *
+ * Body (JSON):
+ *   url     – The URL the QR code should point to (required)
+ *   prompt  – Style/art prompt for the illusion effect (required)
+ *   mode    – 'standard' | 'premium' | 'enterprise' (default: 'standard')
+ *
+ * Returns:
+ *   { imageUrl, qrDataUrl, prompt, url }
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+const MODE_STEPS: Record<string, number> = {
+  standard: 30,
+  premium: 50,
+  enterprise: 75,
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const authHeader = req.headers.get('authorization')
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+
+    // Validate user session via Supabase auth
+    const supabase = createClient(supabaseUrl, supabaseKey)
+    const token = authHeader?.replace('Bearer ', '')
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // ── Input ─────────────────────────────────────────────────────────────────
+    const body = await req.json()
+    const { url, prompt, mode = 'standard' } = body
+
+    if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+      return NextResponse.json({ error: 'A valid URL is required' }, { status: 400 })
+    }
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return NextResponse.json({ error: 'A prompt is required' }, { status: 400 })
+    }
+
+    const falKey = process.env.FAL_KEY
+    if (!falKey) {
+      return NextResponse.json({ error: 'AI generation not configured' }, { status: 503 })
+    }
+
+    // ── Generate base QR ──────────────────────────────────────────────────────
+    const QRCode = (await import('qrcode')).default
+    const qrDataUrl: string = await QRCode.toDataURL(url, {
+      errorCorrectionLevel: 'H',
+      width: 1024,
+      margin: 2,
+    })
+
+    // ── Generate artistic QR via Fal.ai ───────────────────────────────────────
+    const steps = MODE_STEPS[mode] ?? MODE_STEPS.standard
+    const falResponse = await fetch('https://fal.run/fal-ai/illusion-diffusion', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${falKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: `highly detailed QR code art, scannable, ${prompt.trim()}`,
+        image_url: qrDataUrl,
+        qr_code_content: url,
+        guidance_scale: 8.5,
+        num_inference_steps: steps,
+        strength: 0.75,
+        controlnet_conditioning_scale: 1.5,
+      }),
+    })
+
+    if (!falResponse.ok) {
+      const errText = await falResponse.text()
+      console.error('[qron/generate] Fal.ai error:', falResponse.status, errText)
+      return NextResponse.json({ error: 'AI generation failed' }, { status: 502 })
+    }
+
+    const falData = await falResponse.json()
+    const imageUrl: string | undefined = falData.image?.url || falData.images?.[0]?.url
+
+    if (!imageUrl) {
+      return NextResponse.json({ error: 'No image returned from AI service' }, { status: 502 })
+    }
+
+    // ── Log generation event ──────────────────────────────────────────────────
+    await supabase.from('qron_generations').insert({
+      user_id: user.id,
+      url,
+      prompt: prompt.trim(),
+      mode,
+      image_url: imageUrl,
+      generated_at: new Date().toISOString(),
+    }).throwOnError().catch((err: unknown) => {
+      console.warn('[qron/generate] Non-fatal: failed to log generation', err)
+    })
+
+    return NextResponse.json({ imageUrl, qrDataUrl, prompt: prompt.trim(), url })
+  } catch (err: any) {
+    console.error('[qron/generate] Error:', err)
+    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 })
+  }
+}

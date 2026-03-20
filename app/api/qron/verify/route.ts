@@ -63,14 +63,26 @@ export async function POST(req: Request) {
       .limit(1)
       .single()
 
-    // Call AuthiChain API for deeper verification
-    const authichainRes = await fetch(`${process.env.AUTHICHAIN_API_URL}/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id, payload, signature })
-    })
-
-    const authichainData = await authichainRes.json()
+    // Call AuthiChain API for deeper verification (optional — gracefully degrades)
+    let authichainData: Record<string, unknown> = {}
+    const authichainApiUrl = process.env.AUTHICHAIN_API_URL
+    if (authichainApiUrl) {
+      try {
+        const authichainRes = await fetch(`${authichainApiUrl}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id, payload, signature }),
+          signal: AbortSignal.timeout(5000),
+        })
+        if (authichainRes.ok) {
+          authichainData = await authichainRes.json()
+        } else {
+          console.warn('[qron/verify] AuthiChain API returned', authichainRes.status)
+        }
+      } catch (err) {
+        console.warn('[qron/verify] AuthiChain API unreachable (non-fatal):', err)
+      }
+    }
 
     // Compute hybrid trust score
     const trustScore = (() => {
