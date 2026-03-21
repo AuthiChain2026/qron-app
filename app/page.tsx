@@ -10,7 +10,10 @@ import Image from 'next/image';
 const StaticImageGallery = dynamic(() => import('@/components/StaticImageGallery').then(m => m.StaticImageGallery), { ssr: false });
 
 export default function Home() {
-  const supabase = createClient();
+  const hasSupabaseEnv =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  const supabase = hasSupabaseEnv ? createClient() : null;
 
   const [targetUrl, setTargetUrl] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -28,13 +31,14 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!supabase) return;
       const { data: { user: authUser } } = await supabase.auth.getUser();
       setUser(authUser);
       if (authUser) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('tier, generations_used, generations_limit')
-          .eq('id', authUser.id)
+          .eq('user_id', authUser.id)
           .single();
         if (profile && !profileError) {
           setUserTier(profile.tier);
@@ -103,7 +107,7 @@ export default function Home() {
       window.location.assign('/login');
       return;
     }
-    if (planId === 'enterprise') {
+    if (!plan.stripe_price_id) {
       window.location.assign('mailto:Z@authichain.com');
       return;
     }
@@ -111,7 +115,7 @@ export default function Home() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: planId, email: user?.email }),
+        body: JSON.stringify({ planId, email: user?.email }),
       });
       const { url, error: checkoutError } = await res.json();
       if (url) window.location.assign(url);
@@ -393,26 +397,27 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {PLANS.map((plan) => (
-              <div key={plan.id} className={`protocol-card p-8 flex flex-col ${plan.id === userTier ? 'ring-1 ring-yellow-500/50' : ''}`}>
-                <div className="mb-4 flex justify-center">
-                  <Image
-                    src={`/media/pricing-${plan.id}-icon-512.svg`}
-                    alt={`${plan.name} plan`}
-                    width={64}
-                    height={64}
-                    className="mx-auto"
-                  />
-                </div>
+              <div key={plan.id} className={`protocol-card p-8 flex flex-col ${'highlighted' in plan && plan.highlighted ? 'ring-1 ring-yellow-500/50' : ''} ${plan.id === userTier ? 'ring-1 ring-yellow-500/80' : ''}`}>
                 {plan.id === userTier && (
                   <div className="protocol-badge justify-center mb-3">Current Plan</div>
                 )}
-                <h3 className="text-2xl font-bold text-center mb-2">{plan.name}</h3>
+                {'highlighted' in plan && plan.highlighted && plan.id !== userTier && (
+                  <div className="text-center mb-3">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: 'rgba(201,162,39,0.15)', color: '#c9a227', border: '1px solid rgba(201,162,39,0.3)' }}>
+                      BEST VALUE
+                    </span>
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold text-center mb-1">{plan.name}</h3>
+                {'description' in plan && (
+                  <p className="text-xs text-center mb-4" style={{ color: '#6b6b6b' }}>{plan.description}</p>
+                )}
                 <div className="text-center mb-6">
                   {plan.price === 0 ? (
                     <span className="text-4xl font-bold gold-text">Free</span>
                   ) : (
                     <span className="text-4xl font-bold gold-text">
-                      ${plan.price}<span className="text-base font-normal" style={{ color: '#6b6b6b' }}>{plan.price_suffix}</span>
+                      ${plan.price}<span className="text-base font-normal" style={{ color: '#6b6b6b' }}>{plan.price_suffix || ' one-time'}</span>
                     </span>
                   )}
                 </div>

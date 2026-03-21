@@ -1,0 +1,46 @@
+name: Register Stripe Webhook
+
+# Runs automatically after production deploys merge to main,
+# and can be triggered manually to (re)register the webhook.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/api/webhook/**'
+      - 'scripts/register-stripe-webhook.ts'
+  workflow_dispatch:
+    inputs:
+      webhook_url:
+        description: 'Override webhook URL (default: https://qron.space/api/webhook)'
+        required: false
+        default: ''
+
+jobs:
+  register:
+    name: Register Stripe Webhook Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Register webhook
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          QRON_URL: ${{ github.event.inputs.webhook_url || 'https://qron.space' }}
+        run: npx tsx scripts/register-stripe-webhook.ts
+
+      - name: Summary
+        run: |
+          echo "### Stripe Webhook Registration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Webhook endpoint registered/verified at: \`https://qron.space/api/webhook\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next step:** Copy \`STRIPE_WEBHOOK_SECRET\` from the job log above into:" >> $GITHUB_STEP_SUMMARY
+          echo "- Vercel → qron-app → Settings → Environment Variables" >> $GITHUB_STEP_SUMMARY

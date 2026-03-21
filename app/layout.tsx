@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { QronThirdwebProvider } from '@/components/ThirdwebProvider';
+import { WalletBar } from '@/components/WalletBar';
 
 export const metadata: Metadata = {
   title: "QRON — Creative Layer of the AuthiChain Protocol",
@@ -34,7 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="antialiased">
+        <QronThirdwebProvider>
         {/* Protocol Header Band */}
         <div style={{
           background: 'linear-gradient(90deg, #0a0a0a 0%, #1a1300 50%, #0a0a0a 100%)',
@@ -58,6 +50,7 @@ export default function RootLayout({
             </a>
             <span style={{ color: '#3a3a3a' }}>|</span>
             <span style={{ color: '#6b6b6b' }}>QRON Creative Studio</span>
+            <WalletBar />
           </span>
         </div>
 
@@ -96,6 +89,7 @@ export default function RootLayout({
 
         <Analytics />
         <SpeedInsights />
+        </QronThirdwebProvider>
       </body>
     </html>
   );

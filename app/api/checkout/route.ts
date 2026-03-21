@@ -1,96 +1,73 @@
-import { NextResponse } from 'next/server';
-import { PLANS } from '@/lib/plans';
+import { NextResponse } from 'next/server'
+import { PLANS } from '@/lib/plans'
+import { createClient } from '@/utils/supabase/server'
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
   try {
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
     if (!stripeSecretKey) {
-      return NextResponse.json(
-        { error: 'Stripe is not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })
     }
 
-    let body: { mode?: string; email?: string; targetUrl?: string; prompt?: string };
+    let body: { planId?: string; email?: string }
     try {
-      body = await request.json();
+      body = await request.json()
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid JSON body' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const { mode, email, targetUrl, prompt } = body;
-
-    if (!mode) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    const { planId, email } = body
+    if (!planId) {
+      return NextResponse.json({ error: 'planId is required' }, { status: 400 })
     }
 
-    // Dynamic import to avoid build-time initialization
-    const Stripe = (await import('stripe')).default;
-    
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-06-20',
-    });
-    
-    const plan = PLANS.find(p => p.id === mode);
-
+    const plan = PLANS.find(p => p.id === planId)
     if (!plan) {
-        return NextResponse.json(
-            { error: 'Invalid plan' },
-            { status: 400 }
-        );
+      return NextResponse.json({ error: 'Unknown plan' }, { status: 400 })
+    }
+    if (!plan.stripe_price_id || !plan.stripe_mode) {
+      return NextResponse.json({ error: 'Free plan does not require checkout' }, { status: 400 })
     }
 
-    if (plan.id === 'free') {
-      return NextResponse.json(
-        { error: 'Free plan does not require checkout' },
-        { status: 400 }
-      );
+    // Capture authenticated user for post-payment upgrade
+    let userId: string | null = null
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      try {
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        userId = user?.id ?? null
+      } catch { /* guest checkout still works */ }
     }
 
-    const priceInCents = plan.price * 100;
-    const origin = request.headers.get('origin') || new URL(request.url).origin;
+    const Stripe = (await import('stripe')).default
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+
+    const origin = request.headers.get('origin') || new URL(request.url).origin
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `QRON ${plan.name}`,
-              description: `AI-generated QR code pack`,
-            },
-            unit_amount: priceInCents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
+      mode: plan.stripe_mode,
+      line_items: [{ price: plan.stripe_price_id, quantity: 1 }],
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}`,
+      cancel_url: `${origin}/#pricing`,
+      ...(email ? { customer_email: email } : {}),
       metadata: {
         planId: plan.id,
-        mode: plan.id,
-        url: targetUrl ?? '',
-        prompt: prompt ?? '',
+        ...(userId ? { userId } : {}),
       },
-      customer_email: email,
-    });
+      // For subscriptions, allow promo codes and show a cancel URL
+      ...(plan.stripe_mode === 'subscription' ? {
+        allow_promotion_codes: true,
+        subscription_data: {
+          metadata: { planId: plan.id, ...(userId ? { userId } : {}) },
+        },
+      } : {}),
+    })
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Checkout error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
-    );
+    console.error('[checkout] Error:', error)
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

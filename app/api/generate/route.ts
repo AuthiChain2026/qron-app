@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles').select('tier, generations_used, generations_limit')
-      .eq('id', user.id).single();
+      .eq('user_id', user.id).single();
     if (profileError || !profile) return NextResponse.json({ message: 'Could not fetch user profile.' }, { status: 500 });
 
     let body: { targetUrl?: string; prompt?: string; mode?: string };
