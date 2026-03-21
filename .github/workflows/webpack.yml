@@ -28,3 +28,65 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_BASE_URL: https://qron.space
           NEXT_PUBLIC_THIRDWEB_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_THIRDWEB_CLIENT_ID }}
+
+  register-webhook:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Register Stripe webhook endpoint
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ]; then
+            echo "⚠️  STRIPE_SECRET_KEY secret not set — skipping webhook registration"
+            echo "Add STRIPE_SECRET_KEY to GitHub Secrets and re-run this workflow"
+            exit 0
+          fi
+
+          WEBHOOK_URL="https://qron.space/api/webhook"
+
+          echo "Looking for existing webhook at $WEBHOOK_URL ..."
+          ENDPOINTS=$(curl -s "https://api.stripe.com/v1/webhook_endpoints?limit=100" \
+            -u "$STRIPE_SECRET_KEY:")
+
+          EXISTING_ID=$(echo "$ENDPOINTS" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          for ep in data.get('data', []):
+              if ep['url'] == '$WEBHOOK_URL':
+                  print(ep['id'])
+                  break
+          " 2>/dev/null)
+
+          if [ -n "$EXISTING_ID" ]; then
+            echo "Found existing endpoint $EXISTING_ID — rotating secret..."
+            RESPONSE=$(curl -s -X POST \
+              "https://api.stripe.com/v1/webhook_endpoints/$EXISTING_ID/secret_rotate" \
+              -u "$STRIPE_SECRET_KEY:")
+            SECRET=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('secret',''))" 2>/dev/null)
+            echo "✅ Rotated webhook secret for $EXISTING_ID"
+          else
+            echo "Creating new webhook endpoint..."
+            RESPONSE=$(curl -s -X POST "https://api.stripe.com/v1/webhook_endpoints" \
+              -u "$STRIPE_SECRET_KEY:" \
+              -d "url=$WEBHOOK_URL" \
+              -d "enabled_events[]=checkout.session.completed")
+            SECRET=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('secret',''))" 2>/dev/null)
+            ID=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null)
+            echo "✅ Created webhook endpoint: $ID"
+          fi
+
+          if [ -z "$SECRET" ]; then
+            echo "❌ Failed to obtain webhook secret. Stripe API response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
+          echo ""
+          echo "============================================"
+          echo "STRIPE_WEBHOOK_SECRET=$SECRET"
+          echo "============================================"
+          echo "👆 Copy the value above into:"
+          echo "   Vercel → qron-app → Settings → Environment Variables"
