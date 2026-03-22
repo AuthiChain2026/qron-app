@@ -8,6 +8,8 @@ export async function POST(
 ) {
   try {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { approved_by } = await request.json();
 
     // Get certification with product data
