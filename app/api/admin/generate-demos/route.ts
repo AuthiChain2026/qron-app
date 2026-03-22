@@ -132,26 +132,28 @@ export async function POST(req: NextRequest) {
       }
 
       // ── Persist to qron_demos table ───────────────────────────────────────
-      await supabase?.from('qron_demos').upsert(
-          {
-            id: target.id,
-            label: target.label,
-            subject: target.subject,
-            style: target.style,
-            destination_url: target.destinationUrl,
-            category: target.category,
-            pitch: target.pitch,
-            prompt,
-            image_url: imageUrl,
-            nft_tx_hash: txHash ?? null,
-            generated_at: new Date().toISOString(),
-          },
-          { onConflict: 'id' },
-        )
-        ?.throwOnError()
-        ?.catch((err: unknown) => {
-          console.warn(`[admin/generate-demos] Non-fatal DB upsert for ${target.id}:`, err)
-        })
+      if (supabase) {
+        try {
+          await supabase.from('qron_demos').upsert(
+            {
+              id: target.id,
+              label: target.label,
+              subject: target.subject,
+              style: target.style,
+              destination_url: target.destinationUrl,
+              category: target.category,
+              pitch: target.pitch,
+              prompt,
+              image_url: imageUrl,
+              nft_tx_hash: txHash ?? null,
+              generated_at: new Date().toISOString(),
+            },
+            { onConflict: 'id' },
+          )
+        } catch (dbErr: unknown) {
+          console.warn(`[admin/generate-demos] Non-fatal DB upsert for ${target.id}:`, dbErr)
+        }
+      }
 
       results.push({ id: target.id, imageUrl, txHash })
       console.log(`[admin/generate-demos] ✓ ${target.id} — ${imageUrl.slice(0, 60)}...`)
