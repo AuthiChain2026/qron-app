@@ -169,30 +169,20 @@ export async function POST(req: NextRequest) {
     // https://fal.ai/models/fal-ai/illusion-diffusion
     const steps = MODE_STEPS[mode] ?? MODE_STEPS.standard
 
-    const falInput: Record<string, unknown> = {
-      prompt,
-      image_url: qrDataUrl,          // base QR code (B&W, high error correction)
-      qr_code_content: url,           // content encoded in the QR
-      guidance_scale: 8.5,            // how closely to follow the prompt
-      num_inference_steps: steps,
-      strength: 0.85,                 // higher = more artistic, lower = more QR-visible
-      controlnet_conditioning_scale: 1.4, // balance between QR structure and art
-    }
-
-    // If a reference image is provided (logo or photo), pass it for image-guided generation
-    // fal-ai/illusion-diffusion accepts an optional `image_url` for img2img conditioning
-    if (referenceImageUrl && typeof referenceImageUrl === 'string') {
-      // Use the reference as the conditioning image instead of bare QR
-      // and supply the raw QR as qr_code_content for ControlNet guidance
-      falInput.image_url = referenceImageUrl
-      falInput.qr_code_content = url
-      // Reduce strength slightly to preserve reference image identity
-      falInput.strength = 0.75
-      falInput.controlnet_conditioning_scale = 1.6
-    }
+    // If a reference image is provided (logo or photo), use it as the conditioning image
+    // instead of the bare QR code; the model still sees QR structure via ControlNet
+    const conditioningImageUrl = (referenceImageUrl && typeof referenceImageUrl === 'string')
+      ? referenceImageUrl
+      : qrDataUrl
 
     const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
-      input: falInput,
+      input: {
+        prompt,
+        image_url: conditioningImageUrl,
+        guidance_scale: 8.5,
+        num_inference_steps: steps,
+        controlnet_conditioning_scale: (referenceImageUrl && typeof referenceImageUrl === 'string') ? 1.6 : 1.4,
+      },
     })
 
     const falData = falResult.data as Record<string, any>
@@ -203,7 +193,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Log generation ────────────────────────────────────────────────────────
-    await supabase
+    const { error: insertErr } = await supabase
       .from('qron_generations')
       .insert({
         user_id: user.id,
@@ -212,14 +202,12 @@ export async function POST(req: NextRequest) {
         mode,
         image_url: imageUrl,
         generated_at: new Date().toISOString(),
-        // Extra targeted-generation metadata
         subject: subject.trim(),
         style: isPresetKey ? style : 'custom',
       })
-      .throwOnError()
-      .catch((err: unknown) => {
-        console.warn('[qron/generate-targeted] Non-fatal: failed to log generation', err)
-      })
+    if (insertErr) {
+      console.warn('[qron/generate-targeted] Non-fatal: failed to log generation', insertErr)
+    }
 
     return NextResponse.json({
       imageUrl,

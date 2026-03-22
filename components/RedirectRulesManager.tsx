@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit, Save, X, Loader2 } from 'lucide-react';
@@ -44,31 +44,29 @@ export function RedirectRulesManager({ qronId, userId }: RedirectRulesManagerPro
   });
   const supabase = createClient();
 
-  useEffect(() => {
-    const fetchRules = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('redirect_rules')
-        .select('*')
-        .eq('qron_id', qronId)
-        .order('priority', { ascending: true });
+  const fetchRules = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('redirect_rules')
+      .select('*')
+      .eq('qron_id', qronId)
+      .order('priority', { ascending: true });
 
-      if (error) {
-        toast.error('Failed to fetch redirect rules: ' + error.message);
-        console.error('Error fetching redirect rules:', error);
-      } else {
-        // Format dates for datetime-local input
-        const formattedData = data.map(rule => ({
-          ...rule,
-          start_time: rule.start_time ? new Date(rule.start_time).toISOString().slice(0, 16) : null,
-          end_time: rule.end_time ? new Date(rule.end_time).toISOString().slice(0, 16) : null,
-        }));
-        setRules(formattedData as RedirectRule[]);
-      }
-      setLoading(false);
-    };
-    fetchRules();
+    if (error) {
+      toast.error('Failed to fetch redirect rules: ' + error.message);
+      console.error('Error fetching redirect rules:', error);
+    } else {
+      const formattedData = data.map(rule => ({
+        ...rule,
+        start_time: rule.start_time ? new Date(rule.start_time).toISOString().slice(0, 16) : null,
+        end_time: rule.end_time ? new Date(rule.end_time).toISOString().slice(0, 16) : null,
+      }));
+      setRules(formattedData as RedirectRule[]);
+    }
+    setLoading(false);
   }, [qronId, supabase]);
+
+  useEffect(() => { fetchRules(); }, [fetchRules]);
 
   const handleAddRule = async () => {
     if (!newRule.name) {
@@ -231,7 +229,7 @@ export function RedirectRulesManager({ qronId, userId }: RedirectRulesManagerPro
               <label className="block text-sm text-slate-400 mb-1">Device Type</label>
               <select
                 className="qron-input w-full"
-                value={newRule.configuration?.device || ''}
+                value={(newRule.configuration?.device as string) || ''}
                 onChange={(e) => setNewRule({ ...newRule, configuration: { ...newRule.configuration, device: e.target.value } })}
               >
                 <option value="">Select Device</option>
@@ -295,7 +293,7 @@ export function RedirectRulesManager({ qronId, userId }: RedirectRulesManagerPro
               <input
                 type="url"
                 className="qron-input w-full"
-                value={newRule.configuration?.redirect_url || ''}
+                value={(newRule.configuration?.redirect_url as string) || ''}
                 onChange={(e) => setNewRule({ ...newRule, configuration: { ...newRule.configuration, redirect_url: e.target.value } })}
                 placeholder="https://your-redirect-url.com"
               />
@@ -357,7 +355,7 @@ export function RedirectRulesManager({ qronId, userId }: RedirectRulesManagerPro
                         <label className="block text-xs text-slate-500 mb-0.5">Device</label>
                         <select
                           className="qron-input w-full text-sm"
-                          value={rule.configuration?.device || ''}
+                          value={(rule.configuration?.device as string) || ''}
                           onChange={(e) => setRules(rules.map(r => r.id === rule.id ? { ...r, configuration: { ...r.configuration, device: e.target.value } } : r))}
                         >
                           <option value="">Select Device</option>
@@ -421,7 +419,7 @@ export function RedirectRulesManager({ qronId, userId }: RedirectRulesManagerPro
                           <input
                             type="url"
                             className="qron-input w-full text-sm"
-                            value={rule.configuration?.redirect_url || ''}
+                            value={(rule.configuration?.redirect_url as string) || ''}
                             onChange={(e) => setRules(rules.map(r => r.id === rule.id ? { ...r, configuration: { ...r.configuration, redirect_url: e.target.value } } : r))}
                             placeholder="https://your-redirect-url.com"
                           />

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
 import nacl from 'tweetnacl'
-import { encodeUTF8 } from 'tweetnacl-util'
+import { decodeUTF8 } from 'tweetnacl-util'
 
 export async function POST(req: Request) {
   const supabase = createClient(
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     // Sign payload using Ed25519
     const signature = nacl.sign.detached(
-      encodeUTF8(payload),
+      decodeUTF8(payload),
       PRIVATE_KEY
     )
 

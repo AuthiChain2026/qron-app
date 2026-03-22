@@ -30,12 +30,8 @@ async function fulfillPlan(userId: string | null | undefined, planId: string | n
       .from('profiles')
       .update({
         tier,
-        generations_limit:
-          credits >= 999999
-            ? 999999
-            : supabase.rpc
-              ? undefined   // will use rpc below for incremental
-              : credits,
+        // Incremental credits are added via rpc below; only set limit for unlimited tier
+        ...(credits >= 999999 ? { generations_limit: 999999 } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
@@ -163,10 +159,8 @@ async function generateAndDeliverQr(session: Stripe.Checkout.Session) {
     input: {
       prompt: `highly detailed QR code art, scannable, ${prompt}`,
       image_url: qrDataUrl,
-      qr_code_content: url,
       guidance_scale: 8.5,
       num_inference_steps: 50,
-      strength: 0.75,
       controlnet_conditioning_scale: 1.5,
     },
   })
@@ -232,17 +226,15 @@ async function generateAndDeliverTargetedQron(session: Stripe.Checkout.Session) 
   const QRCode = (await import('qrcode')).default
   const qrDataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 1024, margin: 2 })
 
-  const falInput: Record<string, unknown> = {
-    prompt,
-    image_url: referenceImageUrl || qrDataUrl,
-    qr_code_content: url,
-    guidance_scale: 8.5,
-    num_inference_steps: Math.min(Number(steps) || 50, 75),
-    strength: referenceImageUrl ? 0.75 : 0.85,
-    controlnet_conditioning_scale: referenceImageUrl ? 1.6 : 1.45,
-  }
-
-  const falResult = await fal.subscribe('fal-ai/illusion-diffusion', { input: falInput })
+  const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
+    input: {
+      prompt,
+      image_url: referenceImageUrl || qrDataUrl,
+      guidance_scale: 8.5,
+      num_inference_steps: Math.min(Number(steps) || 50, 75),
+      controlnet_conditioning_scale: referenceImageUrl ? 1.6 : 1.45,
+    },
+  })
   const falData = falResult.data as Record<string, any>
   const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
   if (!imageUrl) throw new Error('Fal.ai returned no image URL')
@@ -425,7 +417,7 @@ export async function POST(request: Request) {
   }
 
   const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-12-15.clover' })
 
   let event: Stripe.Event
   try {

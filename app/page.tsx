@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
-import { MODES, FalaiPreset, QRONMode } from '@/lib/types';
+import { MODES, FalaiPreset, QRONModeConfig } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ export default function Home() {
 
   const [targetUrl, setTargetUrl] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [selectedMode, setSelectedMode] = useState<QRONMode>(MODES[0]);
+  const [selectedMode, setSelectedMode] = useState<QRONModeConfig>(MODES[0]);
   const [presetId, setPresetId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);

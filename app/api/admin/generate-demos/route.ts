@@ -93,10 +93,8 @@ export async function POST(req: NextRequest) {
           input: {
             prompt,
             image_url: qrDataUrl,
-            qr_code_content: target.destinationUrl,
             guidance_scale: 8.5,
             num_inference_steps: 50,
-            strength: 0.82,
             controlnet_conditioning_scale: 1.45,
           },
         })

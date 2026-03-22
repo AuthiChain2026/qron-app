@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const Stripe = (await import('stripe')).default
-    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-12-15.clover' })
 
     const origin = request.headers.get('origin') || new URL(request.url).origin
 
