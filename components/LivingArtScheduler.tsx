@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit, Save, X, Loader2, Image as ImageIcon } from 'lucide-react';
@@ -37,25 +37,24 @@ export function LivingArtScheduler({ qronId, userId }: LivingArtSchedulerProps) 
   });
   const supabase = createClient();
 
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('living_art_schedules')
-        .select('*')
-        .eq('qron_id', qronId)
-        .order('start_time', { ascending: true });
+  const fetchSchedules = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('living_art_schedules')
+      .select('*')
+      .eq('qron_id', qronId)
+      .order('start_time', { ascending: true });
 
-      if (error) {
-        toast.error('Failed to fetch schedules: ' + error.message);
-        console.error('Error fetching schedules:', error);
-      } else {
-        setSchedules(data as LivingArtSchedule[]);
-      }
-      setLoading(false);
-    };
-    fetchSchedules();
+    if (error) {
+      toast.error('Failed to fetch schedules: ' + error.message);
+      console.error('Error fetching schedules:', error);
+    } else {
+      setSchedules(data as LivingArtSchedule[]);
+    }
+    setLoading(false);
   }, [qronId, supabase]);
+
+  useEffect(() => { fetchSchedules(); }, [fetchSchedules]);
 
   const handleAddSchedule = async () => {
     if (!newSchedule.target_image_url || !newSchedule.start_time) {

@@ -28,7 +28,7 @@ async function main() {
   }
 
   const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(secretKey, { apiVersion: '2024-06-20' })
+  const stripe = new Stripe(secretKey, { apiVersion: '2025-12-15.clover' })
 
   // Check if a webhook for this URL already exists
   const existing = await stripe.webhookEndpoints.list({ limit: 100 })

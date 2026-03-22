@@ -26,10 +26,10 @@ function getServiceClient() {
 // ── GET — public QRON data (used by scanner redirect + owner dashboard) ────────
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = getServiceClient()
-  const { id } = params
+  const { id } = await params
 
   const { data: qron, error } = await supabase
     .from('qron_generations')
@@ -59,7 +59,7 @@ export async function GET(
 // ── PATCH — owner updates URL and/or story mode settings ─────────────────────
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   // Auth
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
@@ -69,7 +69,7 @@ export async function PATCH(
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id } = params
+  const { id } = await params
 
   // Verify ownership
   const { data: qron, error: fetchError } = await supabase

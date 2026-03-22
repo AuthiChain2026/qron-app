@@ -80,10 +80,8 @@ export async function POST(req: NextRequest) {
       input: {
         prompt: `highly detailed QR code art, scannable, ${prompt.trim()}`,
         image_url: qrDataUrl,
-        qr_code_content: url,
         guidance_scale: 8.5,
         num_inference_steps: steps,
-        strength: 0.75,
         controlnet_conditioning_scale: 1.5,
       },
     })
@@ -96,16 +94,17 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Log generation event ──────────────────────────────────────────────────
-    await supabase.from('qron_generations').insert({
+    const { error: insertErr } = await supabase.from('qron_generations').insert({
       user_id: user.id,
       url,
       prompt: prompt.trim(),
       mode,
       image_url: imageUrl,
       generated_at: new Date().toISOString(),
-    }).throwOnError().catch((err: unknown) => {
-      console.warn('[qron/generate] Non-fatal: failed to log generation', err)
     })
+    if (insertErr) {
+      console.warn('[qron/generate] Non-fatal: failed to log generation', insertErr)
+    }
 
     return NextResponse.json({ imageUrl, qrDataUrl, prompt: prompt.trim(), url })
   } catch (err: any) {

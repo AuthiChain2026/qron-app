@@ -3,9 +3,10 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,7 +20,7 @@ export async function POST(
         revoked_at: new Date().toISOString(),
         revocation_reason,
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
     if (error) throw error;

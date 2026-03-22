@@ -5,8 +5,12 @@ export type QRONMode = 'static' | 'stereographic' | 'kinetic' | 'holographic' | 
 export interface GeneratedQRON {
   id: string;
   imageUrl: string;
-  destinationUrl: string;
-  // Add other properties as needed based on usage
+  destinationUrl?: string;
+  qrDataUrl?: string;
+  targetUrl?: string;
+  prompt?: string;
+  mode?: string;
+  createdAt?: string;
 }
 
 // Define QRONEntry type

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const tierConfig = STORY_TIERS[tier as keyof typeof STORY_TIERS] ?? STORY_TIERS.pro
 
   const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-12-15.clover' })
 
   const origin = req.headers.get('origin') || new URL(req.url).origin
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     payment_method_types: ['card'],
-    line_items: [lineItem as Parameters<typeof stripe.checkout.sessions.create>[0]['line_items'][0]],
+    line_items: [lineItem as any],
     success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&type=story_mode&qronId=${qronId}`,
     cancel_url: `${origin}/dashboard`,
     ...(email ? { customer_email: email } : {}),
