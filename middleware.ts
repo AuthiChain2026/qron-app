@@ -2,6 +2,18 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Skip middleware for admin API routes (use x-admin-secret header auth instead)
+  // and webhook routes (use Stripe signature verification)
+  const { pathname } = request.nextUrl
+  if (pathname.startsWith('/api/admin/') || pathname.startsWith('/api/webhook')) {
+    return NextResponse.next()
+  }
+
+  // Skip if Supabase is not configured (env vars missing)
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,

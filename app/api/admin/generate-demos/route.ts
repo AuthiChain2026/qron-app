@@ -16,7 +16,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import * as fal from '@fal-ai/client'
+import { fal } from '@fal-ai/client'
 import { DEMO_TARGETS } from '@/lib/demo-targets'
 
 export const runtime = 'nodejs'
@@ -51,11 +51,13 @@ export async function POST(req: NextRequest) {
 
   if (!dryRun) fal.config({ credentials: falKey! })
 
-  const { createClient } = await import('@supabase/supabase-js')
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
+  const hasDb = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+  const supabase = hasDb
+    ? (await import('@supabase/supabase-js')).createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      )
+    : null
 
   const QRCode = (await import('qrcode')).default
 
@@ -130,9 +132,7 @@ export async function POST(req: NextRequest) {
       }
 
       // ── Persist to qron_demos table ───────────────────────────────────────
-      await supabase
-        .from('qron_demos')
-        .upsert(
+      await supabase?.from('qron_demos').upsert(
           {
             id: target.id,
             label: target.label,
@@ -148,8 +148,8 @@ export async function POST(req: NextRequest) {
           },
           { onConflict: 'id' },
         )
-        .throwOnError()
-        .catch((err: unknown) => {
+        ?.throwOnError()
+        ?.catch((err: unknown) => {
           console.warn(`[admin/generate-demos] Non-fatal DB upsert for ${target.id}:`, err)
         })
 

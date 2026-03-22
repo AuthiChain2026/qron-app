@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
-import * as fal from '@fal-ai/client'
+import { fal } from '@fal-ai/client'
 import { PLAN_CREDITS, PLAN_TIER, type PlanId } from '@/lib/plans'
 
 export const runtime = 'nodejs'
