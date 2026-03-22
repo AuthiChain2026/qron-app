@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
+import * as fal from '@fal-ai/client'
 import { PLAN_CREDITS, PLAN_TIER, type PlanId } from '@/lib/plans'
 
 export const runtime = 'nodejs'
@@ -153,13 +154,13 @@ async function generateAndDeliverQr(session: Stripe.Checkout.Session) {
     return
   }
 
+  fal.config({ credentials: process.env.FAL_KEY })
+
   const QRCode = (await import('qrcode')).default
   const qrDataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 1024, margin: 2 })
 
-  const falRes = await fetch('https://fal.run/fal-ai/illusion-diffusion', {
-    method: 'POST',
-    headers: { Authorization: `Key ${process.env.FAL_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
+    input: {
       prompt: `highly detailed QR code art, scannable, ${prompt}`,
       image_url: qrDataUrl,
       qr_code_content: url,
@@ -167,12 +168,11 @@ async function generateAndDeliverQr(session: Stripe.Checkout.Session) {
       num_inference_steps: 50,
       strength: 0.75,
       controlnet_conditioning_scale: 1.5,
-    }),
+    },
   })
 
-  if (!falRes.ok) throw new Error(`Fal.ai ${falRes.status}: ${await falRes.text()}`)
-  const falData = await falRes.json()
-  const imageUrl: string | undefined = falData.image?.url || falData.images?.[0]?.url
+  const falData = falResult.data as Record<string, any>
+  const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
   if (!imageUrl) throw new Error('Fal.ai returned no image URL')
 
   await Promise.all([
