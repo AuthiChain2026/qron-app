@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DEMO_TARGETS, type DemoTarget } from '@/lib/demo-targets'
 import { Shield, Sparkles, Target, Loader2, CheckCircle, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Category filter options
 const CATEGORIES = ['all', 'brand', 'luxury', 'celebrity', 'sport', 'culture'] as const
@@ -165,7 +166,7 @@ function OrderModal({
 }
 
 // ── Demo Card ─────────────────────────────────────────────────────────────────
-function DemoCard({ target, onOrder }: { target: DemoTarget; onOrder: (t: DemoTarget) => void }) {
+function DemoCard({ target, onOrder, imageUrl }: { target: DemoTarget; onOrder: (t: DemoTarget) => void; imageUrl?: string }) {
   // Category badge colors
   const BADGE_COLORS: Record<string, string> = {
     brand:     'rgba(59,130,246,0.2)',
@@ -177,45 +178,53 @@ function DemoCard({ target, onOrder }: { target: DemoTarget; onOrder: (t: DemoTa
 
   return (
     <div className="protocol-card flex flex-col overflow-hidden group">
-      {/* Placeholder image — replaced by generated image from qron_demos table */}
+      {/* Image: real generated QRON or placeholder */}
       <div className="relative aspect-square bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center overflow-hidden"
            style={{ borderBottom: '1px solid rgba(201,162,39,0.1)' }}>
-        {/* QR-pattern placeholder */}
-        <div className="absolute inset-0 opacity-10">
-          <svg viewBox="0 0 210 210" className="w-full h-full">
-            {/* Finder pattern TL */}
-            <rect x="10" y="10" width="50" height="50" rx="4" fill="#c9a227" />
-            <rect x="20" y="20" width="30" height="30" rx="2" fill="#0d0d0d" />
-            <rect x="25" y="25" width="20" height="20" rx="1" fill="#c9a227" />
-            {/* Finder pattern TR */}
-            <rect x="150" y="10" width="50" height="50" rx="4" fill="#c9a227" />
-            <rect x="160" y="20" width="30" height="30" rx="2" fill="#0d0d0d" />
-            <rect x="165" y="25" width="20" height="20" rx="1" fill="#c9a227" />
-            {/* Finder pattern BL */}
-            <rect x="10" y="150" width="50" height="50" rx="4" fill="#c9a227" />
-            <rect x="20" y="160" width="30" height="30" rx="2" fill="#0d0d0d" />
-            <rect x="25" y="165" width="20" height="20" rx="1" fill="#c9a227" />
-            {/* Data modules */}
-            {[70,80,90,100,110,120,130,140].map(x =>
-              [70,80,90,100,110,120,130,140].map(y =>
-                Math.sin(x * y) > 0 ? (
-                  <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" rx="1" fill="#c9a227" opacity="0.6" />
-                ) : null
-              )
-            )}
-          </svg>
-        </div>
-
-        <div className="relative z-10 text-center p-6">
-          <div className="text-5xl mb-3">
-            {target.category === 'luxury' ? '💎' :
-             target.category === 'celebrity' ? '⭐' :
-             target.category === 'sport' ? '🏆' :
-             target.category === 'culture' ? '🎭' : '🔷'}
-          </div>
-          <p className="text-xs font-mono" style={{ color: '#c9a227' }}>Demo Preview</p>
-          <p className="text-xs mt-1" style={{ color: '#6b6b6b' }}>Generated after purchase</p>
-        </div>
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={`${target.label} QRON`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            unoptimized={imageUrl.startsWith('https://placehold')}
+          />
+        ) : (
+          <>
+            {/* QR-pattern placeholder */}
+            <div className="absolute inset-0 opacity-10">
+              <svg viewBox="0 0 210 210" className="w-full h-full">
+                <rect x="10" y="10" width="50" height="50" rx="4" fill="#c9a227" />
+                <rect x="20" y="20" width="30" height="30" rx="2" fill="#0d0d0d" />
+                <rect x="25" y="25" width="20" height="20" rx="1" fill="#c9a227" />
+                <rect x="150" y="10" width="50" height="50" rx="4" fill="#c9a227" />
+                <rect x="160" y="20" width="30" height="30" rx="2" fill="#0d0d0d" />
+                <rect x="165" y="25" width="20" height="20" rx="1" fill="#c9a227" />
+                <rect x="10" y="150" width="50" height="50" rx="4" fill="#c9a227" />
+                <rect x="20" y="160" width="30" height="30" rx="2" fill="#0d0d0d" />
+                <rect x="25" y="165" width="20" height="20" rx="1" fill="#c9a227" />
+                {[70,80,90,100,110,120,130,140].map(x =>
+                  [70,80,90,100,110,120,130,140].map(y =>
+                    Math.sin(x * y) > 0 ? (
+                      <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" rx="1" fill="#c9a227" opacity="0.6" />
+                    ) : null
+                  )
+                )}
+              </svg>
+            </div>
+            <div className="relative z-10 text-center p-6">
+              <div className="text-5xl mb-3">
+                {target.category === 'luxury' ? '💎' :
+                 target.category === 'celebrity' ? '⭐' :
+                 target.category === 'sport' ? '🏆' :
+                 target.category === 'culture' ? '🎭' : '🔷'}
+              </div>
+              <p className="text-xs font-mono" style={{ color: '#c9a227' }}>AI Preview Pending</p>
+              <p className="text-xs mt-1" style={{ color: '#6b6b6b' }}>Generating soon…</p>
+            </div>
+          </>
+        )}
 
         {/* Hover overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -268,6 +277,29 @@ function DemoCard({ target, onOrder }: { target: DemoTarget; onOrder: (t: DemoTa
 export default function DemoPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('all')
   const [orderTarget, setOrderTarget]       = useState<DemoTarget | null>(null)
+  const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !supabaseAnon) return
+
+    fetch(`${supabaseUrl}/rest/v1/qron_demos?select=id,image_url&image_url=not.is.null`, {
+      headers: {
+        apikey: supabaseAnon,
+        Authorization: `Bearer ${supabaseAnon}`,
+      },
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then((rows: { id: string; image_url: string }[]) => {
+        const map: Record<string, string> = {}
+        for (const row of rows) {
+          if (row.image_url) map[row.id] = row.image_url
+        }
+        setGeneratedImages(map)
+      })
+      .catch(() => {/* non-fatal — gallery works without images */})
+  }, [])
 
   const filtered = activeCategory === 'all'
     ? DEMO_TARGETS
@@ -346,7 +378,12 @@ export default function DemoPage() {
         {/* ── Demo Grid ────────────────────────────────────────────────────── */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
           {filtered.map(target => (
-            <DemoCard key={target.id} target={target} onOrder={setOrderTarget} />
+            <DemoCard
+              key={target.id}
+              target={target}
+              onOrder={setOrderTarget}
+              imageUrl={generatedImages[target.id]}
+            />
           ))}
         </div>
 
