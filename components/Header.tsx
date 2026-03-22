@@ -22,7 +22,7 @@ export function Header() {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('tier')
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .single();
 
         if (error) {
@@ -40,7 +40,7 @@ export function Header() {
       setUser(session?.user ?? null);
       if (session?.user) {
         // Refetch profile on auth state change
-        supabase.from('profiles').select('tier').eq('id', session.user.id).single()
+        supabase.from('profiles').select('tier').eq('user_id', session.user.id).single()
           .then(({ data: profile, error }) => {
             if (error) console.error('Error fetching profile on auth change:', error);
             else if (profile) setUserTier(profile.tier);
