@@ -119,9 +119,11 @@ export default function Home() {
       });
       const { url, error: checkoutError } = await res.json();
       if (url) window.location.assign(url);
+      else if (plan.stripe_payment_link) window.location.assign(plan.stripe_payment_link);
       else if (checkoutError) setError(checkoutError);
     } catch {
-      setError('Could not start checkout. Please try again.');
+      if (plan.stripe_payment_link) window.location.assign(plan.stripe_payment_link);
+      else setError('Could not start checkout. Please try again.');
     }
   };
 
