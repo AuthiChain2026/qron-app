@@ -12,6 +12,7 @@ export interface Plan {
   description: string
   generations: number          // 0 = unlimited
   stripe_price_id: string | null
+  stripe_payment_link?: string
   stripe_mode: 'payment' | 'subscription' | null
   tier: 'free' | 'pro' | 'enterprise'
   features: string[]
@@ -44,6 +45,7 @@ export const PLANS: Plan[] = [
     description: '100 AI QR generations, never expire',
     generations: 100,
     stripe_price_id: 'price_1TCrKfPUXqpBpzb3G88BPGlg',
+    stripe_payment_link: 'https://buy.stripe.com/6oUeVfflp9lPgzY76AaIM0c',
     stripe_mode: 'payment',
     tier: 'pro',
     features: [
@@ -61,6 +63,7 @@ export const PLANS: Plan[] = [
     description: '500 AI QR generations — best value',
     generations: 500,
     stripe_price_id: 'price_1TCrKgPUXqpBpzb3IoVBwxmu',
+    stripe_payment_link: 'https://buy.stripe.com/28E00l6OT7dHcjI1MgaIM0d',
     stripe_mode: 'payment',
     tier: 'pro',
     features: [
@@ -80,6 +83,7 @@ export const PLANS: Plan[] = [
     description: '2,000 generations for agencies & studios',
     generations: 2000,
     stripe_price_id: 'price_1TCrKhPUXqpBpzb3ppIhyP1i',
+    stripe_payment_link: 'https://buy.stripe.com/9B66oJ1uz7dHabA1MgaIM0e',
     stripe_mode: 'payment',
     tier: 'pro',
     features: [
@@ -99,6 +103,7 @@ export const PLANS: Plan[] = [
     description: 'Unlimited generations for growing teams',
     generations: 0,
     stripe_price_id: 'price_1TCtPmPUXqpBpzb3z4RNZBDo',
+    stripe_payment_link: 'https://buy.stripe.com/bJeeVf7SXapTdnMez2aIM0f',
     stripe_mode: 'subscription',
     tier: 'enterprise',
     features: [
