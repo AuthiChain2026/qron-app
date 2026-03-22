@@ -82,6 +82,12 @@ export function Header() {
           <Link href="/pricing" className="text-slate-400 hover:text-white transition-colors text-sm">
             Pricing
           </Link>
+          <Link href="/demo" className="text-slate-400 hover:text-white transition-colors text-sm">
+            Demos
+          </Link>
+          <Link href="/targeted" className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
+            <span>🎯</span> Targeted
+          </Link>
           <Link href="/docs" className="text-slate-400 hover:text-white transition-colors text-sm">
             Docs
           </Link>
