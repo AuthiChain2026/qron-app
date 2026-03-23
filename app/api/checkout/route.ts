@@ -42,12 +42,13 @@ export async function POST(request: Request) {
     }
 
     const Stripe = (await import('stripe')).default
-    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-12-15.clover' })
 
     const origin = request.headers.get('origin') || new URL(request.url).origin
 
     const session = await stripe.checkout.sessions.create({
       mode: plan.stripe_mode,
+      payment_method_types: ['card'],
       line_items: [{ price: plan.stripe_price_id, quantity: 1 }],
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#pricing`,

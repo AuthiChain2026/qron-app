@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Folder as FolderIcon, Trash2, Edit, Save, X, Loader2 } from 'lucide-react';
@@ -24,25 +24,24 @@ export function FolderManager({ userId, onFolderSelected }: FolderManagerProps) 
   const [editingFolderName, setEditingFolderName] = useState('');
   const supabase = createClient();
 
-  useEffect(() => {
-    const fetchFolders = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('folders')
-        .select('*')
-        .eq('user_id', userId)
-        .order('name', { ascending: true });
+  const fetchFolders = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('folders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('name', { ascending: true });
 
-      if (error) {
-        toast.error('Failed to fetch folders: ' + error.message);
-        console.error('Error fetching folders:', error);
-      } else {
-        setFolders(data as Folder[]);
-      }
-      setLoading(false);
-    };
-    fetchFolders();
+    if (error) {
+      toast.error('Failed to fetch folders: ' + error.message);
+      console.error('Error fetching folders:', error);
+    } else {
+      setFolders(data as Folder[]);
+    }
+    setLoading(false);
   }, [userId, supabase]);
+
+  useEffect(() => { fetchFolders(); }, [fetchFolders]);
 
   const handleAddFolder = async () => {
     if (!newFolderName.trim()) {

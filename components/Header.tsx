@@ -22,7 +22,7 @@ export function Header() {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('tier')
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .single();
 
         if (error) {
@@ -40,7 +40,7 @@ export function Header() {
       setUser(session?.user ?? null);
       if (session?.user) {
         // Refetch profile on auth state change
-        supabase.from('profiles').select('tier').eq('id', session.user.id).single()
+        supabase.from('profiles').select('tier').eq('user_id', session.user.id).single()
           .then(({ data: profile, error }) => {
             if (error) console.error('Error fetching profile on auth change:', error);
             else if (profile) setUserTier(profile.tier);
@@ -81,6 +81,12 @@ export function Header() {
           </Link>
           <Link href="/pricing" className="text-slate-400 hover:text-white transition-colors text-sm">
             Pricing
+          </Link>
+          <Link href="/demo" className="text-slate-400 hover:text-white transition-colors text-sm">
+            Demos
+          </Link>
+          <Link href="/targeted" className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
+            <span>🎯</span> Targeted
           </Link>
           <Link href="/docs" className="text-slate-400 hover:text-white transition-colors text-sm">
             Docs

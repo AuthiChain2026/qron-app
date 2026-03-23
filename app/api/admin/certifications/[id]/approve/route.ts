@@ -4,17 +4,20 @@ import { generateQRWithSeal } from '@/lib/qr-generator';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { approved_by } = await request.json();
 
     // Get certification with product data
     const { data: cert, error: certError } = await supabase
       .from('certifications')
       .select('*, products(*)')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
     if (certError) throw certError;
 
@@ -45,7 +48,7 @@ export async function POST(
         approved_by,
         approved_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
     if (error) throw error;

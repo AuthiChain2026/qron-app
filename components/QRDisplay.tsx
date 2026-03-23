@@ -204,7 +204,7 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           <span>Target URL</span>
           <a href={qron.destinationUrl} target="_blank" rel="noopener noreferrer"
              className="text-qron-primary hover:underline flex items-center gap-1">
-            {new URL(qron.destinationUrl).hostname}
+            {qron.destinationUrl ? new URL(qron.destinationUrl).hostname : ''}
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>

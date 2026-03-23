@@ -14,6 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { fal } from '@fal-ai/client'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -63,6 +64,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI generation not configured' }, { status: 503 })
     }
 
+    fal.config({ credentials: falKey })
+
     // ── Generate base QR ──────────────────────────────────────────────────────
     const QRCode = (await import('qrcode')).default
     const qrDataUrl: string = await QRCode.toDataURL(url, {
@@ -73,47 +76,35 @@ export async function POST(req: NextRequest) {
 
     // ── Generate artistic QR via Fal.ai ───────────────────────────────────────
     const steps = MODE_STEPS[mode] ?? MODE_STEPS.standard
-    const falResponse = await fetch('https://fal.run/fal-ai/illusion-diffusion', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
+      input: {
         prompt: `highly detailed QR code art, scannable, ${prompt.trim()}`,
         image_url: qrDataUrl,
-        qr_code_content: url,
         guidance_scale: 8.5,
         num_inference_steps: steps,
-        strength: 0.75,
         controlnet_conditioning_scale: 1.5,
-      }),
+      },
     })
 
-    if (!falResponse.ok) {
-      const errText = await falResponse.text()
-      console.error('[qron/generate] Fal.ai error:', falResponse.status, errText)
-      return NextResponse.json({ error: 'AI generation failed' }, { status: 502 })
-    }
-
-    const falData = await falResponse.json()
-    const imageUrl: string | undefined = falData.image?.url || falData.images?.[0]?.url
+    const falData = falResult.data as Record<string, any>
+    const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
 
     if (!imageUrl) {
       return NextResponse.json({ error: 'No image returned from AI service' }, { status: 502 })
     }
 
     // ── Log generation event ──────────────────────────────────────────────────
-    await supabase.from('qron_generations').insert({
+    const { error: insertErr } = await supabase.from('qron_generations').insert({
       user_id: user.id,
       url,
       prompt: prompt.trim(),
       mode,
       image_url: imageUrl,
       generated_at: new Date().toISOString(),
-    }).throwOnError().catch((err: unknown) => {
-      console.warn('[qron/generate] Non-fatal: failed to log generation', err)
     })
+    if (insertErr) {
+      console.warn('[qron/generate] Non-fatal: failed to log generation', insertErr)
+    }
 
     return NextResponse.json({ imageUrl, qrDataUrl, prompt: prompt.trim(), url })
   } catch (err: any) {

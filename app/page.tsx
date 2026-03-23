@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
-import { MODES, FalaiPreset, QRONMode } from '@/lib/types';
+import { MODES, FalaiPreset, QRONModeConfig } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ export default function Home() {
 
   const [targetUrl, setTargetUrl] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [selectedMode, setSelectedMode] = useState<QRONMode>(MODES[0]);
+  const [selectedMode, setSelectedMode] = useState<QRONModeConfig>(MODES[0]);
   const [presetId, setPresetId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -119,9 +119,11 @@ export default function Home() {
       });
       const { url, error: checkoutError } = await res.json();
       if (url) window.location.assign(url);
+      else if (plan.stripe_payment_link) window.location.assign(plan.stripe_payment_link);
       else if (checkoutError) setError(checkoutError);
     } catch {
-      setError('Could not start checkout. Please try again.');
+      if (plan.stripe_payment_link) window.location.assign(plan.stripe_payment_link);
+      else setError('Could not start checkout. Please try again.');
     }
   };
 
@@ -376,8 +378,22 @@ export default function Home() {
 
         <div className="gold-divider my-12" />
 
+        {/* ─── Social Proof Strip ───────────────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-4 mb-12 text-center">
+          {[
+            { stat: '100%', label: 'Scan guarantee' },
+            { stat: 'Ed25519', label: 'Cryptographic signing' },
+            { stat: '< 3s', label: 'Generation time' },
+          ].map(({ stat, label }) => (
+            <div key={label} className="protocol-card p-4">
+              <div className="text-2xl font-bold gold-text">{stat}</div>
+              <div className="text-xs mt-1" style={{ color: '#6b6b6b' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* ─── Pricing ──────────────────────────────────────────────────── */}
-        <section className="mb-16">
+        <section className="mb-16" id="pricing">
           <div className="text-center mb-10">
             <span className="protocol-badge mb-4 inline-flex">
               <Shield className="w-3 h-3" />
@@ -387,7 +403,7 @@ export default function Home() {
               <span className="gold-text">Choose Your Tier</span>
             </h2>
             <p className="text-base max-w-lg mx-auto" style={{ color: '#6b6b6b' }}>
-              All plans include AuthiChain Protocol verification.{' '}
+              All plans include AuthiChain Protocol verification. Credits never expire.{' '}
               <a href="https://authichain.com" target="_blank" rel="noreferrer"
                  style={{ color: '#c9a227', textDecoration: 'none' }}>
                 Enterprise operations →
@@ -503,6 +519,46 @@ export default function Home() {
             Visit AuthiChain Enterprise →
           </a>
         </div>
+
+        {/* ─── FAQ ──────────────────────────────────────────────────────── */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-center mb-8">
+            <span className="gold-text">Frequently Asked Questions</span>
+          </h2>
+          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            {[
+              {
+                q: 'Do credits expire?',
+                a: 'Never. Pack credits are yours indefinitely — buy once, use whenever you need.',
+              },
+              {
+                q: 'Can I scan the QR codes on any phone?',
+                a: 'Yes. Every QRON works with any standard camera app — no special app required.',
+              },
+              {
+                q: 'What is AuthiChain verification?',
+                a: 'Each QR is Ed25519-signed and anchored on the AuthiChain blockchain. Anyone who scans it can verify its authenticity instantly.',
+              },
+              {
+                q: 'What if I need more than 2,000 generations?',
+                a: 'The Business plan gives you unlimited generations for $49/month, or contact us for a custom enterprise contract.',
+              },
+              {
+                q: 'What AI model generates the QR art?',
+                a: 'We use Fal.ai\'s illusion-diffusion model, fine-tuned to maximize scan reliability while maximizing visual quality.',
+              },
+              {
+                q: 'Is there a refund policy?',
+                a: 'If your generated QR is not scannable, we regenerate it free. For billing issues, contact authichain@gmail.com.',
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="protocol-card p-5">
+                <p className="font-semibold text-sm mb-2" style={{ color: '#c8c8c8' }}>{q}</p>
+                <p className="text-xs" style={{ color: '#6b6b6b' }}>{a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* ─── Trust Strip ──────────────────────────────────────────────── */}
         <div className="text-center space-y-2 py-6">

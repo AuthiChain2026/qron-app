@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Tag as TagIcon, Trash2, Edit, Save, X, Loader2 } from 'lucide-react';
@@ -24,25 +24,24 @@ export function TagManager({ userId, onTagSelected }: TagManagerProps) {
   const [editingTagName, setEditingTagName] = useState('');
   const supabase = createClient();
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('tags')
-        .select('*')
-        .eq('user_id', userId)
-        .order('name', { ascending: true });
+  const fetchTags = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('tags')
+      .select('*')
+      .eq('user_id', userId)
+      .order('name', { ascending: true });
 
-      if (error) {
-        toast.error('Failed to fetch tags: ' + error.message);
-        console.error('Error fetching tags:', error);
-      } else {
-        setTags(data as Tag[]);
-      }
-      setLoading(false);
-    };
-    fetchTags();
+    if (error) {
+      toast.error('Failed to fetch tags: ' + error.message);
+      console.error('Error fetching tags:', error);
+    } else {
+      setTags(data as Tag[]);
+    }
+    setLoading(false);
   }, [userId, supabase]);
+
+  useEffect(() => { fetchTags(); }, [fetchTags]);
 
   const handleAddTag = async () => {
     if (!newTagName.trim()) {
