@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 
 import { User } from '@supabase/supabase-js';
-import { QRONMode, QRONEntry } from '@/lib/types';
+import { QRONEntry } from '@/lib/types';
 
 interface QRONGalleryProps {
   currentUserId?: string; // New prop for filtering by user ID
@@ -55,18 +55,6 @@ export function QRONGallery({ currentUserId, selectedFolderId, selectedTagId }: 
           query = query.eq('folder_id', selectedFolderId);
         }
 
-        // Apply tag filter (more complex, requires join)
-        if (selectedTagId) {
-            // This requires a join and filter on the join table.
-            // Supabase's PostgREST has limitations on how deeply you can filter
-            // related tables directly in the .eq() method.
-            // A common workaround is to use a stored procedure or perform two queries.
-            // For now, let's keep it simple: we'll filter client-side or assume
-            // the tags are part of the QRON object (which they are via rpc in next step)
-            // Or we do a RPC call here.
-            // I'll leave the actual tag filtering for a later step, as it's more involved.
-        }
-        
         query = query.order('created_at', { ascending: false });
 
         const { data, error } = await query;
@@ -74,7 +62,7 @@ export function QRONGallery({ currentUserId, selectedFolderId, selectedTagId }: 
         if (error) {
           console.error('Error fetching QRONs:', error);
         } else {
-          // Filter by tag client-side if selectedTagId is present
+          // Filter by tag client-side using the joined qron_tags relation
           let filteredQrons = (data as QRONEntry[]);
           if (selectedTagId) {
             filteredQrons = filteredQrons.filter(qron => 
@@ -148,4 +136,3 @@ export function QRONGallery({ currentUserId, selectedFolderId, selectedTagId }: 
     </div>
   );
 }
-
