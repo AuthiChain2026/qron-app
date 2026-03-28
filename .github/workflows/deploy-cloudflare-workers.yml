@@ -1,0 +1,59 @@
+name: Deploy Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'workers/qron-analytics/**'
+      - '.github/workflows/deploy-cloudflare-workers.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-qron-analytics:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: workers/qron-analytics
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Wrangler
+        run: npm install --no-save wrangler@4
+
+      - name: Validate Cloudflare secrets
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "Missing CLOUDFLARE_API_TOKEN"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            echo "Missing CLOUDFLARE_ACCOUNT_ID"
+            exit 1
+          fi
+
+      - name: Deploy analytics worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/qron-analytics
+          command: deploy --config wrangler.routes.toml
+
+      - name: Publish summary
+        run: |
+          echo "### Cloudflare Worker Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Deployed routes:" >> $GITHUB_STEP_SUMMARY
+          echo "- analytics.qron.space/*" >> $GITHUB_STEP_SUMMARY
+          echo "- qron.space/api/analytics/*" >> $GITHUB_STEP_SUMMARY
+          echo "- www.qron.space/api/analytics/*" >> $GITHUB_STEP_SUMMARY
