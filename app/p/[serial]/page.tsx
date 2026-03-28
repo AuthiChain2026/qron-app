@@ -4,15 +4,16 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
 interface PageProps {
-  params: { serial: string };
+  params: Promise<{ serial: string }>;
 }
 
 export default async function CertificationPage({ params }: PageProps) {
+  const { serial } = await params;
   const supabase = await createClient();
   const { data: cert, error } = await supabase
     .from('certifications')
     .select('*, products(*)')
-    .eq('serial_number', params.serial)
+    .eq('serial_number', serial)
     .single();
 
   if (error || !cert) {
