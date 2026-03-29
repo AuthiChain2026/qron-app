@@ -11,6 +11,15 @@ export interface GeneratedQRON {
   prompt?: string;
   mode?: string;
   createdAt?: string;
+  registration_id?: string | null;
+}
+
+export interface ScanResult {
+  id: string;
+  scannable: boolean;
+  decoded: string | null;
+  confidence: number;
+  registration_id: string;
 }
 
 // Define QRONEntry type
