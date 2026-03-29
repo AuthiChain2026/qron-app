@@ -223,6 +223,59 @@ export default function FreeQRGenerator() {
         </div>
       </section>
 
+      {/* Credit Pack Upsell */}
+      <section style={{ padding: '60px 24px', borderTop: '1px solid #1a1a1a' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}>
+            Need More AI QR Codes?
+          </h2>
+          <p style={{ color: '#9e9e9e', marginBottom: '32px' }}>
+            One-time packs. Credits never expire. No subscription required.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            {[
+              { name: 'Starter Pack', credits: 100, price: '$29', perCode: '$0.29', priceId: 'starter', link: 'https://buy.stripe.com/6oUeVfflp9lPgzY76AaIM0c', popular: false },
+              { name: 'Creator Pack', credits: 500, price: '$99', perCode: '$0.20', priceId: 'creator', link: 'https://buy.stripe.com/28E00l6OT7dHcjI1MgaIM0d', popular: true },
+              { name: 'Studio Pack', credits: 2000, price: '$299', perCode: '$0.15', priceId: 'studio', link: 'https://buy.stripe.com/9B66oJ1uz7dHabA1MgaIM0e', popular: false },
+            ].map((pack) => (
+              <div key={pack.priceId} style={{
+                background: pack.popular ? 'linear-gradient(135deg, rgba(201,162,39,0.12), rgba(201,162,39,0.04))' : '#141414',
+                border: pack.popular ? '2px solid #c9a227' : '1px solid #2a2a2a',
+                borderRadius: '16px',
+                padding: '28px 20px',
+                position: 'relative',
+              }}>
+                {pack.popular && (
+                  <div style={{
+                    position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)',
+                    background: 'linear-gradient(135deg, #c9a227, #a88520)', color: '#fff',
+                    padding: '4px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+                  }}>BEST VALUE</div>
+                )}
+                <h3 style={{ fontWeight: 700, fontSize: '18px', marginBottom: '4px' }}>{pack.name}</h3>
+                <div style={{ fontSize: '36px', fontWeight: 800, color: '#c9a227', margin: '12px 0 4px' }}>{pack.price}</div>
+                <p style={{ fontSize: '14px', color: '#9e9e9e', marginBottom: '4px' }}>{pack.credits} AI QR codes</p>
+                <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>{pack.perCode}/code</p>
+                <a
+                  href={pack.link}
+                  style={{
+                    display: 'block', padding: '12px', borderRadius: '10px', fontWeight: 700,
+                    fontSize: '14px', textDecoration: 'none', textAlign: 'center',
+                    background: pack.popular ? 'linear-gradient(135deg, #c9a227, #a88520)' : '#222',
+                    color: '#fff', border: pack.popular ? 'none' : '1px solid #333',
+                  }}
+                >
+                  Buy {pack.name}
+                </a>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: '12px', color: '#555', marginTop: '16px' }}>
+            Secure checkout via Stripe. Credits added instantly to your account.
+          </p>
+        </div>
+      </section>
+
       {/* SEO Content Section */}
       <section style={{ padding: '60px 24px', borderTop: '1px solid #1a1a1a' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
