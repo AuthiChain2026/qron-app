@@ -6,16 +6,32 @@ import { QronThirdwebProvider } from '@/components/ThirdwebProvider';
 import { WalletBar } from '@/components/WalletBar';
 
 export const metadata: Metadata = {
-  title: "QRON — Creative Layer of the AuthiChain Protocol",
-  description: "Generate AI-powered, cryptographically verified QR art. The creative expression layer of AuthiChain — where authentication meets artistry.",
-  keywords: ["QRON", "AuthiChain", "AI QR code", "blockchain authentication", "QR art", "anti-counterfeiting", "creative QR"],
+  title: {
+    default: "QRON — AI QR Code Art Generator | Free Creative QR Codes",
+    template: "%s | QRON",
+  },
+  description: "Create stunning AI-powered QR code art for free. Turn boring QR codes into branded masterpieces. Blockchain-verified, cryptographically secured. The creative layer of AuthiChain Protocol.",
+  keywords: ["AI QR code generator", "QR code art", "creative QR codes", "free QR generator", "branded QR codes", "artistic QR codes", "QRON", "AuthiChain", "blockchain QR", "custom QR design"],
+  metadataBase: new URL("https://qron.space"),
   openGraph: {
-    title: "QRON — Creative Layer of the AuthiChain Protocol",
-    description: "Where authentication meets artistry. Powered by AuthiChain Protocol.",
+    title: "QRON — AI QR Code Art Generator | Free Creative QR Codes",
+    description: "Turn boring QR codes into AI-generated art. Free to start. Blockchain-verified.",
     url: "https://qron.space",
     siteName: "QRON by AuthiChain",
     type: "website",
+    locale: "en_US",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "QRON — AI QR Code Art Generator",
+    description: "Turn boring QR codes into AI-generated art. Free to start.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
+  },
+  alternates: { canonical: "https://qron.space" },
 };
 
 export default function RootLayout({
@@ -25,6 +41,33 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "QRON",
+              applicationCategory: "DesignApplication",
+              operatingSystem: "Web",
+              description: "AI-powered QR code art generator. Create stunning, blockchain-verified creative QR codes.",
+              url: "https://qron.space",
+              offers: [
+                { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD", description: "3 free AI QR codes" },
+                { "@type": "Offer", name: "Starter Pack", price: "29", priceCurrency: "USD", description: "10 QR codes" },
+                { "@type": "Offer", name: "Pro Pack", price: "99", priceCurrency: "USD", description: "50 QR codes" },
+                { "@type": "Offer", name: "Studio Pack", price: "299", priceCurrency: "USD", description: "200 QR codes" },
+              ],
+              publisher: {
+                "@type": "Organization",
+                name: "AuthiChain, Inc.",
+                url: "https://authichain.com",
+              },
+            }),
+          }}
+        />
+      </head>
       <body className="antialiased">
         <QronThirdwebProvider>
         {/* Protocol Header Band */}
