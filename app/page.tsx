@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock } from 'lucide-react';
+import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock, ArrowRight } from 'lucide-react';
+import { LeadCapturePopup } from '@/components/LeadCapturePopup';
 import { createClient } from '@/utils/supabase/client';
 import { MODES, FalaiPreset, QRONModeConfig } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
@@ -185,6 +186,56 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {/* ─── Inline Email Capture ──────────────────────────────────── */}
+        {!user && (
+          <div className="protocol-card p-6 mt-10 mb-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white mb-2">Get 10 Free AI QR Codes</h3>
+                <p className="text-sm" style={{ color: '#9e9e9e' }}>
+                  Create stunning, scannable QR art. No credit card required.
+                </p>
+              </div>
+              <form
+                className="flex gap-2 w-full md:w-auto"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const form = e.target as HTMLFormElement
+                  const emailInput = form.querySelector('input') as HTMLInputElement
+                  if (!emailInput.value) return
+                  fetch('/api/leads/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email: emailInput.value,
+                      source: 'inline_hero',
+                      product_interest: 'qron',
+                      page_url: '/',
+                    }),
+                  }).then(() => {
+                    emailInput.value = ''
+                    window.location.assign('/login')
+                  }).catch(() => window.location.assign('/login'))
+                }}
+              >
+                <input
+                  type="email"
+                  required
+                  placeholder="Your email"
+                  className="protocol-input px-4 py-3 flex-1 min-w-0"
+                />
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg text-black font-semibold whitespace-nowrap"
+                  style={{ background: 'linear-gradient(135deg, #c9a227, #a07c10)' }}
+                >
+                  Start Free <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         <div className="gold-divider mb-12" />
 
@@ -557,6 +608,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        {/* Lead Capture Popup */}
+        <LeadCapturePopup />
 
         {/* ─── Trust Strip ──────────────────────────────────────────────── */}
         <div className="text-center space-y-2 py-6">
