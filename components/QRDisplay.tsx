@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { GeneratedQRON, QRONMode } from '@/lib/types';
-import { Download, Share2, Wallet, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
+import { GeneratedQRON, QRONMode, ScanResult } from '@/lib/types';
+import { Download, Share2, Wallet, ExternalLink, Loader2, CheckCircle2, ShieldCheck, ShieldX, ScanLine } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { useActiveAccount } from 'thirdweb/react';
@@ -19,6 +19,8 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
   const account = useActiveAccount();
   const [minting, setMinting] = useState(false);
   const [mintedTokenId, setMintedTokenId] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
 
   const handleDownload = async () => {
     if (!qron?.imageUrl) return;
@@ -51,10 +53,45 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
     }
   };
 
+  const handleScanValidate = async () => {
+    if (!qron?.imageUrl || !qron.registration_id) {
+      toast.error('No registration ID — generate a new QRON first');
+      return;
+    }
+
+    setScanning(true);
+    setScanResult(null);
+
+    try {
+      const res = await fetch('/api/qron/scan-validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_url: qron.imageUrl,
+          registration_id: qron.registration_id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Scan validation failed');
+
+      setScanResult(data);
+
+      if (data.scannable) {
+        toast.success(`QR verified! Decoded: ${data.decoded?.slice(0, 50)}...`);
+      } else {
+        toast.error('QR code is not scannable. Try regenerating.');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Scan validation failed');
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const handleMint = async () => {
     if (!qron) return;
-
-    // If no wallet, the button below opens the connect modal instead
     if (!account?.address) return;
 
     setMinting(true);
@@ -67,6 +104,7 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           imageUrl: qron.imageUrl,
           destinationUrl: qron.destinationUrl,
           qronId: qron.id,
+          registration_id: qron.registration_id,
         }),
       });
 
@@ -74,7 +112,7 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
 
       if (!res.ok) throw new Error(data.error || 'Mint failed');
 
-      setMintedTokenId(data.tokenId ?? data.txHash ?? 'minted');
+      setMintedTokenId(data.txHash ?? 'minted');
       toast.success('NFT minted to your wallet!');
     } catch (err: any) {
       toast.error(err.message || 'Minting failed');
@@ -133,10 +171,22 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
         {mode === 'holographic' && (
           <div className="absolute inset-0 holographic opacity-30 pointer-events-none" />
         )}
+
+        {/* Scan badge overlay */}
+        {scanResult && (
+          <div className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+            scanResult.scannable
+              ? 'bg-green-500/90 text-white'
+              : 'bg-red-500/90 text-white'
+          }`}>
+            {scanResult.scannable ? <ShieldCheck className="w-3 h-3" /> : <ShieldX className="w-3 h-3" />}
+            {scanResult.scannable ? 'Scan Safe' : 'Not Scannable'}
+          </div>
+        )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 mb-4">
+      {/* Primary Action Buttons */}
+      <div className="flex gap-2 mb-3">
         <button onClick={handleDownload} className="qron-button-secondary flex-1 flex items-center justify-center gap-2">
           <Download className="w-4 h-4" />
           Download
@@ -145,48 +195,92 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           <Share2 className="w-4 h-4" />
           Share
         </button>
+      </div>
 
-        {/* Mint NFT — memory mode only */}
-        {mode === 'memory' && (
-          mintedTokenId ? (
-            <div className="flex-1 flex items-center justify-center gap-2 text-sm text-green-400 font-medium">
-              <CheckCircle2 className="w-4 h-4" />
-              Minted!
-            </div>
-          ) : account?.address ? (
-            <button
-              onClick={handleMint}
-              disabled={minting}
-              className="qron-button flex-1 flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              {minting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
-              {minting ? 'Minting…' : 'Mint NFT'}
-            </button>
+      {/* Scan Validation Button */}
+      {qron.registration_id && !scanResult && (
+        <button
+          onClick={handleScanValidate}
+          disabled={scanning}
+          className="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-600 disabled:opacity-60"
+        >
+          {scanning ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Validating scan...
+            </>
           ) : (
-            /* Wallet not connected — show inline connect button */
-            <div className="flex-1">
-              <ConnectButton
-                client={thirdwebClient}
-                chain={activeChain}
-                connectButton={{
-                  label: '🔗 Connect to Mint',
-                  style: {
-                    width: '100%',
-                    background: 'linear-gradient(135deg, #c9a227, #a07c10)',
-                    color: '#000',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    borderRadius: '8px',
-                    border: 'none',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    height: 'auto',
-                    minHeight: 'unset',
-                  },
-                }}
-              />
-            </div>
-          )
+            <>
+              <ScanLine className="w-4 h-4" />
+              Verify QR Scannability
+            </>
+          )}
+        </button>
+      )}
+
+      {/* Scan Result Detail */}
+      {scanResult && (
+        <div className={`mb-3 p-3 rounded-lg text-sm ${
+          scanResult.scannable
+            ? 'bg-green-500/10 border border-green-500/30 text-green-400'
+            : 'bg-red-500/10 border border-red-500/30 text-red-400'
+        }`}>
+          <div className="flex items-center gap-2 mb-1">
+            {scanResult.scannable ? <ShieldCheck className="w-4 h-4" /> : <ShieldX className="w-4 h-4" />}
+            <span className="font-semibold">
+              {scanResult.scannable ? 'QR Code Verified' : 'QR Not Scannable'}
+            </span>
+          </div>
+          {scanResult.decoded && (
+            <p className="text-xs font-mono opacity-80 truncate">
+              Decoded: {scanResult.decoded}
+            </p>
+          )}
+          <p className="text-xs opacity-70 mt-1">
+            Confidence: {(scanResult.confidence * 100).toFixed(0)}%
+          </p>
+        </div>
+      )}
+
+      {/* Mint NFT Section */}
+      <div className="flex gap-2 mb-4">
+        {mintedTokenId ? (
+          <div className="w-full flex items-center justify-center gap-2 text-sm text-green-400 font-medium py-2">
+            <CheckCircle2 className="w-4 h-4" />
+            NFT Minted Successfully!
+          </div>
+        ) : account?.address ? (
+          <button
+            onClick={handleMint}
+            disabled={minting || (scanResult !== null && !scanResult.scannable)}
+            className="qron-button w-full flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {minting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
+            {minting ? 'Minting...' : 'Mint as NFT'}
+          </button>
+        ) : (
+          <div className="w-full">
+            <ConnectButton
+              client={thirdwebClient}
+              chain={activeChain}
+              connectButton={{
+                label: 'Connect Wallet to Mint',
+                style: {
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #c9a227, #a07c10)',
+                  color: '#000',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  borderRadius: '8px',
+                  border: 'none',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  height: 'auto',
+                  minHeight: 'unset',
+                },
+              }}
+            />
+          </div>
         )}
       </div>
 
@@ -212,11 +306,19 @@ export function QRDisplay({ qron, isGenerating, mode }: QRDisplayProps) {
           <span>Mode</span>
           <span className="text-slate-300 capitalize">{mode}</span>
         </div>
+        {qron.registration_id && (
+          <div className="flex justify-between text-slate-400">
+            <span>Provenance</span>
+            <span className="text-green-400 text-xs font-mono">
+              {qron.registration_id.slice(0, 8)}...
+            </span>
+          </div>
+        )}
         {account?.address && (
           <div className="flex justify-between text-slate-400">
             <span>Wallet</span>
             <span className="text-slate-300 font-mono text-xs">
-              {account.address.slice(0, 6)}…{account.address.slice(-4)}
+              {account.address.slice(0, 6)}...{account.address.slice(-4)}
             </span>
           </div>
         )}
