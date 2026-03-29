@@ -143,18 +143,16 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <div style={{
-              width: 96, height: 96,
-              borderRadius: '50%',
-              border: '2px solid rgba(201,162,39,0.4)',
-              boxShadow: '0 0 32px rgba(255,215,0,0.2), 0 0 64px rgba(201,162,39,0.1)',
-              background: '#0d0d0d',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{ color: '#c9a227', fontSize: '44px', fontWeight: 900, lineHeight: 1, letterSpacing: '-2px' }}>Q</span>
-            </div>
+          {/* Hero QR Art */}
+          <div className="flex justify-center mb-6 animate-float">
+            <Image
+              src="/media/hero-qron-art.svg"
+              alt="QRON Gold QR Art"
+              width={220}
+              height={220}
+              priority
+              style={{ filter: 'drop-shadow(0 0 32px rgba(255,215,0,0.35))' }}
+            />
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight tracking-tight">
@@ -574,3 +572,4 @@ export default function Home() {
     </div>
   );
 }
+
