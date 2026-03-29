@@ -29,7 +29,6 @@
   --steel-dark: #3a3a3a;
   --steel-deeper: #1c1c1c;
 
-  /* Surface layers */
   --surface-1: #111111;
   --surface-2: #161616;
   --surface-3: #1e1e1e;
@@ -224,4 +223,37 @@ body {
   );
   background-size: 1000px 100%;
   animation: goldShimmer 2s infinite;
+}
+
+/* ─── Animations ───────────────────────────────────────────────────────────────────── */
+@keyframes gold-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes gold-border-flow {
+  0%   { border-color: rgba(201,162,39,0.28); }
+  50%  { border-color: rgba(201,162,39,0.55); }
+  100% { border-color: rgba(201,162,39,0.28); }
+}
+
+.animate-gold-pulse    { animation: gold-pulse 2.5s ease-in-out infinite; }
+.animate-float         { animation: float 4s ease-in-out infinite; }
+.animate-spin-slow     { animation: spin-slow 14s linear infinite; }
+.animate-border-flow   { animation: gold-border-flow 3s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(201,162,39,0.28) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.2s linear infinite;
 }
