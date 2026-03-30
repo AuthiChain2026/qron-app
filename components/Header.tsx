@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Github, Twitter } from 'lucide-react';
+import { Github, Twitter, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -15,21 +15,15 @@ export function Header() {
 
   useEffect(() => {
     const getUserAndProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        const { data: profile, error } = await supabase
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      setUser(authUser);
+      if (authUser) {
+        const { data: profile } = await supabase
           .from('profiles')
           .select('tier')
-          .eq('user_id', user.id)
+          .eq('user_id', authUser.id)
           .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-        } else if (profile) {
-          setUserTier(profile.tier);
-        }
+        if (profile) setUserTier(profile.tier);
       } else {
         setUserTier(null);
       }
@@ -39,20 +33,14 @@ export function Header() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        // Refetch profile on auth state change
         supabase.from('profiles').select('tier').eq('user_id', session.user.id).single()
-          .then(({ data: profile, error }) => {
-            if (error) console.error('Error fetching profile on auth change:', error);
-            else if (profile) setUserTier(profile.tier);
-          });
+          .then(({ data: profile }) => { if (profile) setUserTier(profile.tier); });
       } else {
         setUserTier(null);
       }
     });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    return () => { authListener.subscription.unsubscribe(); };
   }, [supabase]);
 
   const handleLogout = async () => {
@@ -61,82 +49,79 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+    <header className="border-b border-[rgba(201,162,39,0.15)] bg-[#0d0d0d]/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-qron-gradient flex items-center justify-center">
-            <span className="text-white font-bold text-sm">Q</span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c9a227] to-[#a07d10] flex items-center justify-center"
+               style={{ boxShadow: '0 0 16px rgba(201,162,39,0.35)' }}>
+            <span className="text-black font-black text-sm">Q</span>
           </div>
-          <span className="text-xl font-bold text-white">QRON</span>
-          <span className="text-xs bg-qron-primary/20 text-qron-primary px-2 py-0.5 rounded-full">
+          <span className="text-xl font-bold" style={{ color: '#ffd700' }}>QRON</span>
+          <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                style={{ background: 'rgba(201,162,39,0.12)', color: '#c9a227', border: '1px solid rgba(201,162,39,0.25)' }}>
             BETA
           </span>
         </Link>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/gallery" className="text-slate-400 hover:text-white transition-colors text-sm">
-            Gallery
-          </Link>
-          <Link href="/pricing" className="text-slate-400 hover:text-white transition-colors text-sm">
-            Pricing
-          </Link>
-          <Link href="/demo" className="text-slate-400 hover:text-white transition-colors text-sm">
+          <Link href="/gallery" className="text-sm transition-colors hover:text-[#e8c547]"
+                style={{ color: '#9e9e9e' }}>Gallery</Link>
+          <Link href="/pricing" className="text-sm transition-colors hover:text-[#e8c547]"
+                style={{ color: '#9e9e9e' }}>Pricing</Link>
+          <Link href="/demo" className="text-sm font-semibold transition-colors flex items-center gap-1"
+                style={{ color: '#c9a227' }}>
+            <Sparkles className="w-3.5 h-3.5" />
             Demos
           </Link>
-          <Link href="/targeted" className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
-            <span>🎯</span> Targeted
+          <Link href="/targeted" className="text-sm transition-colors hover:text-[#e8c547] flex items-center gap-1"
+                style={{ color: '#9e9e9e' }}>
+            🎯 Targeted
           </Link>
-          <Link href="/docs" className="text-slate-400 hover:text-white transition-colors text-sm">
-            Docs
-          </Link>
-          {user && ( // Only show dashboard link if user is logged in
-            <Link href="/dashboard" className="text-slate-400 hover:text-white transition-colors text-sm">
-              Dashboard
-            </Link>
+          <Link href="/docs" className="text-sm transition-colors hover:text-[#e8c547]"
+                style={{ color: '#9e9e9e' }}>Docs</Link>
+          {user && (
+            <Link href="/dashboard" className="text-sm transition-colors hover:text-[#e8c547]"
+                  style={{ color: '#9e9e9e' }}>Dashboard</Link>
           )}
         </nav>
 
-        {/* Social & Auth */}
+        {/* Auth */}
         <div className="flex items-center gap-3">
-          <a
-            href="https://twitter.com/QRONofficial"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            <Twitter className="w-5 h-5" />
-          </a>
-          <a
-            href="https://github.com/QRON-2026/qron-starter-v2"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            <Github className="w-5 h-5" />
-          </a>
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-300">{user.email}</span>
-              {userTier && (
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize
-                  ${userTier === 'free' ? 'bg-qron-primary/20 text-qron-primary' :
-                    userTier === 'pro' ? 'bg-amber-500/20 text-amber-400' :
-                    'bg-purple-500/20 text-purple-400'}`
-                }>
+            <>
+              {userTier && userTier !== 'free' && (
+                <span className="hidden sm:inline text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide"
+                      style={{ background: 'rgba(201,162,39,0.12)', color: '#c9a227', border: '1px solid rgba(201,162,39,0.25)' }}>
                   {userTier}
                 </span>
               )}
-              <button onClick={handleLogout} className="qron-button-secondary text-sm">
-                Logout
+              <button onClick={handleLogout}
+                      className="text-sm transition-colors hover:text-[#e8c547]"
+                      style={{ color: '#9e9e9e' }}>
+                Sign out
               </button>
-            </div>
+            </>
           ) : (
-            <Link href="/login" className="qron-button-secondary text-sm">
-              Sign In
-            </Link>
+            <>
+              <Link href="/login" className="text-sm transition-colors hover:text-[#e8c547]"
+                    style={{ color: '#9e9e9e' }}>Login</Link>
+              <Link href="/login"
+                    className="btn-gold px-5 py-2 rounded-lg text-sm font-bold">
+                Get Started
+              </Link>
+            </>
           )}
+          <a href="https://github.com/authichain2026/qron-app" target="_blank" rel="noreferrer"
+             className="transition-colors hover:text-[#e8c547]" style={{ color: '#6b6b6b' }}>
+            <Github className="w-4 h-4" />
+          </a>
+          <a href="https://twitter.com/authichain" target="_blank" rel="noreferrer"
+             className="transition-colors hover:text-[#e8c547]" style={{ color: '#6b6b6b' }}>
+            <Twitter className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </header>
