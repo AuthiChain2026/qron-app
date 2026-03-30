@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock, ArrowRight } from 'lucide-react';
-import { LeadCapturePopup } from '@/components/LeadCapturePopup';
+import { Sparkles, Download, CreditCard, CheckCircle, Shield, Zap, Lock } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { MODES, FalaiPreset, QRONModeConfig } from '@/lib/types';
 import { PLANS } from '@/lib/plans';
@@ -186,56 +185,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        {/* ─── Inline Email Capture ──────────────────────────────────── */}
-        {!user && (
-          <div className="protocol-card p-6 mt-10 mb-10">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">Get 10 Free AI QR Codes</h3>
-                <p className="text-sm" style={{ color: '#9e9e9e' }}>
-                  Create stunning, scannable QR art. No credit card required.
-                </p>
-              </div>
-              <form
-                className="flex gap-2 w-full md:w-auto"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const form = e.target as HTMLFormElement
-                  const emailInput = form.querySelector('input') as HTMLInputElement
-                  if (!emailInput.value) return
-                  fetch('/api/leads/capture', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      email: emailInput.value,
-                      source: 'inline_hero',
-                      product_interest: 'qron',
-                      page_url: '/',
-                    }),
-                  }).then(() => {
-                    emailInput.value = ''
-                    window.location.assign('/login')
-                  }).catch(() => window.location.assign('/login'))
-                }}
-              >
-                <input
-                  type="email"
-                  required
-                  placeholder="Your email"
-                  className="protocol-input px-4 py-3 flex-1 min-w-0"
-                />
-                <button
-                  type="submit"
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg text-black font-semibold whitespace-nowrap"
-                  style={{ background: 'linear-gradient(135deg, #c9a227, #a07c10)' }}
-                >
-                  Start Free <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
 
         <div className="gold-divider mb-12" />
 
@@ -441,7 +390,70 @@ export default function Home() {
           ))}
         </div>
 
-        {/* ─── Pricing ──────────────────────────────────────────────────── */}
+
+        {/* ─── Demo Gallery Preview ─────────────────────────────────────── */}
+        <section className="mb-16" id="demo-gallery">
+          <div className="text-center mb-10">
+            <span className="protocol-badge mb-4 inline-flex">
+              <Sparkles className="w-3 h-3" />
+              Iconic Brand QRONs
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-3">
+              <span className="gold-text">The Demo Gallery</span>
+            </h2>
+            <p className="text-base max-w-lg mx-auto" style={{ color: '#6b6b6b' }}>
+              See what's possible when AI meets the world's most recognizable brands.
+              Every QRON is fully scannable and AuthiChain-verified.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {[
+              { emoji: '🏀', brand: 'Nike QRON', style: 'Hypebeast', category: 'Sport' },
+              { emoji: '💎', brand: 'Louis Vuitton', style: 'Luxury', category: 'Luxury' },
+              { emoji: '🎵', brand: 'Drake OVO', style: 'Gold Art', category: 'Celebrity' },
+              { emoji: '🚗', brand: 'Ferrari', style: 'Supercar', category: 'Luxury' },
+            ].map(({ emoji, brand, style, category }) => (
+              <div key={brand} className="protocol-card overflow-hidden group">
+                <div className="aspect-square flex flex-col items-center justify-center"
+                     style={{ background: 'linear-gradient(135deg, #1a1400, #0a0800)' }}>
+                  {/* Mini QR placeholder */}
+                  <div className="relative w-20 h-20 mb-3">
+                    <svg viewBox="0 0 60 60" className="w-full h-full opacity-70">
+                      <rect x="4" y="4" width="18" height="18" rx="2" fill="none" stroke="#c9a227" strokeWidth="2"/>
+                      <rect x="7" y="7" width="12" height="12" rx="1" fill="#c9a227" opacity="0.5"/>
+                      <rect x="38" y="4" width="18" height="18" rx="2" fill="none" stroke="#c9a227" strokeWidth="2"/>
+                      <rect x="41" y="7" width="12" height="12" rx="1" fill="#c9a227" opacity="0.5"/>
+                      <rect x="4" y="38" width="18" height="18" rx="2" fill="none" stroke="#c9a227" strokeWidth="2"/>
+                      <rect x="7" y="41" width="12" height="12" rx="1" fill="#c9a227" opacity="0.5"/>
+                      {[26,30,34,38,42,46].map(x => [26,30,34,38,42,46].map(y =>
+                        Math.sin(x*y*0.3)>0 ? <rect key={`${x}${y}`} x={x} y={y} width="3" height="3" fill="#e8c547" opacity="0.6"/> : null
+                      ))}
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center text-2xl">{emoji}</div>
+                  </div>
+                  <p className="text-xs font-semibold text-white text-center px-2">{brand}</p>
+                  <p className="text-xs mt-0.5 text-center" style={{ color: '#c9a227', opacity: 0.7 }}>{style}</p>
+                </div>
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <span className="text-xs" style={{ color: '#6b6b6b' }}>{category}</span>
+                  <span className="text-xs" style={{ color: '#c9a227' }}>✓ Verified</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <a href="/demo"
+               className="btn-gold px-8 py-3 rounded-xl inline-flex items-center gap-2 font-bold">
+              <Sparkles className="w-4 h-4" />
+              Browse Full Demo Gallery →
+            </a>
+            <p className="text-xs mt-3" style={{ color: '#6b6b6b' }}>
+              20+ iconic brands · Order yours from $49 · Delivered in ~5 min
+            </p>
+          </div>
+        </section>
+
+                {/* ─── Pricing ──────────────────────────────────────────────────── */}
         <section className="mb-16" id="pricing">
           <div className="text-center mb-10">
             <span className="protocol-badge mb-4 inline-flex">
@@ -609,9 +621,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Lead Capture Popup */}
-        <LeadCapturePopup />
-
         {/* ─── Trust Strip ──────────────────────────────────────────────── */}
         <div className="text-center space-y-2 py-6">
           <p className="text-xs" style={{ color: '#6b6b6b' }}>
@@ -626,4 +635,5 @@ export default function Home() {
     </div>
   );
 }
+
 
