@@ -17,9 +17,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
@@ -40,7 +41,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: |
           if [ -z "$STRIPE_SECRET_KEY" ]; then
-            echo "⚠️  STRIPE_SECRET_KEY secret not set — skipping webhook registration"
+            echo "STRIPE_SECRET_KEY secret not set - skipping webhook registration"
             echo "Add STRIPE_SECRET_KEY to GitHub Secrets and re-run this workflow"
             exit 0
           fi
@@ -61,12 +62,12 @@ jobs:
           " 2>/dev/null)
 
           if [ -n "$EXISTING_ID" ]; then
-            echo "Found existing endpoint $EXISTING_ID — rotating secret..."
+            echo "Found existing endpoint $EXISTING_ID - rotating secret..."
             RESPONSE=$(curl -s -X POST \
               "https://api.stripe.com/v1/webhook_endpoints/$EXISTING_ID/secret_rotate" \
               -u "$STRIPE_SECRET_KEY:")
             SECRET=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('secret',''))" 2>/dev/null)
-            echo "✅ Rotated webhook secret for $EXISTING_ID"
+            echo "Rotated webhook secret for $EXISTING_ID"
           else
             echo "Creating new webhook endpoint..."
             RESPONSE=$(curl -s -X POST "https://api.stripe.com/v1/webhook_endpoints" \
@@ -75,11 +76,11 @@ jobs:
               -d "enabled_events[]=checkout.session.completed")
             SECRET=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('secret',''))" 2>/dev/null)
             ID=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null)
-            echo "✅ Created webhook endpoint: $ID"
+            echo "Created webhook endpoint: $ID"
           fi
 
           if [ -z "$SECRET" ]; then
-            echo "❌ Failed to obtain webhook secret. Stripe API response:"
+            echo "Failed to obtain webhook secret. Stripe API response:"
             echo "$RESPONSE"
             exit 1
           fi
@@ -88,5 +89,5 @@ jobs:
           echo "============================================"
           echo "STRIPE_WEBHOOK_SECRET=$SECRET"
           echo "============================================"
-          echo "👆 Copy the value above into:"
-          echo "   Vercel → qron-app → Settings → Environment Variables"
+          echo "Copy the value above into:"
+          echo "   Vercel -> qron-app -> Settings -> Environment Variables"
