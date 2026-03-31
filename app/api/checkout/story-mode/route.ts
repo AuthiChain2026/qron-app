@@ -80,21 +80,29 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    payment_method_types: ['card'],
-    line_items: [lineItem as any],
-    success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&type=story_mode&qronId=${qronId}`,
-    cancel_url: `${origin}/dashboard`,
-    ...(email ? { customer_email: email } : {}),
-    metadata: {
-      type: 'story_mode',
-      qronId,
-      tier,
-    },
-  })
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [lineItem as any],
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&type=story_mode&qronId=${qronId}`,
+      cancel_url: `${origin}/dashboard`,
+      ...(email ? { customer_email: email } : {}),
+      metadata: {
+        type: 'story_mode',
+        qronId,
+        tier,
+      },
+    })
 
-  return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url })
+  } catch (error: any) {
+    console.error('[checkout/story-mode] Error:', error)
+    if (error?.type === 'StripeInvalidRequestError' && /payment.method/i.test(error?.message ?? '')) {
+      return NextResponse.json({ error: 'Card payments are not enabled on this Stripe account. Contact support.', code: 'PAYMENT_METHOD_DISABLED' }, { status: 503 })
+    }
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
+  }
 }
 
 // GET — return story mode pricing info

@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
 
     const falKey = process.env.FAL_KEY
     if (!falKey) {
-      return NextResponse.json({ error: 'AI generation not configured' }, { status: 503 })
+      return NextResponse.json({ error: 'AI image generation service is not configured', code: 'FAL_KEY_MISSING' }, { status: 503 })
     }
 
     fal.config({ credentials: falKey })

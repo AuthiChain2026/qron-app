@@ -67,8 +67,11 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error) {
+  } catch (error: any) {
     console.error('[checkout] Error:', error)
+    if (error?.type === 'StripeInvalidRequestError' && /payment.method/i.test(error?.message ?? '')) {
+      return NextResponse.json({ error: 'Card payments are not enabled on this Stripe account. Contact support.', code: 'PAYMENT_METHOD_DISABLED' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }
