@@ -86,25 +86,33 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    payment_method_types: ['card'],
-    line_items: [lineItem as any],
-    success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&type=custom_qron`,
-    cancel_url: `${origin}/demo`,
-    ...(email ? { customer_email: email } : {}),
-    // Metadata consumed by the webhook to auto-generate the QRON
-    metadata: {
-      type: 'custom_qron',
-      url,
-      subject: subject.trim().slice(0, 500),
-      style,
-      tier,
-      steps: String(tierConfig.steps),
-      mintNft: tier === 'elite' ? 'true' : 'false',
-      ...(referenceImageUrl ? { referenceImageUrl } : {}),
-    },
-  })
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [lineItem as any],
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&type=custom_qron`,
+      cancel_url: `${origin}/demo`,
+      ...(email ? { customer_email: email } : {}),
+      // Metadata consumed by the webhook to auto-generate the QRON
+      metadata: {
+        type: 'custom_qron',
+        url,
+        subject: subject.trim().slice(0, 500),
+        style,
+        tier,
+        steps: String(tierConfig.steps),
+        mintNft: tier === 'elite' ? 'true' : 'false',
+        ...(referenceImageUrl ? { referenceImageUrl } : {}),
+      },
+    })
 
-  return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url })
+  } catch (error: any) {
+    console.error('[checkout/custom-qron] Error:', error)
+    if (error?.type === 'StripeInvalidRequestError' && /payment.method/i.test(error?.message ?? '')) {
+      return NextResponse.json({ error: 'Card payments are not enabled on this Stripe account. Contact support.', code: 'PAYMENT_METHOD_DISABLED' }, { status: 503 })
+    }
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
+  }
 }

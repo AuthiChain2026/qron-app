@@ -32,7 +32,7 @@ interface GenerateBody {
 export async function POST(request: Request) {
   try {
     const falKey = process.env.FAL_KEY
-    if (!falKey) return NextResponse.json({ message: 'FAL_KEY not configured' }, { status: 503 })
+    if (!falKey) return NextResponse.json({ error: 'AI image generation service is not configured', code: 'FAL_KEY_MISSING' }, { status: 503 })
 
     const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
