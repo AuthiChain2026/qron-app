@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
           product_data: {
             name: tierConfig.label,
             description: `AI-generated targeted QRON for: ${subject.trim().slice(0, 100)}`,
-            images: ['https://qron.space/media/gallery-static-portal-1080.svg'],
+            images: ['https://qron.space/media/gallery-static-portal-1080.png'],
           },
         },
         quantity: 1,
