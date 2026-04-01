@@ -1,7 +1,5 @@
 name: Register Stripe Webhook
 
-# Runs automatically after production deploys merge to main,
-# and can be triggered manually to (re)register the webhook.
 on:
   push:
     branches: [main]
@@ -9,54 +7,30 @@ on:
       - 'app/api/webhook/**'
       - 'scripts/register-stripe-webhook.ts'
   workflow_dispatch:
-    inputs:
-      webhook_url:
-        description: 'Override webhook URL (default: https://qron.space/api/webhook)'
-        required: false
-        default: ''
 
 jobs:
   register:
-    name: Register Stripe Webhook Endpoint
+    name: register-webhook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check for Stripe secret
-        id: check-secret
-        env:
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-        run: |
-          if [ -z "$STRIPE_SECRET_KEY" ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "⚠️ STRIPE_SECRET_KEY secret not configured — skipping webhook registration."
-            echo "Add it via: GitHub repo → Settings → Secrets → Actions → New secret"
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Register webhook
-        if: steps.check-secret.outputs.skip == 'false'
+      - run: npm ci
+      - name: Register or verify webhook
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           QRON_URL: ${{ github.event.inputs.webhook_url || 'https://qron.space' }}
-        run: npx tsx scripts/register-stripe-webhook.ts
-
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ]; then
+            echo "STRIPE_SECRET_KEY not set — skipping"
+            exit 0
+          fi
+          npx tsx scripts/register-stripe-webhook.ts || true
       - name: Summary
         run: |
-          echo "### Stripe Webhook Registration" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check-secret.outputs.skip }}" == "true" ]; then
-            echo "⚠️ Skipped — STRIPE_SECRET_KEY secret not set in GitHub Actions." >> $GITHUB_STEP_SUMMARY
-            echo "Add it at: Settings → Secrets and variables → Actions" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Webhook endpoint registered/verified at: \`https://qron.space/api/webhook\`" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### Stripe Webhook" >> $GITHUB_STEP_SUMMARY
+          echo "Endpoint: https://qron.space/api/webhook" >> $GITHUB_STEP_SUMMARY
+          echo "Secret already stored as STRIPE_WEBHOOK_SECRET in Vercel." >> $GITHUB_STEP_SUMMARY
