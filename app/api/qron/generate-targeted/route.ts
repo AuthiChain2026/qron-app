@@ -21,7 +21,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { fal } from '@fal-ai/client'
+const CF_WORKER_URL = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -147,8 +147,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI image generation service is not configured', code: 'FAL_KEY_MISSING' }, { status: 503 })
     }
 
-    fal.config({ credentials: falKey })
-
     // ── Generate base QR code ─────────────────────────────────────────────────
     const QRCode = (await import('qrcode')).default
     const qrDataUrl: string = await QRCode.toDataURL(url, {
@@ -175,17 +173,15 @@ export async function POST(req: NextRequest) {
       ? referenceImageUrl
       : qrDataUrl
 
-    const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
-      input: {
-        prompt,
-        image_url: conditioningImageUrl,
-        guidance_scale: 8.5,
-        num_inference_steps: steps,
-        controlnet_conditioning_scale: (referenceImageUrl && typeof referenceImageUrl === 'string') ? 1.6 : 1.4,
-      },
+    const _workerRes = await fetch(`${CF_WORKER_URL}/v1/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, prompt, style: 'space' }),
+      signal: AbortSignal.timeout(110_000),
     })
-
-    const falData = falResult.data as Record<string, any>
+    if (!_workerRes.ok) throw new Error(`Worker error ${_workerRes.status}`)
+    const _wd = await _workerRes.json() as { previewUrl?: string; downloadUrl?: string }
+    const falData = { image: { url: _wd.downloadUrl || _wd.previewUrl } } as Record<string, any>
     const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
 
     if (!imageUrl) {

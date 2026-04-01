@@ -3,23 +3,25 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { deductCredit } from '@/lib/business-tier'
 
-export const maxDuration = 60
+export const maxDuration = 120
 export const dynamic = 'force-dynamic'
 
-/** Preset parameter overrides keyed by preset ID */
-const PRESET_PARAMS: Record<string, { prompt: string; negative_prompt?: string; guidance_scale?: number; controlnet_conditioning_scale?: number; num_inference_steps?: number }> = {
-  'static-portal':    { prompt: 'Clean black-and-gold geometry, AuthiChain Protocol seal at center, elegant minimal design', guidance_scale: 7.5, controlnet_conditioning_scale: 1.3 },
-  'chromatic-portal': { prompt: 'Full-spectrum AI art woven around QR matrix, maximum visual impact, vibrant colors', guidance_scale: 7.5, controlnet_conditioning_scale: 1.1 },
-  'cybernetic-bloom': { prompt: 'Circuit-board aesthetics, neon traces, organic glow, futuristic alive design', guidance_scale: 8, controlnet_conditioning_scale: 1.2 },
-  'dark-matter':      { prompt: 'Void-black deep space with gravitational light distortion, cosmic energy', guidance_scale: 8, controlnet_conditioning_scale: 1.3 },
-  'neon-drift':       { prompt: 'Synthwave neon gradients, retro-futurist night drive energy, glowing lines', guidance_scale: 7.5, controlnet_conditioning_scale: 1.1 },
-  'holographic-seal': { prompt: 'Rainbow prismatic shimmer, premium foil-effect authentication mark, holographic', guidance_scale: 8, controlnet_conditioning_scale: 1.2 },
-  'living-archive':   { prompt: 'Biomorphic self-similar fractal forms, organic intelligence encoded', guidance_scale: 8.5, controlnet_conditioning_scale: 1.3 },
-  'dimensional-gate': { prompt: 'AR-depth layering with shadow and parallax, spatial anchor for physical media', guidance_scale: 8.5, controlnet_conditioning_scale: 1.3 },
-  'neon-matrix':      { prompt: 'Glowing grid of pulsating neon lines with matrix-like streams of energy', guidance_scale: 8, controlnet_conditioning_scale: 1.2 },
-  'galactic':         { prompt: 'Cosmic starfields and swirling galaxies, particles orbiting a living QRON', guidance_scale: 8, controlnet_conditioning_scale: 1.2 },
-  'liquid-metal':     { prompt: 'Flowing metallic fluid forms and shimmering reflections that pulse with light', guidance_scale: 8, controlnet_conditioning_scale: 1.2 },
-  'nature-elements':  { prompt: 'Organic elemental motifs of leaves vines water and fire swirling around', guidance_scale: 8, controlnet_conditioning_scale: 1.1 },
+const CF_WORKER_URL = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
+
+/** Preset prompts keyed by preset ID */
+const PRESET_PROMPTS: Record<string, string> = {
+  'static-portal':    'Clean black-and-gold geometry, AuthiChain Protocol seal at center, elegant minimal design',
+  'chromatic-portal': 'Full-spectrum AI art woven around QR matrix, maximum visual impact, vibrant colors',
+  'cybernetic-bloom': 'Circuit-board aesthetics, neon traces, organic glow, futuristic alive design',
+  'dark-matter':      'Void-black deep space with gravitational light distortion, cosmic energy',
+  'neon-drift':       'Synthwave neon gradients, retro-futurist night drive energy, glowing lines',
+  'holographic-seal': 'Rainbow prismatic shimmer, premium foil-effect authentication mark, holographic',
+  'living-archive':   'Biomorphic self-similar fractal forms, organic intelligence encoded',
+  'dimensional-gate': 'AR-depth layering with shadow and parallax, spatial anchor for physical media',
+  'neon-matrix':      'Glowing grid of pulsating neon lines with matrix-like streams of energy',
+  'galactic':         'Cosmic starfields and swirling galaxies, particles orbiting a living QRON',
+  'liquid-metal':     'Flowing metallic fluid forms and shimmering reflections that pulse with light',
+  'nature-elements':  'Organic elemental motifs of leaves vines water and fire swirling around',
 }
 
 interface GenerateBody {
@@ -31,9 +33,6 @@ interface GenerateBody {
 
 export async function POST(request: Request) {
   try {
-    const falKey = process.env.FAL_KEY
-    if (!falKey) return NextResponse.json({ error: 'AI image generation service is not configured', code: 'FAL_KEY_MISSING' }, { status: 503 })
-
     const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ message: 'Authentication required.' }, { status: 401 })
@@ -53,10 +52,10 @@ export async function POST(request: Request) {
 
     // ── Resolve prompt from preset or custom ──────────────────────────────────
     let finalPrompt = prompt || ''
-    let presetConfig = presetId ? PRESET_PARAMS[presetId] : null
+    const presetPrompt = presetId ? PRESET_PROMPTS[presetId] : null
 
     // Try DB-backed preset if not in static map
-    if (presetId && !presetConfig) {
+    if (presetId && !presetPrompt) {
       try {
         const admin = createAdminClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,94 +63,35 @@ export async function POST(request: Request) {
         )
         const { data: dbPreset } = await admin
           .from('qron_presets')
-          .select('*')
+          .select('prompt')
           .eq('id', presetId)
           .single()
-
-        if (dbPreset) {
-          presetConfig = {
-            prompt: dbPreset.prompt,
-            negative_prompt: dbPreset.negative_prompt,
-            guidance_scale: dbPreset.guidance_scale,
-            controlnet_conditioning_scale: dbPreset.controlnet_conditioning_scale,
-            num_inference_steps: dbPreset.num_inference_steps,
-          }
-        }
+        if (dbPreset?.prompt) finalPrompt = prompt ? `${prompt}, ${dbPreset.prompt}` : dbPreset.prompt
       } catch { /* ignore */ }
+    } else if (presetPrompt) {
+      finalPrompt = prompt ? `${prompt}, ${presetPrompt}` : presetPrompt
     }
 
-    if (presetConfig) {
-      finalPrompt = prompt ? `${prompt}, ${presetConfig.prompt}` : presetConfig.prompt
-    }
+    if (!finalPrompt) return NextResponse.json({ message: 'Could not resolve prompt.' }, { status: 400 })
 
-    if (!finalPrompt) {
-      return NextResponse.json({ message: 'Could not resolve prompt.' }, { status: 400 })
-    }
-
-    // ── Generate base QR code as data URL ─────────────────────────────────────
-    const QRCode = await import('qrcode')
-    const qrDataUrl = await QRCode.toDataURL(targetUrl, { width: 768, margin: 2 })
-
-    // ── Call fal.ai illusion-diffusion directly ───────────────────────────────
-    const falPayload = {
-      image_url: qrDataUrl,
-      prompt: finalPrompt,
-      negative_prompt: presetConfig?.negative_prompt || 'ugly, disfigured, low quality, blurry, nsfw',
-      guidance_scale: presetConfig?.guidance_scale ?? 7.5,
-      controlnet_conditioning_scale: presetConfig?.controlnet_conditioning_scale ?? 1.3,
-      num_inference_steps: presetConfig?.num_inference_steps ?? 40,
-      seed: Math.floor(Math.random() * 2147483647),
-      image_size: 'square_hd',
-    }
-
-    const falRes = await fetch('https://queue.fal.run/fal-ai/illusion-diffusion', {
+    // ── Generate via QRON CF Worker (HuggingFace backend) ────────────────────
+    const workerRes = await fetch(`${CF_WORKER_URL}/v1/generate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Key ${falKey}`,
-      },
-      body: JSON.stringify(falPayload),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: targetUrl, prompt: finalPrompt, style: 'space' }),
+      signal: AbortSignal.timeout(110_000),
     })
 
-    if (!falRes.ok) {
-      const falError = await falRes.text()
-      console.error('[generate] fal.ai error:', falRes.status, falError)
+    if (!workerRes.ok) {
+      const errText = await workerRes.text()
+      console.error('[generate] Worker error:', workerRes.status, errText)
+      if (workerRes.status === 503) return NextResponse.json({ message: 'Generation service warming up — retry in 30s', code: 'WARMING_UP' }, { status: 503 })
       return NextResponse.json({ message: 'AI generation failed' }, { status: 502 })
     }
 
-    const falData = await falRes.json() as { request_id?: string; image?: { url?: string }; images?: Array<{ url?: string }> }
-    const requestId = falData.request_id
-
-    // Poll for result or use inline response
-    let imageUrl = ''
-    if (requestId) {
-      for (let i = 0; i < 60; i++) {
-        await new Promise(r => setTimeout(r, 2000))
-
-        const statusRes = await fetch(`https://queue.fal.run/fal-ai/illusion-diffusion/requests/${requestId}/status`, {
-          headers: { 'Authorization': `Key ${falKey}` },
-        })
-        const statusData = await statusRes.json() as { status: string }
-
-        if (statusData.status === 'COMPLETED') {
-          const resultRes = await fetch(`https://queue.fal.run/fal-ai/illusion-diffusion/requests/${requestId}`, {
-            headers: { 'Authorization': `Key ${falKey}` },
-          })
-          const resultData = await resultRes.json() as { image?: { url?: string }; images?: Array<{ url?: string }> }
-          imageUrl = resultData.image?.url || resultData.images?.[0]?.url || ''
-          break
-        }
-
-        if (statusData.status === 'FAILED') {
-          return NextResponse.json({ message: 'AI generation failed' }, { status: 502 })
-        }
-      }
-
-      if (!imageUrl) return NextResponse.json({ message: 'Generation timed out' }, { status: 504 })
-    } else {
-      imageUrl = falData.image?.url || falData.images?.[0]?.url || ''
-      if (!imageUrl) return NextResponse.json({ message: 'No image returned' }, { status: 502 })
-    }
+    const workerData = await workerRes.json() as { id?: string; previewUrl?: string; downloadUrl?: string; status?: string }
+    const imageUrl = workerData.downloadUrl || workerData.previewUrl || ''
+    if (!imageUrl) return NextResponse.json({ message: 'No image returned' }, { status: 502 })
 
     // ── Store generation in Supabase ──────────────────────────────────────────
     const admin = createAdminClient(
@@ -168,7 +108,7 @@ export async function POST(request: Request) {
       prompt: finalPrompt,
       preset_id: presetId || null,
       mode,
-      fal_request_id: requestId || null,
+      provider: 'huggingface',
     }).then(({ error }) => {
       if (error) console.warn('[generate] Supabase insert warning:', error.message)
     })
@@ -184,15 +124,7 @@ export async function POST(request: Request) {
             'Content-Type': 'application/json',
             'X-API-Key': process.env.AUTHICHAIN_API_SECRET || '',
           },
-          body: JSON.stringify({
-            user_id: session.user.id,
-            asset_url: imageUrl,
-            destination_url: targetUrl,
-            prompt: finalPrompt,
-            preset_id: presetId,
-            mode,
-            fal_request_id: requestId,
-          }),
+          body: JSON.stringify({ user_id: session.user.id, asset_url: imageUrl, destination_url: targetUrl, prompt: finalPrompt, preset_id: presetId, mode }),
           signal: AbortSignal.timeout(5000),
         })
         if (regRes.ok) {
@@ -224,5 +156,5 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', backend: 'direct-fal-ai', model: 'fal-ai/illusion-diffusion' })
+  return NextResponse.json({ status: 'ok', backend: 'huggingface', model: 'DionTimmer/controlnet_qrcode-control_v1p_sd15', worker: CF_WORKER_URL })
 }

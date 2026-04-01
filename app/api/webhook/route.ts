@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
-import { fal } from '@fal-ai/client'
 import { PLAN_CREDITS, PLAN_TIER, type PlanId } from '@/lib/plans'
+
+const CF_WORKER_URL = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
 
 export const runtime = 'nodejs'
 
@@ -150,23 +151,22 @@ async function generateAndDeliverQr(session: Stripe.Checkout.Session) {
     return
   }
 
-  fal.config({ credentials: process.env.FAL_KEY })
 
   const QRCode = (await import('qrcode')).default
   const qrDataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 1024, margin: 2 })
 
-  const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
-    input: {
-      prompt: `highly detailed QR code art, scannable, ${prompt}`,
-      image_url: qrDataUrl,
-      guidance_scale: 8.5,
-      num_inference_steps: 50,
-      controlnet_conditioning_scale: 1.5,
-    },
+  const workerRes1 = await fetch(`${CF_WORKER_URL}/v1/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, prompt: `highly detailed QR code art, scannable, ${prompt}`, style: 'space' }),
+    signal: AbortSignal.timeout(110_000),
   })
-
-  const falData = falResult.data as Record<string, any>
-  const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
+  if (!workerRes1.ok) throw new Error(`Worker error: ${workerRes1.status}`)
+  const workerData1 = await workerRes1.json() as { previewUrl?: string; downloadUrl?: string }
+  const imageUrl: string | undefined = workerData1.downloadUrl || workerData1.previewUrl || undefined
+  const _compat = { image: { url: imageUrl } } // compat placeholder
+  const falData: Record<string, any> = {}
+  const imageUrl2: string | undefined = _compat?.image?.url || falData?.images?.[0]?.url
   if (!imageUrl) throw new Error('Fal.ai returned no image URL')
 
   await Promise.all([
@@ -193,7 +193,6 @@ async function generateAndDeliverTargetedQron(session: Stripe.Checkout.Session) 
     return
   }
 
-  fal.config({ credentials: process.env.FAL_KEY })
 
   // Build the same rich prompt as the targeted generator
   const isPreset = [
@@ -226,16 +225,15 @@ async function generateAndDeliverTargetedQron(session: Stripe.Checkout.Session) 
   const QRCode = (await import('qrcode')).default
   const qrDataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 1024, margin: 2 })
 
-  const falResult = await fal.subscribe('fal-ai/illusion-diffusion', {
-    input: {
-      prompt,
-      image_url: referenceImageUrl || qrDataUrl,
-      guidance_scale: 8.5,
-      num_inference_steps: Math.min(Number(steps) || 50, 75),
-      controlnet_conditioning_scale: referenceImageUrl ? 1.6 : 1.45,
-    },
+  const workerRes2 = await fetch(`${CF_WORKER_URL}/v1/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, prompt, style: 'space' }),
+    signal: AbortSignal.timeout(110_000),
   })
-  const falData = falResult.data as Record<string, any>
+  if (!workerRes2.ok) throw new Error(`Worker error: ${workerRes2.status}`)
+  const workerData2 = await workerRes2.json() as { previewUrl?: string; downloadUrl?: string }
+  const falData: Record<string, any> = {}
   const imageUrl: string | undefined = falData?.image?.url || falData?.images?.[0]?.url
   if (!imageUrl) throw new Error('Fal.ai returned no image URL')
 
