@@ -30,7 +30,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check for Stripe secret
+        id: check-secret
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️ STRIPE_SECRET_KEY secret not configured — skipping webhook registration."
+            echo "Add it via: GitHub repo → Settings → Secrets → Actions → New secret"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Register webhook
+        if: steps.check-secret.outputs.skip == 'false'
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           QRON_URL: ${{ github.event.inputs.webhook_url || 'https://qron.space' }}
@@ -40,7 +54,9 @@ jobs:
         run: |
           echo "### Stripe Webhook Registration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Webhook endpoint registered/verified at: \`https://qron.space/api/webhook\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Next step:** Copy \`STRIPE_WEBHOOK_SECRET\` from the job log above into:" >> $GITHUB_STEP_SUMMARY
-          echo "- Vercel → qron-app → Settings → Environment Variables" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-secret.outputs.skip }}" == "true" ]; then
+            echo "⚠️ Skipped — STRIPE_SECRET_KEY secret not set in GitHub Actions." >> $GITHUB_STEP_SUMMARY
+            echo "Add it at: Settings → Secrets and variables → Actions" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Webhook endpoint registered/verified at: \`https://qron.space/api/webhook\`" >> $GITHUB_STEP_SUMMARY
+          fi
