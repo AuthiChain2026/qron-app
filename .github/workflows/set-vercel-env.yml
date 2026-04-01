@@ -1,0 +1,49 @@
+name: Set Vercel Production Env Vars
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type YES to confirm'
+        required: true
+
+jobs:
+  set-env:
+    name: Inject Vercel Production Env Vars
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'YES'
+    steps:
+      - name: Set STRIPE_WEBHOOK_SECRET in qron-app production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM: team_PKVRDwUXPRFjmGTM7PZxjNys
+          PROJECT_ID: prj_jkFURGmAhmo0sUSZjNpRlc01SRL3
+          SECRET_VALUE: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          # Check if env var already exists
+          existing=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$VERCEL_TEAM" \
+            | jq -r '.envs[] | select(.key=="STRIPE_WEBHOOK_SECRET") | .id' 2>/dev/null || echo "")
+
+          if [ -n "$existing" ]; then
+            echo "Updating existing STRIPE_WEBHOOK_SECRET (id=$existing)..."
+            curl -s -X PATCH \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://api.vercel.com/v9/projects/$PROJECT_ID/env/$existing?teamId=$VERCEL_TEAM" \
+              -d '{"value":"'"$SECRET_VALUE"'","type":"encrypted","target":["production"]}'
+          else
+            echo "Creating STRIPE_WEBHOOK_SECRET..."
+            curl -s -X POST \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$VERCEL_TEAM" \
+              -d '{"key":"STRIPE_WEBHOOK_SECRET","value":"'"$SECRET_VALUE"'","type":"encrypted","target":["production"]}'
+          fi
+          echo "Done. Trigger a redeployment at vercel.com for the env var to take effect."
+
+      - name: Summary
+        run: |
+          echo "### Vercel Env Vars Updated" >> $GITHUB_STEP_SUMMARY
+          echo "STRIPE_WEBHOOK_SECRET injected into qron-app production" >> $GITHUB_STEP_SUMMARY
+          echo "**Next:** Redeploy qron-app in Vercel dashboard to activate" >> $GITHUB_STEP_SUMMARY
