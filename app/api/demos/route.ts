@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const SUPABASE_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDY2NjIsImV4cCI6MjA4ODA4MjY2Mn0.I1C3GCx2fU9CjxFtOqe56fwnJRDFwEMvwjqEWO_b-e4'
+const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL  || 'https://nhdnkzhtadfkkluiulhs.supabase.co'
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
+const SUPABASE_SVC  = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Fresh Replicate-generated fallback demos (permanent CDN URLs)
 const FALLBACK_DEMOS = [
@@ -18,27 +19,18 @@ const FALLBACK_DEMOS = [
 
 export async function GET() {
   const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-
-  // Try Supabase with anon key (RLS allows public reads on qron_demos)
+  const key  = SUPABASE_SVC || SUPABASE_ANON
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/qron_demos?select=id,label,style,image_url&image_url=not.is.null&order=generated_at.desc&limit=12`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON,
-          Authorization: `Bearer ${SUPABASE_ANON}`,
-        },
-        next: { revalidate: 60 },
-      }
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
     )
     if (res.ok) {
       const demos = await res.json()
       if (Array.isArray(demos) && demos.length > 0) {
-        return NextResponse.json({ demos, source: 'supabase' }, { headers: cors })
+        return NextResponse.json({ demos, source: SUPABASE_SVC ? 'supabase-svc' : 'supabase-anon' }, { headers: cors })
       }
     }
   } catch { /* fall through */ }
-
-  // Always return something visual
   return NextResponse.json({ demos: FALLBACK_DEMOS, source: 'fallback' }, { headers: cors })
 }
