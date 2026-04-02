@@ -259,9 +259,9 @@ export default function FreeQRGenerator() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             {[
-              { name: 'Starter Pack', credits: 100, price: '$29', perCode: '$0.29', priceId: 'starter', link: '/api/checkout?planId=starter', popular: false },
-              { name: 'Creator Pack', credits: 500, price: '$99', perCode: '$0.20', priceId: 'creator', link: 'https://buy.stripe.com/28E00l6OT7dHcjI1MgaIM0d', popular: true },
-              { name: 'Studio Pack', credits: 2000, price: '$299', perCode: '$0.15', priceId: 'studio', link: 'https://buy.stripe.com/9B66oJ1uz7dHabA1MgaIM0e', popular: false },
+              { name: 'Starter Pack', credits: 10, price: '$29', perCode: '$2.90', priceId: 'starter', popular: false },
+              { name: 'Creator Pack', credits: 50, price: '$99', perCode: '$1.98', priceId: 'creator', popular: true },
+              { name: 'Studio Pack', credits: 200, price: '$299', perCode: '$1.50', priceId: 'studio', popular: false },
             ].map((pack) => (
               <div key={pack.priceId} style={{
                 background: pack.popular ? 'linear-gradient(135deg, rgba(201,162,39,0.12), rgba(201,162,39,0.04))' : '#141414',
@@ -281,17 +281,29 @@ export default function FreeQRGenerator() {
                 <div style={{ fontSize: '36px', fontWeight: 800, color: '#c9a227', margin: '12px 0 4px' }}>{pack.price}</div>
                 <p style={{ fontSize: '14px', color: '#9e9e9e', marginBottom: '4px' }}>{pack.credits} AI QR codes</p>
                 <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>{pack.perCode}/code</p>
-                <a
-                  href={pack.link}
+                <button
+                  onClick={async () => {
+                    const btn = document.activeElement as HTMLButtonElement;
+                    if (btn) btn.textContent = 'Redirecting...';
+                    try {
+                      const res = await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ planId: pack.priceId, email: email || undefined }),
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    } catch { if (btn) btn.textContent = 'Buy ' + pack.name; }
+                  }}
                   style={{
-                    display: 'block', padding: '12px', borderRadius: '10px', fontWeight: 700,
-                    fontSize: '14px', textDecoration: 'none', textAlign: 'center',
+                    display: 'block', width: '100%', padding: '12px', borderRadius: '10px', fontWeight: 700,
+                    fontSize: '14px', textAlign: 'center', cursor: 'pointer',
                     background: pack.popular ? 'linear-gradient(135deg, #c9a227, #a88520)' : '#222',
                     color: '#fff', border: pack.popular ? 'none' : '1px solid #333',
                   }}
                 >
                   Buy {pack.name}
-                </a>
+                </button>
               </div>
             ))}
           </div>
