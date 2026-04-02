@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'qron-ai-api.undone-k.workers.dev' },
+    ],
     unoptimized: true,
   },
 };
