@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 }
 
 const PORTFOLIO = [
-  'https://replicate.delivery/xezq/xfjMzQAmKerXQUJm2p5o8z7ktnhH',
-  'https://replicate.delivery/xezq/VkjNko7paaaXOxGNbPe7xfLr5Vef',
-  'https://replicate.delivery/xezq/lg67W8lA0U6hNpheNd4qwjhY6CeA',
+  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg',
+  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81',
+  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj',
 ]
 
 export default function EventsPage() {
