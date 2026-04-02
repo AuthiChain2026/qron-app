@@ -10,9 +10,34 @@ export default function FreeQRGenerator() {
   const [email, setEmail] = useState('')
   const [captured, setCaptured] = useState(false)
 
-  const handleGenerate = () => {
+  const [loading, setLoading] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
+  const [genError, setGenError] = useState('')
+
+  const handleGenerate = async () => {
     if (!url) return
-    setQrGenerated(true)
+    setLoading(true)
+    setGenError('')
+    try {
+      const res = await fetch('/api/generate/guest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, style: 'space', email: email || undefined }),
+      })
+      const data = await res.json()
+      if (res.ok && data.imageUrl) {
+        setImageUrl(data.imageUrl)
+        setQrGenerated(true)
+      } else if (res.status === 429) {
+        setGenError('Daily limit reached. Sign up free for 10/month!')
+      } else {
+        setGenError(data.error || 'Generation failed. Try again.')
+      }
+    } catch {
+      setGenError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCapture = async () => {
@@ -78,7 +103,7 @@ export default function FreeQRGenerator() {
             }}
           />
           <button
-            onClick={handleGenerate}
+            onClick={handleGenerate} disabled={loading}
             disabled={!url}
             style={{
               width: '100%',
@@ -96,7 +121,7 @@ export default function FreeQRGenerator() {
             Generate Free QR Code <Sparkles style={{ display: 'inline', height: '16px', width: '16px', marginLeft: '6px' }} />
           </button>
 
-          {qrGenerated && (
+          {qrGenerated && imageUrl && (
             <div style={{ marginTop: '24px', textAlign: 'center' }}>
               {/* Basic QR preview using public API */}
               <div style={{
