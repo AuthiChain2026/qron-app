@@ -280,27 +280,20 @@ export default function DemoPage() {
   const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    if (!supabaseUrl || !supabaseAnon) return
-
-    fetch(`${supabaseUrl}/rest/v1/qron_demos?select=id,image_url&image_url=not.is.null`, {
-      headers: {
-        apikey: supabaseAnon,
-        Authorization: `Bearer ${supabaseAnon}`,
-      },
-    })
-      .then(r => r.ok ? r.json() : [])
-      .then((rows: { id: string; image_url: string }[]) => {
-        const map: Record<string, string> = {}
-        for (const row of rows) {
-          if (row.image_url) map[row.id] = row.image_url
+        // Use server-side API route (avoids anon key issues)
+    fetch('/api/demos')
+      .then(r => r.json())
+      .then(data => {
+        if (data.demos && Array.isArray(data.demos)) {
+          const imgs: Record<string, string> = {}
+          data.demos.forEach((d: { id: string; image_url: string }) => {
+            if (d.image_url) imgs[d.id] = d.image_url
+          })
+          setGeneratedImages(imgs)
         }
-        setGeneratedImages(map)
       })
-      .catch(() => {/* non-fatal — gallery works without images */})
+      .catch(() => {})
   }, [])
-
   const filtered = activeCategory === 'all'
     ? DEMO_TARGETS
     : DEMO_TARGETS.filter(t => t.category === activeCategory)
