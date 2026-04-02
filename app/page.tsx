@@ -23,6 +23,33 @@ export default function Home() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState('free');
+  const [guestUsed, setGuestUsed] = useState(0);
+
+  const handleGuestGenerate = async () => {
+    if (!targetUrl) { setError('Please enter a URL.'); return; }
+    if (guestUsed >= 2) { setError('Free limit reached. Sign up for more generations.'); return; }
+    setLoading(true); setError(''); setResult(null);
+    try {
+      const style = selectedMode?.id || 'space';
+      const res = await fetch('https://qron-ai-api.undone-k.workers.dev/v1/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: targetUrl, style, prompt: prompt || undefined }),
+      });
+      const d = await res.json();
+      const img = d.previewUrl || d.downloadUrl || d.imageUrl || d.url;
+      if (img) {
+        setResult(img);
+        setGuestUsed(prev => prev + 1);
+      } else {
+        setError(d.error || 'Generation failed. Try again.');
+      }
+    } catch {
+      setError('Network error. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   const [generationsUsed, setGenerationsUsed] = useState(0);
   const [generationsLimit, setGenerationsLimit] = useState(10);
   const [user, setUser] = useState<any>(null);
@@ -302,10 +329,14 @@ export default function Home() {
 
             {/* CTA */}
             {!user ? (
-              <a href="/login" className="btn-gold w-full py-4 rounded-xl flex items-center justify-center gap-2 text-base no-underline">
+              <button
+                onClick={handleGuestGenerate}
+                disabled={loading || guestUsed >= 2}
+                className="btn-gold w-full py-4 rounded-xl flex items-center justify-center gap-2 text-base"
+              >
                 <Sparkles className="w-5 h-5" />
-                Sign In to Generate
-              </a>
+                {loading ? 'Generating...' : guestUsed >= 2 ? 'Free limit reached — Sign up for more' : 'Generate Free (no signup)'}
+              </button>
             ) : (
               <button
                 onClick={handleGenerate}
