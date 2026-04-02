@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+export const maxDuration = 60
 
 const QRON_WORKER = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, style, prompt: prompt || `${style} AI QR code art, beautiful, scannable` }),
-      signal: AbortSignal.timeout(90000),
+      signal: AbortSignal.timeout(55000),
     })
 
     if (!genRes.ok) {
@@ -118,10 +119,9 @@ export async function POST(req: NextRequest) {
           },
           body: JSON.stringify({
             image_url: imageUrl,
-            target_url: url,
+            destination_url: url,
             style,
             prompt: prompt || style,
-            created_at: new Date().toISOString(),
           }),
         }).catch(() => {})
       }
