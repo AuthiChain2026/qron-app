@@ -13,49 +13,55 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm == 'YES'
     steps:
-      - name: Set STRIPE_WEBHOOK_SECRET in qron-app production
+      - name: Set env vars in qron-app production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM: team_PKVRDwUXPRFjmGTM7PZxjNys
           PROJECT_ID: prj_jkFURGmAhmo0sUSZjNpRlc01SRL3
-          SECRET_VALUE: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
-          # Check if env var already exists
-          existing=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$VERCEL_TEAM" \
-            | jq -r '.envs[] | select(.key=="STRIPE_WEBHOOK_SECRET") | .id' 2>/dev/null || echo "")
-
-          if [ -n "$existing" ]; then
-            echo "Updating existing STRIPE_WEBHOOK_SECRET (id=$existing)..."
-            curl -s -X PATCH \
-              -H "Authorization: Bearer $VERCEL_TOKEN" \
-              -H "Content-Type: application/json" \
-              "https://api.vercel.com/v9/projects/$PROJECT_ID/env/$existing?teamId=$VERCEL_TEAM" \
-              -d '{"value":"'"$SECRET_VALUE"'","type":"encrypted","target":["production"]}'
-          else
-            echo "Creating STRIPE_WEBHOOK_SECRET..."
-            curl -s -X POST \
-              -H "Authorization: Bearer $VERCEL_TOKEN" \
-              -H "Content-Type: application/json" \
+          set_env() {{
+            KEY="$1"
+            VAL="$2"
+            existing=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
               "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$VERCEL_TEAM" \
-              -d '{"key":"STRIPE_WEBHOOK_SECRET","value":"'"$SECRET_VALUE"'","type":"encrypted","target":["production"]}'
-          fi
-          echo "Done. Trigger a redeployment at vercel.com for the env var to take effect."
+              | python3 -c "import sys,json; envs=json.load(sys.stdin).get('envs',[]); print(next((e['id'] for e in envs if e['key']=='$KEY'),''))" 2>/dev/null || echo "")
+            if [ -n "$existing" ]; then
+              curl -s -X PATCH \
+                -H "Authorization: Bearer $VERCEL_TOKEN" \
+                -H "Content-Type: application/json" \
+                "https://api.vercel.com/v9/projects/$PROJECT_ID/env/$existing?teamId=$VERCEL_TEAM" \
+                -d "{\"value\":\"$VAL\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\"]}" > /dev/null
+              echo "Updated $KEY"
+            else
+              curl -s -X POST \
+                -H "Authorization: Bearer $VERCEL_TOKEN" \
+                -H "Content-Type: application/json" \
+                "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$VERCEL_TEAM" \
+                -d "{\"key\":\"$KEY\",\"value\":\"$VAL\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\"]}" > /dev/null
+              echo "Created $KEY"
+            fi
+          }}
+
+          set_env "STRIPE_WEBHOOK_SECRET"         "${{ secrets.STRIPE_WEBHOOK_SECRET }}"
+          set_env "SUPABASE_SERVICE_ROLE_KEY"     "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+          set_env "NEXT_PUBLIC_SUPABASE_ANON_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8"
+
+      - name: Trigger redeploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM: team_PKVRDwUXPRFjmGTM7PZxjNys
+          PROJECT_ID: prj_jkFURGmAhmo0sUSZjNpRlc01SRL3
+        run: |
+          curl -s -X POST \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM" \
+            -d '{"name":"qron-app","gitSource":{"ref":"main","repoId":"","type":"github"}}' > /dev/null
+          echo "Redeploy triggered — env vars will be active on next deployment"
 
       - name: Summary
         run: |
           echo "### Vercel Env Vars Updated" >> $GITHUB_STEP_SUMMARY
-          echo "STRIPE_WEBHOOK_SECRET injected into qron-app production" >> $GITHUB_STEP_SUMMARY
-
-          # Also inject SUPABASE_SERVICE_ROLE_KEY
-          SUPA_SVC_VALUE="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
-          if [ -z "$SUPA_SVC_VALUE" ]; then
-            echo "SUPABASE_SERVICE_ROLE_KEY not in secrets — setting directly"
-            SUPA_SVC_VALUE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjUwNjY2MiwiZXhwIjoyMDg4MDgyNjYyfQ.eSMoNDPGFuFJIOEHfmR4LHGk73xnLiETlr9Q6YhNjY4"
-          fi
-          curl -s -X POST "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$TEAM_ID" \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"key":"SUPABASE_SERVICE_ROLE_KEY","value":"'"$SUPA_SVC_VALUE"'","type":"encrypted","target":["production","preview"]}' > /dev/null
-          echo "SUPABASE_SERVICE_ROLE_KEY injected" >> $GITHUB_STEP_SUMMARY
-          echo "**Next:** Redeploy qron-app in Vercel dashboard to activate" >> $GITHUB_STEP_SUMMARY
+          echo "- STRIPE_WEBHOOK_SECRET: injected" >> $GITHUB_STEP_SUMMARY
+          echo "- SUPABASE_SERVICE_ROLE_KEY: injected" >> $GITHUB_STEP_SUMMARY
+          echo "- NEXT_PUBLIC_SUPABASE_ANON_KEY: injected (correct key)" >> $GITHUB_STEP_SUMMARY
