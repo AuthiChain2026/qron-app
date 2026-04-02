@@ -259,7 +259,7 @@ export default function FreeQRGenerator() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             {[
-              { name: 'Starter Pack', credits: 100, price: '$29', perCode: '$0.29', priceId: 'starter', link: 'https://buy.stripe.com/6oUeVfflp9lPgzY76AaIM0c', popular: false },
+              { name: 'Starter Pack', credits: 100, price: '$29', perCode: '$0.29', priceId: 'starter', link: '/api/checkout?planId=starter', popular: false },
               { name: 'Creator Pack', credits: 500, price: '$99', perCode: '$0.20', priceId: 'creator', link: 'https://buy.stripe.com/28E00l6OT7dHcjI1MgaIM0d', popular: true },
               { name: 'Studio Pack', credits: 2000, price: '$299', perCode: '$0.15', priceId: 'studio', link: 'https://buy.stripe.com/9B66oJ1uz7dHabA1MgaIM0e', popular: false },
             ].map((pack) => (
