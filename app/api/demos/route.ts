@@ -3,11 +3,11 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL  || 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
-const SUPABASE_SVC  = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Correct Supabase anon key — hardcoded to bypass stale Vercel env
+const SUPABASE_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
+const SUPABASE_SVC  = process.env.SUPABASE_SERVICE_ROLE_KEY || undefined
 
-// Fresh Replicate-generated fallback demos (permanent CDN URLs)
 const FALLBACK_DEMOS = [
   { id: 'f1', label: 'Cosmic Space',     style: 'space',    image_url: 'https://replicate.delivery/xezq/xfjMzQAmKerXQUJm2p5o8z7ktnhH' },
   { id: 'f2', label: 'Cannabis Green',   style: 'cannabis', image_url: 'https://replicate.delivery/xezq/VkjNko7paaaXOxGNbPe7xfLr5Vef' },
@@ -23,7 +23,7 @@ export async function GET() {
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/qron_demos?select=id,label,style,image_url&image_url=not.is.null&order=generated_at.desc&limit=12`,
-      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+      { headers: { apikey: key, Authorization: `Bearer ${key}` }, next: { revalidate: 60 } }
     )
     if (res.ok) {
       const demos = await res.json()
