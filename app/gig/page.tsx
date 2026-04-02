@@ -136,9 +136,9 @@ export default function GigPage() {
       <section style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 64px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2px', borderRadius: '12px', overflow: 'hidden' }}>
           {[
-            'https://replicate.delivery/xezq/xfjMzQAmKerXQUJm2p5o8z7ktnhH',
-            'https://replicate.delivery/xezq/VkjNko7paaaXOxGNbPe7xfLr5Vef',
-            'https://replicate.delivery/xezq/lg67W8lA0U6hNpheNd4qwjhY6CeA',
+            'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg',
+            'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81',
+            'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj',
           ].map((url, i) => (
             <div key={i} style={{ aspectRatio: '1', background: '#111', overflow: 'hidden' }}>
               <img src={url} alt={`QRON example ${i+1}`}
