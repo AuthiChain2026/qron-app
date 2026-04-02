@@ -17,7 +17,7 @@ const PLANS = [
     cta: 'Start Free',
     href: '/free-qr-generator',
     features: ['2 AI QR codes / day', 'All 6 art styles', 'PNG download', 'No signup needed', 'Standard resolution'],
-    not: ['Bulk download', 'Custom prompts', 'Priority generation', 'API access'],
+    missing: ['Bulk download', 'Custom prompts', 'Priority generation', 'API access'],
     highlight: false,
   },
   {
@@ -29,7 +29,7 @@ const PLANS = [
     cta: 'Buy Starter Pack',
     href: '/api/checkout?planId=starter',
     features: ['10 AI QR codes', 'All 6 art styles', 'High-res PNG (768px)', 'Custom prompts', 'Credits never expire', 'Email delivery'],
-    not: ['API access', 'Priority generation'],
+    missing: ['API access', 'Priority generation'],
     highlight: false,
   },
   {
@@ -41,7 +41,7 @@ const PLANS = [
     cta: 'Buy Creator Pack',
     href: '/api/checkout?planId=creator',
     features: ['50 AI QR codes', 'All 6 art styles', 'High-res PNG (768px)', 'Custom prompts', 'Credits never expire', 'Priority generation', 'Bulk ZIP download'],
-    not: ['API access'],
+    missing: ['API access'],
     highlight: true,
     badge: 'Most Popular',
   },
@@ -54,7 +54,7 @@ const PLANS = [
     cta: 'Buy Studio Pack',
     href: '/api/checkout?planId=studio',
     features: ['200 AI QR codes', 'All 6 art styles', 'High-res PNG (768px)', 'Custom prompts', 'Credits never expire', 'Priority generation', 'Bulk ZIP download', 'API access', 'White-label export'],
-    not: [],
+    missing: [],
     highlight: false,
   },
 ]
@@ -120,7 +120,7 @@ export default function PricingPage() {
                   <span style={{ color: '#7c3aed', flexShrink: 0 }}>✓</span> {f}
                 </li>
               ))}
-              {plan.not.map(f => (
+              {plan.missing.map(f => (
                 <li key={f} style={{ fontSize: '13px', color: '#444', display: 'flex', gap: '8px' }}>
                   <span style={{ flexShrink: 0 }}>—</span> {f}
                 </li>
