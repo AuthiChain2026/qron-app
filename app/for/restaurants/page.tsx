@@ -2,94 +2,64 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'AI QR Code Art for Restaurants — Menu Links That Get Scanned',
-  description: 'Replace boring black menu QR codes with AI-generated art. Cannabis-quality artwork meets restaurant practicality.',
-  keywords: 'restaurant qr code menu, ai qr code for restaurants, menu qr code art',
+  title: 'Restaurant QR Code Art — Menu Links Customers Actually Scan | QRON',
+  description: 'Replace boring black menu QR codes with AI-generated botanical art. 3x higher scan rate. Update the link any time without reprinting.',
   alternates: { canonical: 'https://qron.space/for/restaurants' },
 }
 
-export default function Page() {
-  const S = {
-    page:  { background: '#0a0a0a', color: '#e5e5e5', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' } as const,
-    hero:  { maxWidth: '900px', margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' as const },
-    h1:    { fontSize: 'clamp(2rem,5vw,3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' } as const,
-    sub:   { color: '#888', fontSize: '17px', maxWidth: '600px', margin: '0 auto 40px', lineHeight: 1.6 } as const,
-    badge: { background: 'rgba(201,162,39,.1)', border: '1px solid rgba(201,162,39,.3)', color: '#c9a227', fontSize: '12px', fontWeight: 600, padding: '5px 14px', borderRadius: '100px' } as const,
-    stat:  { background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', padding: '24px', textAlign: 'center' as const } as const,
-    cta:   { background: '#c9a227', color: '#000', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '15px', display: 'inline-block' } as const,
-  }
+export default function RestaurantsPage() {
+  const gold = '#c9a227'
   return (
-    <div style={S.page}>
-      <section style={S.hero}>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
-          {['✅ AI-Generated', '📱 Scan-Tested', '🔄 Living Portal', '⚡ 24h Delivery'].map(b => (
-            <span key={b} style={S.badge}>{b}</span>
+    <div style={{ background: '#0a0a0a', color: '#e5e5e5', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
+      <section style={{ maxWidth: '860px', margin: '0 auto', padding: '80px 24px 56px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '28px' }}>
+          {['AI-Generated Art', '3x Scan Rate', 'Update Anytime', '24h Delivery'].map(b => (
+            <span key={b} style={{ background: 'rgba(201,162,39,.1)', border: '1px solid rgba(201,162,39,.3)', color: gold, fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '100px' }}>{b}</span>
           ))}
         </div>
-        <h1 style={S.h1}><span>Restaurant Menu QR Codes</span><br/><span style={{ color: '#c9a227' }}>Customers Actually Scan</span></h1>
-        <p style={S.sub}>Standard menu QR codes get ignored. QRON creates AI-generated art that makes customers scan — and come back.</p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
-          <Link href="/gig" style={S.cta}>Create Your Menu Portal →</Link>
-          <Link href="/free-qr-generator" style={{ ...S.cta, background: 'transparent', color: '#e5e5e5', border: '1px solid #333' }}>Try Free First</Link>
+        <h1 style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '18px' }}>
+          Restaurant Menu QR Codes<br /><span style={{ color: gold }}>Customers Actually Scan</span>
+        </h1>
+        <p style={{ color: '#888', fontSize: '16px', maxWidth: '580px', margin: '0 auto 36px', lineHeight: 1.7 }}>
+          Standard menu QR codes get ignored. QRON creates AI botanical art that makes customers scan — and photograph and share. Update the menu link any time without reprinting a single tent card.
+        </p>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/gig" style={{ background: gold, color: '#000', padding: '13px 28px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '15px' }}>Create Restaurant Portal — $49 →</Link>
+          <Link href="/free-qr-generator" style={{ background: 'transparent', color: '#e5e5e5', border: '1px solid #333', padding: '13px 28px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '15px' }}>Try Free First</Link>
         </div>
       </section>
-
-      <section style={{ background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '48px 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' }}>
-          {[
-            { n: '3×', l: 'scan rate vs standard codes' },
-            { n: '40%', l: 'customers photograph and share' },
-            { n: '0min', l: 'reprinting when menu changes' },
-          ].map(s => (
-            <div key={s.n} style={S.stat}>
-              <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#c9a227', lineHeight: 1, marginBottom: '6px' }}>{s.n}</div>
-              <div style={{ color: '#666', fontSize: '13px' }}>{s.l}</div>
+      <section style={{ background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '40px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px' }}>
+          {[{ n: '3×', l: 'scan rate vs plain codes' }, { n: '40%', l: 'customers photograph and share' }, { n: '$0', l: 'cost to update menu link' }].map(s => (
+            <div key={s.n} style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '2.2rem', fontWeight: 900, color: gold, lineHeight: 1, marginBottom: '4px' }}>{s.n}</div>
+              <div style={{ color: '#666', fontSize: '12px' }}>{s.l}</div>
             </div>
           ))}
         </div>
       </section>
-
-      <section style={{ maxWidth: '900px', margin: '0 auto', padding: '64px 24px' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '32px', textAlign: 'center' }}>Use Cases</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: '12px', marginBottom: '48px' }}>
-              <div key="Table tent codes" style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>Table tent codes</div>
-                <div style={{ color: '#666', fontSize: '13px' }}>Link to digital menus, daily specials, or wine lists</div>
-              </div>
-              <div key="Takeout packaging" style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>Takeout packaging</div>
-                <div style={{ color: '#666', fontSize: '13px' }}>Loyalty programs and reorder links</div>
-              </div>
-              <div key="Window signage" style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>Window signage</div>
-                <div style={{ color: '#666', fontSize: '13px' }}>Hours, reservations, Google reviews</div>
-              </div>
-              <div key="Event menus" style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
-                <div style={{ fontWeight: 700, marginBottom: '4px' }}>Event menus</div>
-                <div style={{ color: '#666', fontSize: '13px' }}>Catering events with branded art</div>
-              </div>
+      <section style={{ maxWidth: '860px', margin: '0 auto', padding: '56px 24px' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '24px', textAlign: 'center' }}>Use Cases</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '10px', marginBottom: '40px' }}>
+          {[
+            { t: 'Table tent codes', d: 'Digital menus, daily specials, wine lists' },
+            { t: 'Takeout packaging', d: 'Loyalty programs and reorder links' },
+            { t: 'Window signage', d: 'Hours, reservations, Google reviews' },
+            { t: 'Event menus', d: 'Catering events with branded art' },
+          ].map(uc => (
+            <div key={uc.t} style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
+              <div style={{ fontWeight: 700, marginBottom: '4px' }}>{uc.t}</div>
+              <div style={{ color: '#666', fontSize: '13px' }}>{uc.d}</div>
+            </div>
+          ))}
         </div>
-
         <div style={{ background: 'rgba(201,162,39,.06)', border: '1px solid rgba(201,162,39,.2)', borderRadius: '12px', padding: '28px', textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 800, marginBottom: '8px' }}>Styles that work: nature, abstract, retro, minimalist</h3>
-          <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>
-            All 6 QRON styles work for this use case. Try the free generator to preview before buying.
-          </p>
+          <h3 style={{ fontWeight: 800, marginBottom: '8px' }}>Best style: Nature Botanical</h3>
+          <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Earthy, lush, organic — matches any restaurant aesthetic. All 6 styles available.</p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/gig" style={S.cta}>Order Now ($49+) →</Link>
-            <Link href="/free-qr-generator" style={{ ...S.cta, background: '#222', color: '#e5e5e5', border: '1px solid #333' }}>Free Preview</Link>
+            <Link href="/gig" style={{ background: gold, color: '#000', padding: '11px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>Order Now →</Link>
+            <Link href="/free-qr-generator?style=nature" style={{ background: '#1a1a1a', color: '#e5e5e5', border: '1px solid #333', padding: '11px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>Free Preview</Link>
           </div>
-        </div>
-      </section>
-
-      <section style={{ background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '48px 24px' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '12px' }}>What is a Living Portal?</h2>
-          <p style={{ color: '#888', lineHeight: 1.7, fontSize: '15px', marginBottom: '24px' }}>
-            Every QRON code is a Living Portal — a shortcode URL that redirects to your destination and tracks every scan.
-            You can update the destination any time without reprinting. See country, device, and time-of-day for every scan at your portal dashboard.
-          </p>
-          <Link href="/portals" style={{ color: '#c9a227', fontWeight: 700 }}>View portal analytics demo →</Link>
         </div>
       </section>
     </div>
