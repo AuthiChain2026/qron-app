@@ -1,186 +1,93 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Suspense } from 'react'
-
-interface StatusData {
-  ready: boolean
-  imageUrl: string | null
-  portalUrl: string | null
-  statsUrl: string | null
-  portalShortcode: string | null
-  destination_url: string | null
-  email: string | null
-}
-
-function SuccessContent() {
-  const searchParams = useSearchParams()
-  const sessionId = searchParams.get('session_id')
-  const [status, setStatus] = useState<StatusData | null>(null)
-  const [polling, setPolling] = useState(false)
-  const [attempts, setAttempts] = useState(0)
-  const [elapsed, setElapsed] = useState(0)
-
-  const checkStatus = useCallback(async () => {
-    if (!sessionId) return
-    try {
-      const res = await fetch(`/api/portals/check?session_id=${sessionId}`)
-      const data = await res.json()
-      setStatus(data)
-      if (data.ready) setPolling(false)
-    } catch { /* continue polling */ }
-    setAttempts(a => a + 1)
-  }, [sessionId])
-
-  useEffect(() => {
-    if (!sessionId) return
-    setPolling(true)
-    checkStatus()
-    const interval = setInterval(() => {
-      setElapsed(e => e + 3)
-      checkStatus()
-    }, 3000)
-    const timeout = setTimeout(() => {
-      clearInterval(interval)
-      setPolling(false)
-    }, 120000) // stop after 2 min
-    return () => { clearInterval(interval); clearTimeout(timeout) }
-  }, [sessionId, checkStatus])
-
-  const S = {
-    page: { background: '#0a0a0a', color: '#e5e5e5', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', padding: '24px' } as const,
-    card: { background: '#111', border: '1px solid #1e1e1e', borderRadius: '16px',
-      padding: '40px', maxWidth: '560px', width: '100%' } as const,
-    gold: { color: '#c9a227' } as const,
-    muted: { color: '#666', fontSize: '13px' } as const,
-  }
-
-  if (!sessionId) return (
-    <div style={S.page}>
-      <div style={S.card}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px' }}>Invalid session</h1>
-        <Link href="/gig" style={{ color: '#c9a227' }}>← Back to QRON</Link>
-      </div>
-    </div>
-  )
-
-  const ready = status?.ready
-  const pct = Math.min(95, attempts * 5)
-
-  return (
-    <div style={S.page}>
-      <div style={S.card}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>{ready ? '✨' : '🎨'}</div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>
-            {ready ? 'Your AI QR Art is Ready!' : 'Creating Your Art...'}
-          </h1>
-          <p style={{...S.muted, fontSize: '14px' }}>
-            {ready ? 'Check your email for the download link.' : `Generating your AI QR art — ${elapsed}s elapsed`}
-          </p>
-        </div>
-
-        {/* Progress bar while generating */}
-        {!ready && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ background: '#1a1a1a', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
-              <div style={{
-                height: '100%', borderRadius: '100px',
-                background: 'linear-gradient(90deg, #7c3aed, #c9a227)',
-                width: `${pct}%`,
-                transition: 'width 2s ease',
-              }} />
-            </div>
-            <p style={{...S.muted, textAlign: 'center', marginTop: '8px' }}>
-              This takes 30–90 seconds. Don't close this tab.
-            </p>
-          </div>
-        )}
-
-        {/* Art reveal */}
-        {ready && status?.imageUrl && (
-          <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-            <img
-              src={status.imageUrl}
-              alt="Your QRON AI QR Art"
-              style={{ width: '100%', maxWidth: '320px', borderRadius: '12px', margin: '0 auto', display: 'block' }}
-            />
-            <div style={{ marginTop: '16px' }}>
-              <a href={status.imageUrl} download
-                style={{
-                  background: '#7c3aed', color: '#fff', padding: '10px 24px',
-                  borderRadius: '8px', fontWeight: 700, textDecoration: 'none',
-                  display: 'inline-block', fontSize: '14px'
-                }}>
-                ⬇ Download PNG
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* Living Portal card */}
-        {ready && status?.portalUrl && (
-          <div style={{
-            background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.3)',
-            borderRadius: '12px', padding: '20px', marginBottom: '16px'
-          }}>
-            <h2 style={{...S.gold, fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>
-              🔄 Your Living Portal
-            </h2>
-            <p style={{...S.muted, marginBottom: '12px' }}>
-              This QR tracks every scan. Update the destination any time without reprinting.
-            </p>
-            <div style={{ marginBottom: '8px' }}>
-              <span style={{...S.muted }}>Portal URL: </span>
-              <a href={status.portalUrl} target="_blank" rel="noopener"
-                style={{...S.gold, fontWeight: 700, fontSize: '14px' }}>
-                {status.portalUrl}
-              </a>
-            </div>
-            {status.statsUrl && (
-              <Link href={status.statsUrl}
-                style={{ ...S.gold, fontSize: '13px', fontWeight: 700 }}>
-                📊 View Scan Analytics →
-              </Link>
-            )}
-          </div>
-        )}
-
-        {/* All portals link */}
-        <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: '16px', marginTop: '16px' }}>
-          <Link href="/portals"
-            style={{ color: '#c9a227', fontSize: '13px', fontWeight: 700 }}>
-            View all your portals →
-          </Link>
-          <span style={{...S.muted, marginLeft: '16px' }}>
-            <Link href="/order" style={{ color: '#888' }}>Generate another →</Link>
-          </span>
-        </div>
-
-        {/* Fallback if not ready after 2 min */}
-        {!ready && !polling && attempts > 5 && (
-          <div style={{ background: '#1a1a1a', borderRadius: '10px', padding: '16px', marginTop: '16px' }}>
-            <p style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>
-              Generation is taking longer than expected — your art will be delivered to your email within 1 hour.
-            </p>
-            <p style={{...S.muted }}>
-              Questions? <a href="mailto:authichain@gmail.com" style={{ color: '#c9a227' }}>authichain@gmail.com</a>
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 export default function SuccessPage() {
+  const [session, setSession] = useState<string|null>(null)
+  const [step, setStep] = useState(0)
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sid = params.get('session_id')
+    setSession(sid)
+    // Animate steps
+    const timers = [
+      setTimeout(() => setStep(1), 800),
+      setTimeout(() => setStep(2), 2000),
+      setTimeout(() => setStep(3), 3500),
+    ]
+    return () => timers.forEach(clearTimeout)
+  }, [])
+
+  const gold = '#c9a227'
+  const steps = [
+    { icon: '🎨', label: 'Generating your AI QR art', done: step >= 1 },
+    { icon: '🔄', label: 'Creating your Living Portal', done: step >= 2 },
+    { icon: '📧', label: 'Sending delivery email', done: step >= 3 },
+  ]
+
   return (
-    <Suspense fallback={<div style={{ background: '#0a0a0a', minHeight: '100vh' }} />}>
-      <SuccessContent />
-    </Suspense>
+    <div style={{ background: '#0a0a0a', color: '#e5e5e5', minHeight: '100vh', fontFamily: 'system-ui,sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ maxWidth: '520px', width: '100%', textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🎉</div>
+        <h1 style={{ fontSize: '2rem', fontWeight: 900, color: gold, marginBottom: '8px' }}>Order Confirmed!</h1>
+        <p style={{ color: '#888', fontSize: '16px', marginBottom: '40px' }}>
+          Your AI QR art is being generated right now.
+        </p>
+
+        {/* Progress steps */}
+        <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '16px', padding: '28px', marginBottom: '28px', textAlign: 'left' }}>
+          {steps.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: i < steps.length-1 ? '20px' : 0 }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.done ? 'rgba(201,162,39,.15)' : '#1a1a1a', border: `1px solid ${s.done ? gold : '#333'}`, fontSize: '18px', flexShrink: 0, transition: 'all .4s' }}>
+                {s.done ? '✓' : s.icon}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: s.done ? gold : '#666', transition: 'color .4s' }}>{s.label}</div>
+                {s.done && <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>Complete</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* What happens next */}
+        <div style={{ background: 'rgba(201,162,39,.06)', border: '1px solid rgba(201,162,39,.2)', borderRadius: '12px', padding: '20px', marginBottom: '24px', textAlign: 'left' }}>
+          <div style={{ fontWeight: 700, marginBottom: '12px', fontSize: '14px' }}>What happens next:</div>
+          {[
+            ['📬', 'You'll receive an email', 'Within ~90 seconds with your PNG download link'],
+            ['🔄', 'Your Living Portal is created', 'Track scan analytics at qron.space/portals'],
+            ['🖨️', 'Print or share your QR', 'High-res PNG, ready for print or digital use'],
+          ].map(([icon, title, desc]) => (
+            <div key={title} style={{ display: 'flex', gap: '10px', marginBottom: '12px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '18px', flexShrink: 0, marginTop: '1px' }}>{icon}</span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '13px' }}>{title}</div>
+                <div style={{ color: '#666', fontSize: '12px' }}>{desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA buttons */}
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/portals" style={{ background: gold, color: '#000', padding: '12px 24px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '14px' }}>
+            View My Portals →
+          </Link>
+          <Link href="/order" style={{ background: 'transparent', color: '#e5e5e5', padding: '12px 24px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '14px', border: '1px solid #333' }}>
+            Submit Order Details
+          </Link>
+        </div>
+
+        {session && (
+          <p style={{ color: '#333', fontSize: '11px', marginTop: '24px' }}>
+            Order ref: {session.slice(-8).toUpperCase()}
+          </p>
+        )}
+
+        <p style={{ color: '#444', fontSize: '13px', marginTop: '20px' }}>
+          Questions? <a href="mailto:qron@qron.space" style={{ color: gold }}>qron@qron.space</a>
+        </p>
+      </div>
+    </div>
   )
 }
