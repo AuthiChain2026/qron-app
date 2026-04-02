@@ -2,67 +2,113 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Real Estate QR Code Art — Yard Signs That Track Every Lead | QRON',
-  description: 'AI QR code art for property listings. Track every scan by country. Update listing URL when property sells. From $49.',
+  title: 'QR Codes for Real Estate — Yard Sign AI Art That Tracks Leads | QRON',
+  description: 'Real estate yard sign QR codes that track scans by neighborhood. AI art that gets noticed. Living Portals update instantly.',
   alternates: { canonical: 'https://qron.space/for/real-estate' },
 }
 
-export default function RealEstatePage() {
+const PORTFOLIO = [
+  'https://replicate.delivery/xezq/xfjMzQAmKerXQUJm2p5o8z7ktnhH',
+  'https://replicate.delivery/xezq/VkjNko7paaaXOxGNbPe7xfLr5Vef',
+  'https://replicate.delivery/xezq/lg67W8lA0U6hNpheNd4qwjhY6CeA',
+]
+
+export default function RealestatePage() {
   const gold = '#c9a227'
-
-  const StatCard = ({ n, l }: { n: string; l: string }) => (
-    <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-      <div style={{ fontSize: '2.2rem', fontWeight: 900, color: gold, lineHeight: 1, marginBottom: '4px' }}>{n}</div>
-      <div style={{ color: '#666', fontSize: '12px' }}>{l}</div>
-    </div>
-  )
-  const UcCard = ({ t, d }: { t: string; d: string }) => (
-    <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '10px', padding: '18px 20px' }}>
-      <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t}</div>
-      <div style={{ color: '#666', fontSize: '13px' }}>{d}</div>
-    </div>
-  )
-
-  const badges = ['Lead Tracking', 'Country Analytics', 'Update Anytime', 'Professional Art']
-  const stats = [{ n: 'GPS', l: 'country tracked per scan' }, { n: '$0', l: 'cost to update listing URL' }, { n: '768px', l: 'print-ready PNG' }]
-  const ucs = [
-    { t: 'Yard signs', d: 'Virtual tours, MLS listings, open house RSVPs' },
-    { t: 'Brochures', d: 'Track how many brochure codes get scanned' },
-    { t: 'Agent cards', d: 'Update your portfolio link without reprinting' },
-    { t: 'Open house flyers', d: 'Real-time scan count shows buyer interest' },
-  ]
   return (
-    <div style={{ background: '#0a0a0a', color: '#e5e5e5', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
-      <section style={{ maxWidth: '860px', margin: '0 auto', padding: '80px 24px 56px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '28px' }}>
-          {badges.map(b => <span key={b} style={{ background: 'rgba(201,162,39,.1)', border: '1px solid rgba(201,162,39,.3)', color: gold, fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '100px' }}>{b}</span>)}
-        </div>
-        <h1 style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '18px' }}>
-          Property Listing QR Codes<br /><span style={{ color: gold }}>That Track Every Lead</span>
+    <div style={{background:'#0a0a0a',color:'#e5e5e5',minHeight:'100vh',fontFamily:'system-ui,sans-serif'}}>
+      
+      {/* Hero */}
+      <section style={{maxWidth:'900px',margin:'0 auto',padding:'72px 24px 48px',textAlign:'center'}}>
+        <Link href="/for/real-estate" style={{fontSize:'12px',color:'#555',letterSpacing:'.12em',fontWeight:700,textTransform:'uppercase',textDecoration:'none',display:'block',marginBottom:'20px'}}>
+          QRON · FOR REAL ESTATE
+        </Link>
+        <h1 style={{fontSize:'clamp(1.8rem,5vw,3rem)',fontWeight:900,lineHeight:1.1,marginBottom:'16px'}}>
+          Real Estate QR Codes That Track Every Lead
         </h1>
-        <p style={{ color: '#888', fontSize: '16px', maxWidth: '580px', margin: '0 auto 36px', lineHeight: 1.7 }}>
-          Every yard sign is a lead gen touchpoint. QRON creates premium AI QR art that tracks scan country, device, and time — and lets you update the listing URL when a property sells without printing new signs.
+        <p style={{color:'#888',fontSize:'17px',maxWidth:'600px',margin:'0 auto 32px',lineHeight:1.6}}>
+          Replace the plain QR code on your yard sign with AI art that gets noticed — then see exactly when and where buyers are scanning. Update the listing URL instantly when the property sells.
         </p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/gig" style={{ background: gold, color: '#000', padding: '13px 28px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '15px' }}>Create Listing Portal — $49 →</Link>
-          <Link href="/free-qr-generator" style={{ background: 'transparent', color: '#e5e5e5', border: '1px solid #333', padding: '13px 28px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', fontSize: '15px' }}>Try Free</Link>
+        <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap',marginBottom:'48px'}}>
+          <Link href="/free-qr-generator?style=abstract"
+            style={{background:gold,color:'#000',padding:'14px 28px',borderRadius:'10px',fontWeight:700,textDecoration:'none',fontSize:'15px'}}>
+            Design Listing QR →
+          </Link>
+          <Link href="/gig"
+            style={{background:'transparent',color:'#e5e5e5',padding:'14px 28px',borderRadius:'10px',fontWeight:700,textDecoration:'none',fontSize:'15px',border:'1px solid #333'}}>
+            Order Custom Design
+          </Link>
+        </div>
+        {/* Stat */}
+        <div style={{display:'inline-flex',gap:'8px',alignItems:'baseline',background:'rgba(201,162,39,.08)',border:'1px solid rgba(201,162,39,.2)',borderRadius:'12px',padding:'16px 24px'}}>
+          <span style={{fontSize:'2.4rem',fontWeight:900,color:gold}}>5x</span>
+          <span style={{color:'#888',fontSize:'14px'}}>more scans than plain yard sign codes</span>
         </div>
       </section>
-      <section style={{ background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '40px 24px' }}>
-        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px' }}>
-          {stats.map(s => <StatCard key={s.n} n={s.n} l={s.l} />)}
+
+      {/* Portfolio strip */}
+      <section style={{maxWidth:'900px',margin:'0 auto',padding:'0 24px 64px'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'2px',borderRadius:'12px',overflow:'hidden'}}>
+          {PORTFOLIO.map((url,i) => (
+            <div key={i} style={{aspectRatio:'1',background:'#111',overflow:'hidden'}}>
+              <img src={url} alt={`QRON QR art example ${i+1}`}
+                style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy" />
+            </div>
+          ))}
+        </div>
+        <p style={{textAlign:'center',color:'#444',fontSize:'12px',marginTop:'12px'}}>
+          Every code is AI-generated and scan-tested · Free to try at qron.space
+        </p>
+      </section>
+
+      {/* Use cases */}
+      <section style={{background:'#0d0d0d',borderTop:'1px solid #1a1a1a',padding:'64px 24px'}}>
+        <div style={{maxWidth:'840px',margin:'0 auto'}}>
+          <h2 style={{textAlign:'center',fontSize:'1.4rem',fontWeight:800,marginBottom:'32px'}}>
+            How Real Estate Use QRON
+          </h2>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'12px'}}>
+          <div key="Yard Signs" style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:'10px',padding:'20px'}}>
+            <div style={{fontWeight:700,marginBottom:'6px'}}>Yard Signs</div>
+            <p style={{color:'#888',fontSize:'14px',lineHeight:1.5}}>Track scans by neighborhood, time of day, and device.</p>
+          </div>
+          <div key="Listing Links" style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:'10px',padding:'20px'}}>
+            <div style={{fontWeight:700,marginBottom:'6px'}}>Listing Links</div>
+            <p style={{color:'#888',fontSize:'14px',lineHeight:1.5}}>Update the destination instantly when price changes.</p>
+          </div>
+          <div key="Open House" style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:'10px',padding:'20px'}}>
+            <div style={{fontWeight:700,marginBottom:'6px'}}>Open House</div>
+            <p style={{color:'#888',fontSize:'14px',lineHeight:1.5}}>RSVP links and directions via QR art.</p>
+          </div>
+          <div key="Agent Cards" style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:'10px',padding:'20px'}}>
+            <div style={{fontWeight:700,marginBottom:'6px'}}>Agent Cards</div>
+            <p style={{color:'#888',fontSize:'14px',lineHeight:1.5}}>Business cards with AI QR art — people keep them.</p>
+          </div>
+          </div>
         </div>
       </section>
-      <section style={{ maxWidth: '860px', margin: '0 auto', padding: '56px 24px' }}>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '24px', textAlign: 'center' }}>Use Cases</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '10px', marginBottom: '40px' }}>
-          {ucs.map(uc => <UcCard key={uc.t} t={uc.t} d={uc.d} />)}
+
+      {/* CTA */}
+      <section style={{maxWidth:'700px',margin:'0 auto',padding:'64px 24px 80px',textAlign:'center'}}>
+        <h2 style={{fontSize:'1.5rem',fontWeight:800,marginBottom:'12px'}}>Ready to try it free?</h2>
+        <p style={{color:'#888',fontSize:'15px',marginBottom:'28px'}}>
+          Generate your first AI QR code in 60 seconds. No signup required.
+        </p>
+        <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap'}}>
+          <Link href="/free-qr-generator?style=abstract"
+            style={{background:gold,color:'#000',padding:'14px 28px',borderRadius:'10px',fontWeight:700,textDecoration:'none',fontSize:'15px'}}>
+            Try Free →
+          </Link>
+          <Link href="/pricing"
+            style={{background:'transparent',color:gold,padding:'14px 28px',borderRadius:'10px',fontWeight:700,textDecoration:'none',fontSize:'15px',border:`1px solid ${gold}`}}>
+            View Pricing
+          </Link>
         </div>
-        <div style={{ background: 'rgba(201,162,39,.06)', border: '1px solid rgba(201,162,39,.2)', borderRadius: '12px', padding: '24px', textAlign: 'center' }}>
-          <p style={{ color: '#888', fontSize: '14px', marginBottom: '12px' }}>When a property sells, update the portal destination to your next listing. The printed sign never changes.</p>
-          <Link href="/portals" style={{ color: gold, fontWeight: 700, fontSize: '14px' }}>View portal analytics →</Link>
-        </div>
+        <p style={{color:'#444',fontSize:'13px',marginTop:'16px'}}>
+          2 free QR codes per day · No credit card · Instant download
+        </p>
       </section>
+
     </div>
   )
 }
