@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SVC = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Hardcoded fallback demos so the gallery always has content
+// Hardcoded fallback demos so the gallery always has content (v2)
 const FALLBACK_DEMOS = [
   { id: 'f1', label: 'Cosmic Space',     style: 'space',     image_url: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775089635376-space.png' },
   { id: 'f2', label: 'Cannabis Green',   style: 'cannabis',  image_url: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775089639488-cannabis.png' },
