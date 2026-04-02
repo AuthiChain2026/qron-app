@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+// Hardcoded correct anon key — RLS allows public reads on qron_demos
 const SUPABASE_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
 
@@ -17,11 +18,10 @@ const FALLBACK_DEMOS = [
 
 export async function GET() {
   const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-  const key  = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/qron_demos?select=id,label,style,image_url&image_url=not.is.null&order=generated_at.desc&limit=12`,
-      { headers: { apikey: key, Authorization: `Bearer ${key}` }, cache: 'no-store' }
+      { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }, cache: 'no-store' }
     )
     if (res.ok) {
       const demos = await res.json()
