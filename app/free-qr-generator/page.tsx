@@ -255,7 +255,7 @@ export default function FreeQRGenerator() {
             Need More AI QR Codes?
           </h2>
           <p style={{ color: '#9e9e9e', marginBottom: '32px' }}>
-            One-time packs. Credits never expire. No subscription required.
+            One-time packs include a Living Portal — trackable redirect link with real-time scan analytics.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             {[
