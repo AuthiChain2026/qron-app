@@ -64,7 +64,7 @@ const FAQ = [
   { q: 'Do the QR codes actually scan?', a: 'Yes. Every QRON code is tested for scannability using ControlNet AI that preserves the QR structure. Works on any iPhone or Android.' },
   { q: 'Can I use QRON on packaging and print?', a: 'Yes. PNG files at 768px are suitable for print up to 3 inches at 300dpi. Contact us for high-resolution exports for larger formats.' },
   { q: 'What URL do I put in the QR code?', a: 'Any URL — your website, a menu link, a product page, a social profile, a COA page, or any destination you choose. The URL is not changed.' },
-  { q: 'Can I get a refund?', a: 'Yes. If you're not happy with your QR codes, contact authichain@gmail.com within 7 days for a full refund.' },
+  { q: 'Can I get a refund?', a: 'Yes. If you are not happy with your QR codes, contact authichain@gmail.com within 7 days for a full refund.' },
   { q: 'Is there an API?', a: 'Yes, the Studio plan includes API access. Enterprise API plans with higher volume are available via the AuthiChain RapidAPI listing.' },
 ]
 
