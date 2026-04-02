@@ -46,4 +46,16 @@ jobs:
         run: |
           echo "### Vercel Env Vars Updated" >> $GITHUB_STEP_SUMMARY
           echo "STRIPE_WEBHOOK_SECRET injected into qron-app production" >> $GITHUB_STEP_SUMMARY
+
+          # Also inject SUPABASE_SERVICE_ROLE_KEY
+          SUPA_SVC_VALUE="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+          if [ -z "$SUPA_SVC_VALUE" ]; then
+            echo "SUPABASE_SERVICE_ROLE_KEY not in secrets — setting directly"
+            SUPA_SVC_VALUE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjUwNjY2MiwiZXhwIjoyMDg4MDgyNjYyfQ.eSMoNDPGFuFJIOEHfmR4LHGk73xnLiETlr9Q6YhNjY4"
+          fi
+          curl -s -X POST "https://api.vercel.com/v9/projects/$PROJECT_ID/env?teamId=$TEAM_ID" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"key":"SUPABASE_SERVICE_ROLE_KEY","value":"'"$SUPA_SVC_VALUE"'","type":"encrypted","target":["production","preview"]}' > /dev/null
+          echo "SUPABASE_SERVICE_ROLE_KEY injected" >> $GITHUB_STEP_SUMMARY
           echo "**Next:** Redeploy qron-app in Vercel dashboard to activate" >> $GITHUB_STEP_SUMMARY
