@@ -117,7 +117,16 @@ export default function GigPage() {
             <span key={b} style={S.badge}>{b}</span>
           ))}
         </div>
-        <Link href="/free-qr-generator"
+        {/* Living Portals callout */}
+      <div style={{ background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.3)', borderRadius: '12px', padding: '16px 24px', marginBottom: '32px', textAlign: 'left' as const, maxWidth: '600px', margin: '0 auto 32px' }}>
+        <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '6px' }}>
+          🌊 Living Portals — Included with every order
+        </div>
+        <p style={{ color: '#888', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
+          Every QR code encodes a trackable portal URL. See scan counts, country, and device breakdown in real time. Update the destination without reprinting. <a href="/portals" style={{ color: '#c9a227' }}>View dashboard →</a>
+        </p>
+      </div>
+      <Link href="/free-qr-generator"
           style={{ color: '#888', fontSize: '14px', textDecoration: 'underline' }}>
           Try free first (no signup) →
         </Link>
@@ -206,7 +215,7 @@ export default function GigPage() {
         <p style={{ color: '#888', textAlign: 'center', marginBottom: '32px' }}>Complete your purchase, then submit your details here:</p>
         <div style={{ background: '#111', border: '1px solid rgba(201,162,39,.3)', borderRadius: '12px', padding: '28px', textAlign: 'center' }}>
           <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🎨</div>
-          <div style={{ fontWeight: 800, fontSize: '18px', marginBottom: '8px' }}>Submit Order Details</div>
+          <div style={{ fontWeight: 800, fontSize: '18px', marginBottom: '8px' }}>Submit Order Details → Get Living Portal</div>
           <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Provide your URL, pick a style, and generate instantly.</p>
           <Link href="https://qron-fiverr.undone-k.workers.dev/order"
             style={{ display: 'inline-block', background: '#c9a227', color: '#000', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, textDecoration: 'none' }}>
