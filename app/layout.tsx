@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   title: {
     default: "QRON — AI QR Code Art Generator | Free Creative QR Codes",
     template: "%s | QRON",
+  ,
+  verification: {
+    google: 'IqOgxj0MCe6FEdNhDWDdw5t340V9fgeguowtVM49J8c',
   },
+},
   description: "Create stunning AI-powered QR code art for free. Turn boring QR codes into branded masterpieces. Blockchain-verified, cryptographically secured. The creative layer of AuthiChain Protocol.",
   keywords: ["AI QR code generator", "QR code art", "creative QR codes", "free QR generator", "branded QR codes", "artistic QR codes", "QRON", "AuthiChain", "blockchain QR", "custom QR design"],
   metadataBase: new URL("https://qron.space"),
