@@ -136,7 +136,13 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         </QronThirdwebProvider>
-      </body>
+      
+      {/* QRON Chat Widget - replaces Telegram channel */}
+      <Script
+        src="https://qron-chat.undone-k.workers.dev/widget.js"
+        strategy="lazyOnload"
+      />
+    </body>
     </html>
   );
 }
