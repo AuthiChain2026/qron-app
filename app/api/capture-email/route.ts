@@ -12,16 +12,25 @@ export async function POST(req: Request) {
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
     }
-    // Store in leads table (or create if not exists)
+
+    // Store in email_leads
     await supabase.from('email_leads').upsert({
-      email: email.toLowerCase().trim(),
-      source: source || 'unknown',
+      email,
+      source: source || 'homepage',
       metadata: metadata || {},
-      created_at: new Date().toISOString(),
-    }, { onConflict: 'email', ignoreDuplicates: true })
-    return NextResponse.json({ success: true })
-  } catch (e) {
-    console.error('email capture:', e)
-    return NextResponse.json({ success: true }) // fail silently
+      converted: false
+    }, { onConflict: 'email' })
+
+    // Enroll in nurture drip (fire-and-forget)
+    fetch('https://qron-automation.undone-k.workers.dev/enroll-nurture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    }).catch(() => {})
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('capture-email error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
