@@ -1,6 +1,4 @@
 'use client'
-
-'use client'
 import { useState } from 'react'
 
 // Email capture before Stripe checkout — eliminates anonymous cart abandonment
