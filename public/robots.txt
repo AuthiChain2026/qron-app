@@ -1,7 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /dashboard/
-Disallow: /history/
 
 Sitemap: https://qron.space/sitemap.xml
+Sitemap: https://authichain.com/sitemap.xml
