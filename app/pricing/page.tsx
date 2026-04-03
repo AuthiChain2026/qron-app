@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import { CheckoutModal } from './pricing-client'
 
 export const metadata: Metadata = {
-  title: 'QRON Pricing — AI QR Code Art From $9',
-  description: 'QRON AI QR code art pricing: Starter $9/mo, Creator $39/mo, Business $99/mo. Single designs $49. 100% scannable. 11 styles. Living Portals included.',
+  title: 'QRON Pricing — AI QR Code Art From $9 | Bitcoin Ordinals',
+  description: 'QRON AI QR code art pricing: Starter $9/mo, Creator $39/mo, Business $99/mo. Bitcoin Ordinal inscriptions from $49. 100% scannable. 11 styles.',
   openGraph: {
-    title: 'QRON Pricing — AI QR Code Art From $9',
-    description: 'Beautiful, scannable AI QR codes for brands. 11 styles, blockchain-verified, 24h delivery.',
+    title: 'QRON Pricing — AI QR Code Art + Bitcoin Ordinals',
+    description: 'Beautiful, scannable AI QR codes. Inscribe as Bitcoin Ordinals. Blockchain-verified. 11 styles, 24h delivery.',
     url: 'https://qron.space/pricing',
   }
 }
@@ -40,10 +40,76 @@ export default function PricingPage() {
           </div>
         </div>
 
+        {/* ─── Bitcoin Ordinal Inscriptions ─── */}
+        <div style={{marginTop:60,borderTop:'1px solid #1e1e1e',paddingTop:48}}>
+          <div style={{textAlign:'center',marginBottom:32}}>
+            <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(247,147,26,0.1)',border:'1px solid rgba(247,147,26,0.3)',borderRadius:20,padding:'6px 16px',marginBottom:16}}>
+              <span style={{fontSize:14}}>₿</span>
+              <span style={{color:'#F7931A',fontSize:13,fontWeight:700}}>Bitcoin Ordinals — New</span>
+            </div>
+            <h2 style={{color:'#F7931A',fontWeight:700,fontSize:'1.5rem',marginBottom:8}}>
+              Inscribe to Bitcoin L1
+            </h2>
+            <p style={{color:'#888',fontSize:15,maxWidth:520,margin:'0 auto'}}>
+              Your AI QR art, permanently stored on Bitcoin — the world's most trusted blockchain. Each piece becomes a transferable digital artifact tradeable on Magic Eden.
+            </p>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:20}}>
+            <OrdinalCard
+              plan="ordinal_single"
+              label="Ordinal Single"
+              price="$49"
+              badge={null}
+              features={[
+                "1 AI QR art inscription",
+                "Bitcoin Ordinal on L1",
+                "ordinals.com verification",
+                "Transferable Bitcoin NFT",
+                "Magic Eden listing ready",
+                "Pixel-clamped scannability"
+              ]}
+              paymentLink="https://buy.stripe.com/14A00jbjz9Ns5ia5fe1Nu1d"
+            />
+            <OrdinalCard
+              plan="ordinal_auth"
+              label="AuthiChain BTC Auth"
+              price="$299"
+              badge="Enterprise"
+              features={[
+                "Product cert on Bitcoin",
+                "Dual-chain proof (Polygon + BTC)",
+                "authichain.com/verify page",
+                "Brand + serial inscription",
+                "ordinals.com permanent link",
+                "Resend delivery email"
+              ]}
+              paymentLink="https://buy.stripe.com/dRm3cv0EV6BgeSKdLK1Nu1e"
+            />
+            <OrdinalCard
+              plan="ordinal_collection"
+              label="Collection (25 pieces)"
+              price="$799"
+              badge="Best Value"
+              features={[
+                "25 Bitcoin Ordinal inscriptions",
+                "Batch inscription order",
+                "Magic Eden collection listing",
+                "AuthiChain brand certificate",
+                "Co-marketing opportunity",
+                "10% secondary royalties"
+              ]}
+              paymentLink="https://buy.stripe.com/eVq9AT5Zff7MbGy8rq1Nu1f"
+            />
+          </div>
+          <p style={{color:'#444',fontSize:12,textAlign:'center',marginTop:16}}>
+            Inscriptions use OrdinalsBot API. BTC miner fees included. Confirms within ~30 minutes on Bitcoin mainnet.
+          </p>
+        </div>
+
         {/* AuthiChain */}
         <div style={{marginTop:60,background:'#111',border:'1px solid rgba(201,162,39,.2)',borderRadius:16,padding:40,textAlign:'center'}}>
           <h2 style={{color:'#c9a227',fontWeight:700,marginBottom:8}}>Need blockchain authentication?</h2>
-          <p style={{color:'#888',marginBottom:20}}>AuthiChain adds ERC-721 certificates of authenticity to every QRON code.</p>
+          <p style={{color:'#888',marginBottom:20}}>AuthiChain adds ERC-721 certificates of authenticity to every QRON code — now with Bitcoin L1 dual-chain proof.</p>
           <a href="https://authichain.com" style={{color:'#c9a227',fontWeight:700}}>Explore AuthiChain →</a>
         </div>
       </div>
@@ -88,6 +154,35 @@ function OneTimeCard({ plan, label, price, features }: { plan:string,label:strin
         {features.map((f,i) => <li key={i} style={{color:'#aaa',fontSize:14,padding:'5px 0'}}>✓ {f}</li>)}
       </ul>
       <CheckoutModal plan={plan} label={label} price={price} />
+    </div>
+  )
+}
+
+function OrdinalCard({ plan, label, price, badge, features, paymentLink }: { plan:string, label:string, price:string, badge:string|null, features:string[], paymentLink:string }) {
+  return (
+    <div style={{background:'#0f0c07',border:'1px solid rgba(247,147,26,0.35)',borderRadius:16,padding:28,position:'relative'}}>
+      {badge && (
+        <div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:'#F7931A',color:'#000',padding:'4px 14px',borderRadius:20,fontSize:11,fontWeight:700,whiteSpace:'nowrap'}}>
+          {badge}
+        </div>
+      )}
+      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
+        <span style={{fontSize:14}}>₿</span>
+        <div style={{color:'#F7931A',fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em'}}>{label}</div>
+      </div>
+      <div style={{fontSize:'2rem',fontWeight:900,color:'#F7931A',marginBottom:12}}>{price}</div>
+      <ul style={{listStyle:'none',padding:0,margin:'0 0 20px'}}>
+        {features.map((f,i) => <li key={i} style={{color:'#aaa',fontSize:13,padding:'5px 0',borderBottom:'1px solid #1a1208'}}>₿ {f}</li>)}
+      </ul>
+      <a
+        href={paymentLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{display:'block',width:'100%',background:'#F7931A',color:'#000',border:'none',borderRadius:10,padding:'13px',fontSize:15,fontWeight:700,cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}
+      >
+        Get {label} →
+      </a>
+      <p style={{color:'#555',fontSize:11,textAlign:'center',marginTop:8}}>Direct Stripe checkout · Confirms on Bitcoin in ~30 min</p>
     </div>
   )
 }
