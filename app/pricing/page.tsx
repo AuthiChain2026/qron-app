@@ -1,4 +1,3 @@
-'use client'
 import { useState } from 'react'
 
 // Email capture before Stripe checkout — eliminates anonymous cart abandonment
@@ -46,11 +45,7 @@ function CheckoutModal({ plan, label, price, onClose }: { plan: string, label: s
 }
 import type { Metadata } from 'next'
 import Link from 'next/link'
-
-export const metadata: Metadata = {
-  title: 'QRON Pricing — AI QR Code Generator',
-  description: 'Simple pricing for AI QR codes. $9 starter, $39 creator, $99 business. One-time purchase, no subscription, commercial license included.',
-}
+import { CheckoutModal } from './pricing-client'
 
 export default function Page() {
   return (
