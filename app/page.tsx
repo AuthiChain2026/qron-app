@@ -24,6 +24,27 @@ export default function Home() {
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState('free');
   const [guestUsed, setGuestUsed] = useState(0);
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [captureEmail, setCaptureEmail] = useState('');
+  const [emailSaved, setEmailSaved] = useState(false);
+
+  const saveGuestEmail = async () => {
+    if (!captureEmail || !captureEmail.includes('@')) return;
+    try {
+      await fetch('https://nhdnkzhtadfkkluiulhs.supabase.co/rest/v1/email_leads', {
+        method: 'POST',
+        headers: {
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': 'Bearer ' + (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''),
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ email: captureEmail, source: 'guest_generate', metadata: { style: selectedMode?.id } }),
+      });
+      setEmailSaved(true);
+      setTimeout(() => setShowEmailCapture(false), 1500);
+    } catch {}
+  };
 
   const handleGuestGenerate = async () => {
     if (!targetUrl) { setError('Please enter a URL.'); return; }
@@ -40,7 +61,11 @@ export default function Home() {
       const img = d.previewUrl || d.downloadUrl || d.imageUrl || d.url;
       if (img) {
         setResult(img);
-        setGuestUsed(prev => prev + 1);
+        setGuestUsed(prev => {
+          const next = prev + 1;
+          if (next >= 1) setTimeout(() => setShowEmailCapture(true), 2000);
+          return next;
+        });
       } else {
         setError(d.error || 'Generation failed. Try again.');
       }
@@ -225,7 +250,39 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Tier / limit indicator */}
+          {/* Email capture modal after guest generation */}
+      {showEmailCapture && !emailSaved && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+          <div style={{background:'#111',border:'1px solid #c9a227',borderRadius:16,padding:32,maxWidth:420,width:'90%',textAlign:'center'}}>
+            <div style={{fontSize:32,marginBottom:8}}>🎨</div>
+            <h3 style={{color:'#c9a227',fontWeight:900,fontSize:'1.2rem',marginBottom:8}}>Your QR art is ready!</h3>
+            <p style={{color:'#aaa',fontSize:14,marginBottom:20}}>Enter your email to save it permanently + get 2 more free generations</p>
+            <input
+              type="email"
+              value={captureEmail}
+              onChange={e => setCaptureEmail(e.target.value)}
+              placeholder="your@email.com"
+              onKeyDown={e => e.key === 'Enter' && saveGuestEmail()}
+              style={{width:'100%',padding:'12px 16px',borderRadius:8,border:'1px solid #333',background:'#0a0a0a',color:'#fff',fontSize:15,marginBottom:12,outline:'none'}}
+            />
+            <button onClick={saveGuestEmail} style={{width:'100%',padding:'12px',background:'#c9a227',color:'#000',border:'none',borderRadius:8,fontSize:15,fontWeight:700,cursor:'pointer',marginBottom:8}}>
+              Save My QR Code
+            </button>
+            <button onClick={() => setShowEmailCapture(false)} style={{background:'none',border:'none',color:'#555',fontSize:13,cursor:'pointer'}}>
+              No thanks, I&apos;ll skip
+            </button>
+          </div>
+        </div>
+      )}
+      {showEmailCapture && emailSaved && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+          <div style={{background:'#111',border:'1px solid #4ade80',borderRadius:16,padding:32,textAlign:'center'}}>
+            <div style={{fontSize:48,marginBottom:8}}>✅</div>
+            <h3 style={{color:'#4ade80',fontWeight:900}}>Saved! Check your email.</h3>
+          </div>
+        </div>
+      )}
+      {/* Tier / limit indicator */}
           <div className="flex items-center justify-between mb-6 px-4 py-3 rounded-lg"
                style={{ background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.15)' }}>
             <span style={{ color: '#9e9e9e', fontSize: '13px' }}>
