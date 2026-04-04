@@ -1,0 +1,977 @@
+openapi: 3.0.3
+info:
+  title: AuthiChain Product Verification API
+  description: |
+    **Verify product authenticity in real-time using blockchain-backed digital identities.**
+
+    AuthiChain protects brands and consumers from counterfeits by registering products on-chain
+    (Base L2) and providing instant verification via NFC, QR, or product ID lookup.
+
+    ### Key Features
+    - **Instant Verification** — verify any product by ID, QR code, or NFC chip in milliseconds
+    - **Blockchain Proof** — immutable on-chain registration on Base (Ethereum L2)
+    - **Batch Operations** — verify up to 50 products in a single API call
+    - **Scan History** — full audit trail of every verification event
+    - **Authenticity Certificates** — generate tamper-proof digital certificates
+    - **Brand Analytics** — real-time verification metrics and counterfeit detection
+
+    ### Use Cases
+    - **E-commerce platforms**: verify products before listing
+    - **Marketplace fraud detection**: check seller inventory authenticity
+    - **Supply chain compliance**: audit product provenance at scale
+    - **Consumer apps**: scan-to-verify for luxury, pharma, electronics
+    - **Brand protection**: monitor counterfeit activity with analytics
+
+    ### How It Works
+    1. Pass a `productId` (SKU, serial number, or AuthiChain ID)
+    2. Receive verification status, product metadata, blockchain proof, and confidence score
+    3. Optionally pass `nfcHash` for NFC chip verification (higher confidence)
+
+    ### Trusted By
+    Enterprise brands in luxury goods, pharmaceuticals, fashion, and electronics.
+
+    ### Support
+    Email: authichain@gmail.com | Website: https://authichain.com
+  version: "2.5.0"
+  contact:
+    name: AuthiChain Support
+    email: authichain@gmail.com
+    url: https://authichain.com
+  termsOfService: https://authichain.com/terms
+  license:
+    name: Proprietary
+    url: https://authichain.com/license
+  x-logo:
+    url: https://authichain.com/logo.png
+    altText: AuthiChain Logo
+
+servers:
+  - url: https://authichain.com/api/v1
+    description: Production
+
+tags:
+  - name: Verification
+    description: Product authenticity verification endpoints
+  - name: Products
+    description: Product details and history
+  - name: Brands
+    description: Brand management and product listing
+  - name: Registration
+    description: Register new products on blockchain
+  - name: Analytics
+    description: Verification analytics and insights
+  - name: System
+    description: Health checks and system status
+
+paths:
+  # ── 1. Verify (GET + POST) ──────────────────────────────────────────
+  /verify:
+    get:
+      operationId: verifyProductGet
+      summary: Verify a product by ID
+      description: |
+        Look up a product's authenticity status by its unique identifier.
+        Returns verification result, product metadata, blockchain proof, and confidence score.
+      tags: [Verification]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The product identifier (SKU, serial number, or AuthiChain product ID)
+          schema:
+            type: string
+          example: "AC-LVMH-2024-001"
+      responses:
+        "200":
+          description: Product found and verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+              example:
+                verified: true
+                productId: "AC-LVMH-2024-001"
+                product:
+                  name: "Louis Vuitton Neverfull MM"
+                  brand: "LVMH"
+                  category: "luxury-handbags"
+                  registeredAt: "2024-11-15T10:30:00Z"
+                blockchain:
+                  chain: "Base (Ethereum L2)"
+                  txHash: "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385"
+                  tokenId: "1247"
+                  contractAddress: "0x1234567890abcdef1234567890abcdef12345678"
+                  verified: true
+                confidence: 0.95
+                scanCount: 42
+                timestamp: "2026-04-02T06:00:00Z"
+                _links:
+                  verify_page: "https://authichain.com/verify?id=AC-LVMH-2024-001"
+                  api_docs: "https://authichain.com/api/v1/verify"
+        "400":
+          description: Missing required parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Missing required parameter: id"
+                usage: "GET /api/v1/verify?id={productId}"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Rate limit exceeded. Upgrade your plan for higher limits."
+        "503":
+          description: Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      operationId: verifyProductPost
+      summary: Verify a product with optional NFC hash
+      description: |
+        Submit a product ID and optional NFC chip hash for enhanced verification.
+        NFC verification provides higher confidence scores (0.99 vs 0.95).
+      tags: [Verification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId]
+              properties:
+                productId:
+                  type: string
+                  description: The product identifier
+                  example: "AC-LVMH-2024-001"
+                nfcHash:
+                  type: string
+                  description: Optional NFC chip hash for enhanced verification
+                  example: "sha256:a1b2c3d4e5f6..."
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+        "400":
+          description: Missing required field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── 2. Batch Verify ─────────────────────────────────────────────────
+  /verify/batch:
+    post:
+      operationId: verifyBatch
+      summary: Batch verify multiple products
+      description: |
+        Submit up to 50 product IDs for batch verification. Returns an array of
+        verification results with summary counts. Ideal for marketplace inventory audits.
+      tags: [Verification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productIds]
+              properties:
+                productIds:
+                  type: array
+                  items:
+                    type: string
+                  maxItems: 50
+                  description: Array of product identifiers to verify
+                  example: ["AC-LVMH-2024-001", "AC-NIKE-2024-042"]
+      responses:
+        "200":
+          description: Batch verification results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchResult"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── 3. Scan ─────────────────────────────────────────────────────────
+  /scan:
+    post:
+      operationId: scanProduct
+      summary: Scan and verify via QR or NFC
+      description: |
+        Process a QR code payload or NFC chip data to identify and verify a product.
+        Automatically detects the scan method and returns verification results.
+        Each scan is recorded in the product's audit trail.
+      tags: [Verification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payload]
+              properties:
+                payload:
+                  type: string
+                  description: QR code content or NFC chip data
+                  example: "https://authichain.com/verify?id=AC-LVMH-2024-001"
+                method:
+                  type: string
+                  enum: [qr, nfc, manual]
+                  default: qr
+                  description: Scan method used
+                location:
+                  type: object
+                  properties:
+                    lat:
+                      type: number
+                      format: double
+                    lng:
+                      type: number
+                      format: double
+                  description: Optional GPS coordinates of scan location
+      responses:
+        "200":
+          description: Scan processed and product verified
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/VerificationResult"
+                  - type: object
+                    properties:
+                      scanId:
+                        type: string
+                        description: Unique scan event identifier
+                      method:
+                        type: string
+                        enum: [qr, nfc, manual]
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Product not found from scan data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  # ── 4. Product Details ──────────────────────────────────────────────
+  /products/{productId}:
+    get:
+      operationId: getProduct
+      summary: Get product details
+      description: |
+        Retrieve full product metadata, registration history, and blockchain proof
+        for a specific product.
+      tags: [Products]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "AC-LVMH-2024-001"
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  # ── 5. Product History ──────────────────────────────────────────────
+  /products/{productId}/history:
+    get:
+      operationId: getProductHistory
+      summary: Get product scan history
+      description: |
+        Retrieve the scan and verification history for a product, including
+        timestamps, scan methods, locations, and verification results.
+        Useful for supply chain auditing and counterfeit pattern detection.
+      tags: [Products]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Number of history entries to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+      responses:
+        "200":
+          description: Scan history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanHistory"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  # ── 6. Product Certificate ─────────────────────────────────────────
+  /products/{productId}/certificate:
+    get:
+      operationId: getProductCertificate
+      summary: Get authenticity certificate
+      description: |
+        Generate a tamper-proof digital authenticity certificate for a verified product.
+        Returns a signed certificate with blockchain proof, QR code, and verification URL.
+        Certificates can be embedded in e-commerce listings or shared with buyers.
+      tags: [Products]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [json, pdf, html]
+            default: json
+          description: Certificate output format
+      responses:
+        "200":
+          description: Authenticity certificate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  # ── 7. List Brands ─────────────────────────────────────────────────
+  /brands:
+    get:
+      operationId: listBrands
+      summary: List registered brands
+      description: |
+        List all brands registered on AuthiChain. Supports pagination and
+        filtering by category. Returns brand metadata and product counts.
+      tags: [Brands]
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by product category
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated brand list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  brands:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Brand"
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  total:
+                    type: integer
+
+  # ── 8. Brand Products ──────────────────────────────────────────────
+  /brands/{brandId}/products:
+    get:
+      operationId: listBrandProducts
+      summary: List products by brand
+      description: |
+        List all registered products for a specific brand. Supports pagination.
+        Useful for brand dashboards and inventory management.
+      tags: [Brands]
+      parameters:
+        - name: brandId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: verified
+          in: query
+          schema:
+            type: boolean
+          description: Filter by verification status
+      responses:
+        "200":
+          description: Paginated product list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VerificationResult"
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  total:
+                    type: integer
+
+  # ── 9. Register Product ────────────────────────────────────────────
+  /register:
+    post:
+      operationId: registerProduct
+      summary: Register a new product on blockchain
+      description: |
+        Register a new product on the AuthiChain blockchain (Base L2).
+        Creates an on-chain record with a unique TrueMark ID and returns
+        the transaction hash and token ID. Requires Pro plan or higher.
+      tags: [Registration]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, brand, category]
+              properties:
+                name:
+                  type: string
+                  example: "Product Name"
+                brand:
+                  type: string
+                  example: "Brand Name"
+                category:
+                  type: string
+                  example: "luxury-handbags"
+                  description: "Product category (luxury-handbags, electronics, pharma, fashion, etc.)"
+                serialNumber:
+                  type: string
+                  description: Manufacturer serial number
+                nfcHash:
+                  type: string
+                  description: NFC chip hash for enhanced verification
+                metadata:
+                  type: object
+                  description: Additional product metadata (color, size, batch, etc.)
+                  additionalProperties: true
+      responses:
+        "201":
+          description: Product registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationResult"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized — API key required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden — Pro plan or higher required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── 10. Analytics ──────────────────────────────────────────────────
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      summary: Get verification analytics
+      description: |
+        Returns aggregated verification analytics including total scans,
+        verification success rate, counterfeit detection rate, top brands,
+        and scan volume trends. Requires Business plan or higher.
+      tags: [Analytics]
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 1y]
+            default: 30d
+          description: Analytics time period
+        - name: brandId
+          in: query
+          schema:
+            type: string
+          description: Filter analytics by brand
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+        "403":
+          description: Forbidden — Business plan or higher required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── 11. Health ─────────────────────────────────────────────────────
+  /health:
+    get:
+      operationId: healthCheck
+      summary: API health check
+      description: |
+        Returns API status, version, uptime, and blockchain connectivity status.
+        No authentication required.
+      tags: [System]
+      security: []
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  version:
+                    type: string
+                    example: "2.5.0"
+                  uptime:
+                    type: number
+                    description: Uptime in seconds
+                  blockchain:
+                    type: object
+                    properties:
+                      connected:
+                        type: boolean
+                      network:
+                        type: string
+                        example: "base-mainnet"
+                      latestBlock:
+                        type: integer
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    VerificationResult:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          description: Whether the product is verified as authentic
+        productId:
+          type: string
+          description: The queried product identifier
+        product:
+          type: object
+          properties:
+            name:
+              type: string
+              nullable: true
+            brand:
+              type: string
+              nullable: true
+            category:
+              type: string
+              nullable: true
+            registeredAt:
+              type: string
+              format: date-time
+              nullable: true
+        blockchain:
+          type: object
+          properties:
+            chain:
+              type: string
+              example: "Base (Ethereum L2)"
+            txHash:
+              type: string
+              nullable: true
+              description: On-chain transaction hash
+            tokenId:
+              type: string
+              nullable: true
+            contractAddress:
+              type: string
+            verified:
+              type: boolean
+              description: Whether blockchain proof exists
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: "Authenticity confidence: 0.0 (unverified) to 1.0 (certain)"
+        scanCount:
+          type: integer
+          description: Number of times this product has been scanned
+        timestamp:
+          type: string
+          format: date-time
+        _links:
+          type: object
+          properties:
+            verify_page:
+              type: string
+              format: uri
+            api_docs:
+              type: string
+              format: uri
+
+    BatchResult:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerificationResult"
+        total:
+          type: integer
+          description: Total products submitted
+        verified:
+          type: integer
+          description: Number of verified products
+        failed:
+          type: integer
+          description: Number of unverified/not-found products
+
+    ScanHistory:
+      type: object
+      properties:
+        productId:
+          type: string
+        scans:
+          type: array
+          items:
+            type: object
+            properties:
+              scanId:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              method:
+                type: string
+                enum: [qr, nfc, api, manual]
+              verified:
+                type: boolean
+              confidence:
+                type: number
+              location:
+                type: object
+                nullable: true
+                properties:
+                  lat:
+                    type: number
+                  lng:
+                    type: number
+                  country:
+                    type: string
+        totalScans:
+          type: integer
+
+    Certificate:
+      type: object
+      properties:
+        certificateId:
+          type: string
+          description: Unique certificate identifier
+        productId:
+          type: string
+        verified:
+          type: boolean
+        issuedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        product:
+          type: object
+          properties:
+            name:
+              type: string
+            brand:
+              type: string
+            category:
+              type: string
+        blockchain:
+          type: object
+          properties:
+            chain:
+              type: string
+            txHash:
+              type: string
+            tokenId:
+              type: string
+        signature:
+          type: string
+          description: Digital signature for tamper detection
+        qrCode:
+          type: string
+          format: uri
+          description: URL to certificate QR code image
+        verifyUrl:
+          type: string
+          format: uri
+          description: Public URL to verify this certificate
+
+    Brand:
+      type: object
+      properties:
+        brandId:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        productCount:
+          type: integer
+        verifiedCount:
+          type: integer
+        registeredAt:
+          type: string
+          format: date-time
+
+    RegistrationResult:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Assigned AuthiChain product ID
+        txHash:
+          type: string
+          description: Blockchain transaction hash
+        tokenId:
+          type: string
+          description: On-chain token ID
+        registeredAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [confirmed, pending]
+
+    AnalyticsSummary:
+      type: object
+      properties:
+        period:
+          type: string
+        totalScans:
+          type: integer
+        uniqueProducts:
+          type: integer
+        verificationRate:
+          type: number
+          format: float
+          description: Percentage of scans that returned verified (0-100)
+        counterfeitRate:
+          type: number
+          format: float
+          description: Percentage of scans flagged as counterfeit
+        topBrands:
+          type: array
+          items:
+            type: object
+            properties:
+              brandId:
+                type: string
+              name:
+                type: string
+              scanCount:
+                type: integer
+        dailyVolume:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              scans:
+                type: integer
+              verified:
+                type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        usage:
+          type: string
+        code:
+          type: string
+
+    NotFound:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          example: false
+        productId:
+          type: string
+        error:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    RapidAPIKey:
+      type: apiKey
+      in: header
+      name: X-RapidAPI-Key
+      description: Your RapidAPI subscription key
+    RapidAPIHost:
+      type: apiKey
+      in: header
+      name: X-RapidAPI-Host
+      description: "authichain-product-verification.p.rapidapi.com"
+
+security:
+  - RapidAPIKey: []
+    RapidAPIHost: []
+
+x-rapidapi:
+  api-slug: authichain-product-verification
+  category: Data
+  subcategory: Blockchain
+  pricing:
+    - name: Basic
+      price: 0
+      rateLimit:
+        requests: 50
+        period: MONTH
+      description: "50 verifications/month — testing & evaluation only"
+      features:
+        - "GET /verify endpoint only"
+        - "Community support"
+    - name: Starter
+      price: 299
+      rateLimit:
+        requests: 5000
+        period: MONTH
+      overagePrice: 0.08
+      description: "5,000 verifications/month — for startups & small marketplaces"
+      features:
+        - "All verification endpoints"
+        - "Batch verification (up to 50)"
+        - "Product history & certificates"
+        - "Email support"
+    - name: Business
+      price: 599
+      rateLimit:
+        requests: 25000
+        period: MONTH
+      overagePrice: 0.04
+      description: "25,000 verifications/month — for growing platforms"
+      features:
+        - "Everything in Starter"
+        - "Product registration"
+        - "Analytics dashboard"
+        - "Priority support"
+    - name: Enterprise
+      price: 799
+      rateLimit:
+        requests: 100000
+        period: MONTH
+      overagePrice: 0.02
+      description: "100K verifications/month — enterprise volume"
+      features:
+        - "Everything in Business"
+        - "Unlimited batch size"
+        - "Custom webhook integrations"
+        - "Dedicated support & SLA"
+        - "White-label certificates"
