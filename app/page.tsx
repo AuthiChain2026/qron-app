@@ -198,7 +198,7 @@ export default function Home() {
           {/* Hero QR Art */}
           <div className="flex justify-center mb-6 animate-float">
             <Image
-              src="https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj"
+              src="/media/hero-qron-art.svg"
               alt="QRON Gold QR Art"
               width={220}
               height={220}
@@ -446,8 +446,8 @@ export default function Home() {
           title="Artsy Presets"
           description="Beautifully designed QRON styles — each one cryptographically signed by the AuthiChain Protocol."
           images={[
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg', alt: 'Centered scannable QR with cyan/blue glowing ring.', width: 1080, height: 1080 },
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81', alt: 'Chromatic portal QR code.', width: 1080, height: 1080 },
+            { src: '/media/gallery-static-portal-1080.svg', alt: 'Centered scannable QR with cyan/blue glowing ring.', width: 1080, height: 1080 },
+            { src: '/media/gallery-chromatic-portal-1080.svg', alt: 'Chromatic portal QR code.', width: 1080, height: 1080 },
           ]}
         />
 
@@ -455,10 +455,10 @@ export default function Home() {
           title="Business Use Cases"
           description="Enterprise-grade QR authentication across luxury, retail, events, and supply chain."
           images={[
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj', alt: 'Event poster with AuthiChain-verified QRON.', width: 1350, height: 1080 },
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg', alt: 'Night city wall poster with QRON CTA.', width: 1080, height: 1080 },
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81', alt: 'Product card with chromatic QRON.', width: 1080, height: 1080 },
-            { src: 'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj', alt: 'Tech gadget with living QR corner.', width: 1080, height: 1080 },
+            { src: '/media/gallery-event-poster-1350x1080.svg', alt: 'Event poster with AuthiChain-verified QRON.', width: 1350, height: 1080 },
+            { src: '/media/gallery-event-badge-1080.svg', alt: 'Night city wall poster with QRON CTA.', width: 1080, height: 1080 },
+            { src: '/media/gallery-ecommerce-card-1080.svg', alt: 'Product card with chromatic QRON.', width: 1080, height: 1080 },
+            { src: '/media/gallery-creator-merch-1080.svg', alt: 'Tech gadget with living QR corner.', width: 1080, height: 1080 },
           ]}
         />
 
@@ -627,7 +627,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col items-center gap-6">
             <Image
-              src="https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg"
+              src="/media/docs-flow-1080.svg"
               alt="URL → AI QR Art → AuthiChain Verify → Analytics"
               width={1080}
               height={1080}
@@ -635,7 +635,7 @@ export default function Home() {
               style={{ border: '1px solid rgba(201,162,39,0.15)' }}
             />
             <Image
-              src="https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81"
+              src="/media/docs-scannability-1080.svg"
               alt="Plain QR vs AuthiChain QRON — scan rate comparison"
               width={1080}
               height={1080}
