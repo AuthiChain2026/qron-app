@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const SUPA_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+const SUPA_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SUPA_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const CORS = { 'Content-Type': 'application/json' }
 
 export async function GET(req: Request, { params }: { params: { shortcode: string } }) {
   const { shortcode } = params

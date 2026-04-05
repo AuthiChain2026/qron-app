@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const PORTAL_FN   = 'https://nhdnkzhtadfkkluiulhs.supabase.co/functions/v1/portal-create'
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+const PORTAL_FN   = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/portal-create`
+const CORS = { 'Content-Type': 'application/json' }
 
 export async function OPTIONS() {
   return new Response(null, { status: 204, headers: CORS })
