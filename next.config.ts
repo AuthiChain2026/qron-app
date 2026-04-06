@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'qron-ai-api.undone-k.workers.dev' },
     ],
     unoptimized: true,
+    dangerouslyAllowSVG: true,
   },
 };
 
