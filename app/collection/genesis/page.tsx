@@ -90,16 +90,41 @@ export default function GenesisPage() {
               border: `1px solid ${p.status === 'reserved' ? '#333' : 'rgba(247,147,26,0.25)'}`,
               borderRadius: 14, overflow: 'hidden'
             }}>
-              {/* QR Art placeholder */}
+              {/* QR Art */}
               <div style={{
                 height: 200, background: '#1a1208',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 borderBottom: '1px solid rgba(247,147,26,0.15)'
               }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 8, opacity: p.status === 'reserved' ? 0.3 : 0.7 }}>◼</div>
-                  <div style={{ color: '#F7931A', fontSize: 11, opacity: 0.6 }}>QR Art generating...</div>
-                </div>
+                <svg viewBox="0 0 200 200" style={{ width: 140, height: 140, opacity: p.status === 'reserved' ? 0.3 : 0.85 }}>
+                  {/* Finder patterns */}
+                  <rect x="10" y="10" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
+                  <rect x="18" y="18" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
+                  <rect x="24" y="24" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
+                  <rect x="140" y="10" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
+                  <rect x="148" y="18" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
+                  <rect x="154" y="24" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
+                  <rect x="10" y="140" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
+                  <rect x="18" y="148" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
+                  <rect x="24" y="154" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
+                  {/* Unique data pattern per piece */}
+                  {[75,90,105,120,135].map(x =>
+                    [75,90,105,120,135].map(y =>
+                      Math.sin((x + p.id * 17) * (y + p.id * 13) * 0.02) > -0.2
+                        ? <rect key={`${x}-${y}`} x={x} y={y} width="10" height="10" rx="1.5" fill="#F7931A" opacity={0.4 + Math.abs(Math.sin(x * y * p.id * 0.005)) * 0.5}/>
+                        : null
+                    )
+                  )}
+                  {/* Side modules */}
+                  <rect x="70" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
+                  <rect x="88" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
+                  <rect x="106" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
+                  <rect x="124" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
+                  <rect x="20" y="70" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
+                  <rect x="20" y="88" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
+                  <rect x="20" y="106" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
+                  <rect x="20" y="124" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
+                </svg>
               </div>
               <div style={{ padding: '16px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>

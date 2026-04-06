@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 }
 
 const PORTFOLIO = [
-  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163472154-tjtjyg',
-  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163507531-5e1q81',
-  'https://qron-ai-api.undone-k.workers.dev/v1/download/qr-1775163542588-1c7bgj',
+  '/media/portfolio-qron-1.svg',
+  '/media/portfolio-qron-2.svg',
+  '/media/portfolio-qron-3.svg',
 ]
 
 export default function CannabisPage() {
