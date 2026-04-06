@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { X, Sparkles, ArrowRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, ArrowRight } from 'lucide-react'
 
 export function LeadCapturePopup() {
   const [visible, setVisible] = useState(false)
@@ -9,10 +9,10 @@ export function LeadCapturePopup() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const dismiss = useCallback(() => {
+  const dismiss = () => {
     setVisible(false)
     try { sessionStorage.setItem('qron_lead_dismissed', '1') } catch {}
-  }, [])
+  }
 
   useEffect(() => {
     try {
@@ -20,30 +20,8 @@ export function LeadCapturePopup() {
       if (localStorage.getItem('qron_lead_captured')) return
     } catch {}
 
-    let timer: ReturnType<typeof setTimeout>
-
-    const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0) setVisible(true)
-    }
-
-    const handleScroll = () => {
-      const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight)
-      if (scrollPercent > 0.5) setVisible(true)
-    }
-
-    timer = setTimeout(() => setVisible(true), 45000)
-
-    const activateTimer = setTimeout(() => {
-      document.addEventListener('mouseleave', handleMouseLeave)
-      window.addEventListener('scroll', handleScroll, { passive: true })
-    }, 8000)
-
-    return () => {
-      clearTimeout(timer)
-      clearTimeout(activateTimer)
-      document.removeEventListener('mouseleave', handleMouseLeave)
-      window.removeEventListener('scroll', handleScroll)
-    }
+    const timer = setTimeout(() => setVisible(true), 8000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +36,7 @@ export function LeadCapturePopup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          source: 'popup',
+          source: 'banner',
           page_url: window.location.pathname,
           product_interest: 'qron',
           utm_source: params.get('utm_source') || '',
@@ -68,6 +46,7 @@ export function LeadCapturePopup() {
       })
       setSubmitted(true)
       try { localStorage.setItem('qron_lead_captured', '1') } catch {}
+      setTimeout(dismiss, 3000)
     } catch {
       setSubmitted(true)
     } finally {
@@ -78,62 +57,81 @@ export function LeadCapturePopup() {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
-      <div className="relative w-full max-w-md mx-4 rounded-2xl p-8 shadow-2xl" style={{ background: '#111', border: '1px solid rgba(201,162,39,0.3)' }}>
-        <button onClick={dismiss} className="absolute top-4 right-4 text-gray-500 hover:text-white">
-          <X className="h-5 w-5" />
-        </button>
-
-        {submitted ? (
-          <div className="text-center py-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'rgba(201,162,39,0.15)' }}>
-              <Sparkles className="h-8 w-8" style={{ color: '#c9a227' }} />
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-white">Welcome to QRON!</h3>
-            <p style={{ color: '#9e9e9e' }}>
-              Your 10 free AI QR code generations are ready. Sign up to start creating.
+    <div style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 40,
+      animation: 'slideUp 0.4s ease-out',
+    }}>
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+      <div style={{
+        borderTop: '1px solid rgba(201,162,39,0.2)',
+        background: 'rgba(10,10,10,0.95)',
+        backdropFilter: 'blur(12px)',
+        padding: '12px 16px',
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {submitted ? (
+            <p style={{ color: '#10b981', fontSize: '14px', fontWeight: 600, flex: 1, textAlign: 'center' }}>
+              Welcome! Your 10 free AI QR codes are ready.
             </p>
-            <a href="/login" className="inline-block mt-6 px-6 py-2 rounded-lg font-medium text-black" style={{ background: 'linear-gradient(135deg, #c9a227, #a07c10)' }}>
-              Create Your First QRON
-            </a>
-          </div>
-        ) : (
-          <>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest mb-4" style={{ background: 'rgba(201,162,39,0.1)', color: '#c9a227' }}>
-              <Sparkles className="h-3 w-3" />
-              Free Access
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-white">
-              Get 10 Free AI QR Codes
-            </h3>
-            <p className="mb-6" style={{ color: '#9e9e9e' }}>
-              Create stunning, scannable QR art with AI. Cryptographically signed by the AuthiChain Protocol.
-            </p>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="email"
-                required
-                placeholder="Your email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2"
-                style={{ background: '#1a1a1a', border: '1px solid rgba(201,162,39,0.2)', focusRingColor: '#c9a227' }}
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-black font-semibold hover:opacity-90 disabled:opacity-50 transition"
-                style={{ background: 'linear-gradient(135deg, #c9a227, #a07c10)' }}
-              >
-                {loading ? 'Joining...' : 'Get Free QRONs'}
-                {!loading && <ArrowRight className="h-4 w-4" />}
-              </button>
-            </form>
-            <p className="text-xs mt-3 text-center" style={{ color: '#4a4a4a' }}>
-              No credit card required. 10 generations included.
-            </p>
-          </>
-        )}
+          ) : (
+            <>
+              <p style={{ color: '#9e9e9e', fontSize: '14px', flex: 1 }}>
+                <span style={{ color: '#e5e5e5', fontWeight: 700 }}>10 free AI QR codes</span> — create stunning QR art, no credit card needed.
+              </p>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <input
+                  type="email"
+                  required
+                  placeholder="Your email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(201,162,39,0.2)',
+                    background: '#1a1a1a',
+                    color: '#e5e5e5',
+                    fontSize: '13px',
+                    width: '180px',
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 16px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #c9a227, #a07c10)',
+                    color: '#000',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    border: 'none',
+                    cursor: loading ? 'wait' : 'pointer',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                >
+                  {loading ? '...' : 'Get Free'}
+                  {!loading && <ArrowRight size={13} />}
+                </button>
+              </form>
+            </>
+          )}
+          <button
+            onClick={dismiss}
+            style={{ color: '#666', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, padding: '4px' }}
+            aria-label="Dismiss"
+          >
+            <X size={16} />
+          </button>
+        </div>
       </div>
     </div>
   )
