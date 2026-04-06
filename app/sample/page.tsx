@@ -28,7 +28,7 @@ export default function SamplePage() {
         body: JSON.stringify({email, source: 'sample-request', metadata: {url, style}})
       })
       // Also trigger generation via qron-ai-api and store portal
-      const portalRes = await fetch('https://nhdnkzhtadfkkluiulhs.supabase.co/functions/v1/portal-create', {
+      const portalRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/portal-create`, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({target_url: url, style, email, label: 'Free Sample Request'})

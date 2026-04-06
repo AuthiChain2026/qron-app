@@ -2,9 +2,9 @@
 import { useState } from 'react'
 
 const QRON_API = 'https://qron-ai-api.undone-k.workers.dev'
-const PORTAL_FN = 'https://nhdnkzhtadfkkluiulhs.supabase.co/functions/v1/portal-create'
-const SUPA_URL = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SUPA_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const PORTAL_FN = `${SUPA_URL}/functions/v1/portal-create`
 
 const STYLES = [
   { id: 'space', label: '🚀 Cosmic Space' },

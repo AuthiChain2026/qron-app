@@ -31,7 +31,7 @@ export default function Home() {
   const saveGuestEmail = async () => {
     if (!captureEmail || !captureEmail.includes('@')) return;
     try {
-      await fetch('https://nhdnkzhtadfkkluiulhs.supabase.co/rest/v1/email_leads', {
+      await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/email_leads`, {
         method: 'POST',
         headers: {
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',

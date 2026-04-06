@@ -3,10 +3,10 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const SUPA_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
-const PORTAL_FN = 'https://nhdnkzhtadfkkluiulhs.supabase.co/functions/v1/portal-create'
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+const SUPA_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SUPA_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const PORTAL_FN = `${SUPA_URL}/functions/v1/portal-create`
+const CORS = { 'Content-Type': 'application/json' }
 
 export async function POST(req: Request) {
   let body: { shortcode?: string; new_url?: string; email?: string } = {}

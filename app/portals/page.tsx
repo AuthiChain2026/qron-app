@@ -18,8 +18,8 @@ export default function PortalsDashboard() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
 
-  const SUPA_URL  = 'https://nhdnkzhtadfkkluiulhs.supabase.co'
-  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZG5remh0YWRma2tsdWl1bGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzgyNTUsImV4cCI6MjA4OTUxNDI1NX0.akaWgxRilnjavzpsLqU149nBJqxDjbYOnRdAqrwz4J8'
+  const SUPA_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const SUPA_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   async function lookupPortals() {
     if (!email.trim()) return
