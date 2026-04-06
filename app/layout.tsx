@@ -144,6 +144,8 @@ export default function RootLayout({
           <div style={{ display: 'flex', gap: '20px' }}>
             <a href="https://authichain.com" target="_blank" rel="noreferrer"
                style={{ color: '#6b6b6b', textDecoration: 'none' }}>Enterprise Platform</a>
+            <a href="/careers"
+               style={{ color: '#6b6b6b', textDecoration: 'none' }}>Careers</a>
             <a href="mailto:Z@authichain.com"
                style={{ color: '#6b6b6b', textDecoration: 'none' }}>Contact</a>
             <span>© {new Date().getFullYear()} AuthiChain, Inc.</span>
