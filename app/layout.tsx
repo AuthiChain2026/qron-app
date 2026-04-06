@@ -23,11 +23,28 @@ export const metadata: Metadata = {
     siteName: "QRON by AuthiChain",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "QRON — AI QR Code Art Generator",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "QRON — AI QR Code Art Generator",
     description: "Turn boring QR codes into AI-generated art. Free to start.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+    other: [
+      { rel: "icon", type: "image/png", sizes: "192x192", url: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", url: "/icon-512.png" },
+    ],
   },
   robots: {
     index: true,
