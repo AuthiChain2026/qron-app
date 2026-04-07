@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 }
 
 const PORTFOLIO = [
-  '/media/portfolio-qron-1.svg',
-  '/media/portfolio-qron-2.svg',
-  '/media/portfolio-qron-3.svg',
+  '/media/gallery-chromatic-portal-1080.svg',
+  '/media/gallery-static-portal-1080.svg',
+  '/media/gallery-ecommerce-card-1080.svg',
 ]
 
 export default function CannabisPage() {

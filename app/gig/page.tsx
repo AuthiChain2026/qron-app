@@ -136,9 +136,9 @@ export default function GigPage() {
       <section style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 64px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2px', borderRadius: '12px', overflow: 'hidden' }}>
           {[
-            '/media/portfolio-qron-1.svg',
-            '/media/portfolio-qron-2.svg',
-            '/media/portfolio-qron-3.svg',
+            '/media/gallery-chromatic-portal-1080.svg',
+            '/media/gallery-creator-merch-1080.svg',
+            '/media/gallery-static-portal-1080.svg',
           ].map((url, i) => (
             <div key={i} style={{ aspectRatio: '1', background: '#111', overflow: 'hidden' }}>
               <img src={url} alt={`QRON example ${i+1}`}

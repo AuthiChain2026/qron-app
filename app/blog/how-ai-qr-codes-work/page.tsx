@@ -21,7 +21,7 @@ export default function BlogAIQRPage() {
           Standard QR codes have a 10-12% voluntary scan rate. AI art versions average 40%+. Here is the technology behind the difference.
         </p>
 
-        <img src="/media/portfolio-qron-3.svg"
+        <img src="/media/gallery-chromatic-portal-1080.svg"
           alt="AI generated QR code art — cosmic space style"
           style={{ width: '100%', maxWidth: '380px', borderRadius: '12px', marginBottom: '40px', display: 'block' }} />
 

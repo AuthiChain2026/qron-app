@@ -11,16 +11,16 @@ export const metadata: Metadata = {
 }
 
 const pieces = [
-  { id: 1, name: 'Genesis #1 — Nebula', style: 'Cosmic Watercolor', status: 'available', desc: 'Deep space watercolor swirling around a functional QR anchor. First of the Genesis series.' },
-  { id: 2, name: 'Genesis #2 — Circuit', style: 'Cyberpunk Grid', status: 'available', desc: 'Neon-lit circuit board aesthetic wrapping a scannable QR matrix.' },
-  { id: 3, name: 'Genesis #3 — Bloom', style: 'Botanical Ink', status: 'available', desc: 'Ink-wash botanical illustration with the QR pattern woven through flowering stems.' },
-  { id: 4, name: 'Genesis #4 — Forge', style: 'Industrial Brutalist', status: 'available', desc: 'Raw concrete and steel brutalist geometry encasing a precision QR grid.' },
-  { id: 5, name: 'Genesis #5 — Tide', style: 'Ocean Wave', status: 'available', desc: 'Japanese woodblock-inspired wave crests flowing into a QR mosaic.' },
-  { id: 6, name: 'Genesis #6 — Ember', style: 'Fire Abstract', status: 'available', desc: 'Smoldering ember tones and flame gradients surrounding a readable QR core.' },
-  { id: 7, name: 'Genesis #7 — Mosaic', style: 'Byzantine Tile', status: 'available', desc: 'Byzantine tile patterns in gold and cobalt, QR modules embedded in the geometry.' },
-  { id: 8, name: 'Genesis #8 — Glitch', style: 'Digital Artifact', status: 'available', desc: 'Intentional digital corruption aesthetic — glitch art framing a perfect QR.' },
-  { id: 9, name: 'Genesis #9 — Terra', style: 'Topographic Map', status: 'available', desc: 'Contour map elevation lines forming the QR pattern across geological formations.' },
-  { id: 10, name: 'Genesis #10 — Origin', style: 'Generative Abstract', status: 'reserved', desc: 'Pure generative art — the final Genesis piece. Reserved for the QRON treasury.' },
+  { id: 1, name: 'Genesis #1 — Nebula', style: 'Cosmic Watercolor', status: 'available', desc: 'Deep space watercolor swirling around a functional QR anchor. First of the Genesis series.', image: '/media/gallery-chromatic-portal-1080.svg' },
+  { id: 2, name: 'Genesis #2 — Circuit', style: 'Cyberpunk Grid', status: 'available', desc: 'Neon-lit circuit board aesthetic wrapping a scannable QR matrix.', image: '/media/gallery-static-portal-1080.svg' },
+  { id: 3, name: 'Genesis #3 — Bloom', style: 'Botanical Ink', status: 'available', desc: 'Ink-wash botanical illustration with the QR pattern woven through flowering stems.', image: '/media/gallery-creator-merch-1080.svg' },
+  { id: 4, name: 'Genesis #4 — Forge', style: 'Industrial Brutalist', status: 'available', desc: 'Raw concrete and steel brutalist geometry encasing a precision QR grid.', image: '/media/gallery-ecommerce-card-1080.svg' },
+  { id: 5, name: 'Genesis #5 — Tide', style: 'Ocean Wave', status: 'available', desc: 'Japanese woodblock-inspired wave crests flowing into a QR mosaic.', image: '/media/gallery-event-badge-1080.svg' },
+  { id: 6, name: 'Genesis #6 — Ember', style: 'Fire Abstract', status: 'available', desc: 'Smoldering ember tones and flame gradients surrounding a readable QR core.', image: '/media/gallery-event-poster-1350x1080.svg' },
+  { id: 7, name: 'Genesis #7 — Mosaic', style: 'Byzantine Tile', status: 'available', desc: 'Byzantine tile patterns in gold and cobalt, QR modules embedded in the geometry.', image: '/media/gallery-chromatic-portal-1080.svg' },
+  { id: 8, name: 'Genesis #8 — Glitch', style: 'Digital Artifact', status: 'available', desc: 'Intentional digital corruption aesthetic — glitch art framing a perfect QR.', image: '/media/gallery-static-portal-1080.svg' },
+  { id: 9, name: 'Genesis #9 — Terra', style: 'Topographic Map', status: 'available', desc: 'Contour map elevation lines forming the QR pattern across geological formations.', image: '/media/gallery-ecommerce-card-1080.svg' },
+  { id: 10, name: 'Genesis #10 — Origin', style: 'Generative Abstract', status: 'reserved', desc: 'Pure generative art — the final Genesis piece. Reserved for the QRON treasury.', image: '/media/hero-qron-art.svg' },
 ]
 
 const traits = [
@@ -92,39 +92,23 @@ export default function GenesisPage() {
             }}>
               {/* QR Art */}
               <div style={{
-                height: 200, background: '#1a1208',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: 200, background: '#1a1208', position: 'relative',
+                overflow: 'hidden',
                 borderBottom: '1px solid rgba(247,147,26,0.15)'
               }}>
-                <svg viewBox="0 0 200 200" style={{ width: 140, height: 140, opacity: p.status === 'reserved' ? 0.3 : 0.85 }}>
-                  {/* Finder patterns */}
-                  <rect x="10" y="10" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
-                  <rect x="18" y="18" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
-                  <rect x="24" y="24" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
-                  <rect x="140" y="10" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
-                  <rect x="148" y="18" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
-                  <rect x="154" y="24" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
-                  <rect x="10" y="140" width="50" height="50" rx="4" fill="none" stroke="#F7931A" strokeWidth="4"/>
-                  <rect x="18" y="148" width="34" height="34" rx="2" fill="none" stroke="#F7931A" strokeWidth="2" opacity="0.6"/>
-                  <rect x="24" y="154" width="22" height="22" rx="2" fill="#F7931A" opacity="0.7"/>
-                  {/* Unique data pattern per piece */}
-                  {[75,90,105,120,135].map(x =>
-                    [75,90,105,120,135].map(y =>
-                      Math.sin((x + p.id * 17) * (y + p.id * 13) * 0.02) > -0.2
-                        ? <rect key={`${x}-${y}`} x={x} y={y} width="10" height="10" rx="1.5" fill="#F7931A" opacity={0.4 + Math.abs(Math.sin(x * y * p.id * 0.005)) * 0.5}/>
-                        : null
-                    )
-                  )}
-                  {/* Side modules */}
-                  <rect x="70" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
-                  <rect x="88" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
-                  <rect x="106" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
-                  <rect x="124" y="20" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
-                  <rect x="20" y="70" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
-                  <rect x="20" y="88" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
-                  <rect x="20" y="106" width="8" height="8" rx="1" fill="#F7931A" opacity="0.4"/>
-                  <rect x="20" y="124" width="8" height="8" rx="1" fill="#F7931A" opacity="0.5"/>
-                </svg>
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  style={{
+                    width: '100%', height: '100%', objectFit: 'cover',
+                    opacity: p.status === 'reserved' ? 0.2 : 0.85,
+                  }}
+                />
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  height: '50%',
+                  background: 'linear-gradient(transparent, #0f0c07)',
+                }} />
               </div>
               <div style={{ padding: '16px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
