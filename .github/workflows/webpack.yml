@@ -1,3 +1,5 @@
+# why: Runs the Next.js build and Stripe webhook registration for qron.space on every push and pull request to main, acting as the main CI gate for the entire QRON.space application.
+# value: Prevents broken deploys that would take the paid QRON checkout offline, protecting both revenue and the investor-facing live demo at qron.space.
 name: CI Build
 
 on:

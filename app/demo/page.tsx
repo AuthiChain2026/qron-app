@@ -1,3 +1,9 @@
+/**
+ * Demo: QRON Identity Authentication
+ * Problem: Brands, creators, and collectors need a fast, visual way to prove that a product, drop, or collectible is genuine — but static QR codes are easy to clone and carry no design equity.
+ * Solution: AuthiChain verifies authenticity in 2.1 seconds using QRON identities.
+ * Business Value: Every QRON is a branded, AI-generated identity tied to an AuthiChain record, turning authentication into a marketing asset across luxury, sport, culture, celebrity, and brand targets while driving conversion into custom QRON orders.
+ */
 'use client'
 
 import { useState, useEffect } from 'react'

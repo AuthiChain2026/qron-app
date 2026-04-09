@@ -1,3 +1,5 @@
+# why: Deploys the qron-analytics Cloudflare Worker that captures scan and conversion telemetry for every QRON generated from qron.space on push to main.
+# value: Scan analytics is how marketing proves QRON ROI to brands and investors — this workflow keeps the data pipeline live at the edge with zero manual wrangler runs.
 name: Deploy Cloudflare Workers
 
 on:
