@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
+import { PLANS, type Plan } from '@/lib/plans'
 import { CheckoutModal } from './pricing-client'
 
 export const metadata: Metadata = {
-  title: 'QRON Pricing — AI QR Code Art From $9 | Bitcoin Ordinals',
-  description: 'QRON AI QR code art pricing: Starter $9/mo, Creator $39/mo, Business $99/mo. Bitcoin Ordinal inscriptions from $49. 100% scannable. 11 styles.',
+  title: 'QRON Pricing — AI QR Code Art from $29 | Bitcoin Ordinals',
+  description: 'QRON AI QR code art: Starter $29 (100 gens), Creator $99 (500 gens), Studio $299 (2,000 gens), Business $49/mo unlimited. Bitcoin Ordinal inscriptions from $49. 100% scannable, signed on AuthiChain.',
   openGraph: {
     title: 'QRON Pricing — AI QR Code Art + Bitcoin Ordinals',
-    description: 'Beautiful, scannable AI QR codes. Inscribe as Bitcoin Ordinals. Blockchain-verified. 11 styles, 24h delivery.',
+    description: 'Beautiful, scannable AI QR codes. One-time packs from $29, Business subscription $49/mo, Bitcoin Ordinals from $49. Blockchain-verified.',
     url: 'https://qron.space/pricing',
   }
 }
@@ -14,31 +15,20 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <div style={{background:'#0a0a0a',color:'#e5e5e5',minHeight:'100vh',fontFamily:'system-ui,sans-serif'}}>
-      <div style={{maxWidth:'960px',margin:'0 auto',padding:'80px 24px'}}>
+      <div style={{maxWidth:'1080px',margin:'0 auto',padding:'80px 24px'}}>
 
         {/* Header */}
         <div style={{textAlign:'center',marginBottom:60}}>
           <h1 style={{fontSize:'2.5rem',fontWeight:900,color:'#c9a227',marginBottom:12}}>
             Simple, transparent pricing
           </h1>
-          <p style={{color:'#888',fontSize:18,maxWidth:500,margin:'0 auto'}}>
-            Start free. Scale as you grow. Every plan includes 100% scan-guaranteed AI QR art.
+          <p style={{color:'#888',fontSize:18,maxWidth:560,margin:'0 auto'}}>
+            Start free. Scale as you grow. Every QRON is 100% scan-guaranteed AI QR art, signed on AuthiChain.
           </p>
         </div>
 
-        {/* Pricing cards */}
+        {/* Pricing cards — driven by lib/plans.ts (single source of truth) */}
         <PricingCards />
-
-        {/* One-time options */}
-        <div style={{marginTop:60,borderTop:'1px solid #1e1e1e',paddingTop:48}}>
-          <h2 style={{color:'#c9a227',fontWeight:700,fontSize:'1.3rem',marginBottom:24,textAlign:'center'}}>
-            One-Time Designs
-          </h2>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:20}}>
-            <OneTimeCard plan="single" label="Single Design" price="$49" features={["1 AI QR design","Any style","High-res PNG","Commercial license","24h delivery"]} />
-            <OneTimeCard plan="pack" label="Brand Pack" price="$199" features={["5 AI QR designs","Matched brand theme","Priority delivery","ZIP download","Living Portals included"]} />
-          </div>
-        </div>
 
         {/* ─── Bitcoin Ordinal Inscriptions ─── */}
         <div style={{marginTop:60,borderTop:'1px solid #1e1e1e',paddingTop:48}}>
@@ -51,7 +41,7 @@ export default function PricingPage() {
               Inscribe to Bitcoin L1
             </h2>
             <p style={{color:'#888',fontSize:15,maxWidth:520,margin:'0 auto'}}>
-              Your AI QR art, permanently stored on Bitcoin — the world's most trusted blockchain. Each piece becomes a transferable digital artifact tradeable on Magic Eden.
+              Your AI QR art, permanently stored on Bitcoin — the world&apos;s most trusted blockchain. Each piece becomes a transferable digital artifact tradeable on Magic Eden.
             </p>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:20}}>
@@ -117,43 +107,61 @@ export default function PricingPage() {
   )
 }
 
+// ── Paid tiers grid — single source of truth is lib/plans.ts ────────────────
 function PricingCards() {
-  const plans = [
-    { plan:'starter', label:'Starter', price:'$9', period:'/mo', gens:50, features:['50 AI QR generations/mo','All 11 styles','PNG downloads','Email support'], popular:false },
-    { plan:'creator', label:'Creator', price:'$39', period:'/mo', gens:250, features:['250 generations/mo','Living Portals','Scan analytics','Priority support','Custom domains'], popular:true },
-    { plan:'business', label:'Business', price:'$99', period:'/mo', gens:1000, features:['1,000 generations/mo','Full API access','Team seats','SLA uptime','Dedicated support'], popular:false },
-  ]
+  const paidPlans = PLANS.filter(p => p.tier !== 'free')
+  const freePlan = PLANS.find(p => p.tier === 'free')
+
   return (
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
-      {plans.map(p => <PlanCard key={p.plan} {...p} />)}
-    </div>
+    <>
+      {/* Free tier — compact CTA strip */}
+      {freePlan && (
+        <div style={{marginBottom:32,textAlign:'center'}}>
+          <div style={{display:'inline-flex',alignItems:'center',gap:20,flexWrap:'wrap',justifyContent:'center',background:'#111',border:'1px solid rgba(201,162,39,.15)',borderRadius:12,padding:'14px 24px'}}>
+            <div style={{textAlign:'left'}}>
+              <div style={{color:'#888',fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em'}}>Free</div>
+              <div style={{color:'#e5e5e5',fontSize:14}}>{freePlan.generations} generations/month · {freePlan.features.slice(0,2).join(' · ')}</div>
+            </div>
+            <a href="/login" style={{background:'rgba(201,162,39,.1)',border:'1px solid rgba(201,162,39,.3)',color:'#c9a227',padding:'10px 20px',borderRadius:8,textDecoration:'none',fontWeight:700,fontSize:13,whiteSpace:'nowrap'}}>
+              {freePlan.cta} →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Paid tier grid */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:20}}>
+        {paidPlans.map(p => <PlanCard key={p.id} plan={p} />)}
+      </div>
+    </>
   )
 }
 
-function PlanCard({ plan, label, price, period, gens, features, popular }: { plan:string,label:string,price:string,period:string,gens:number,features:string[],popular:boolean }) {
+function PlanCard({ plan }: { plan: Plan }) {
+  const isSubscription = plan.stripe_mode === 'subscription'
+  const periodLabel = isSubscription ? (plan.price_suffix || '/month') : ' one-time'
+  const generationsLabel = plan.generations === 0
+    ? 'Unlimited generations'
+    : `${plan.generations.toLocaleString()} generations${isSubscription ? '/mo' : ' · never expire'}`
+
   return (
-    <div style={{background:'#111',border:`1px solid ${popular?'#c9a227':'rgba(201,162,39,.15)'}`,borderRadius:16,padding:32,position:'relative'}}>
-      {popular && <div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:'#c9a227',color:'#000',padding:'4px 16px',borderRadius:20,fontSize:12,fontWeight:700}}>MOST POPULAR</div>}
-      <div style={{color:'#888',fontSize:12,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:8}}>{label}</div>
-      <div style={{fontSize:'2.5rem',fontWeight:900,color:'#c9a227',lineHeight:1}}>{price}<span style={{fontSize:14,color:'#666'}}>{period}</span></div>
-      <div style={{color:'#666',fontSize:13,margin:'8px 0 20px'}}>{gens} generations/month</div>
+    <div style={{background:'#111',border:`1px solid ${plan.highlighted?'#c9a227':'rgba(201,162,39,.15)'}`,borderRadius:16,padding:32,position:'relative'}}>
+      {plan.highlighted && (
+        <div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:'#c9a227',color:'#000',padding:'4px 16px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>
+          MOST POPULAR
+        </div>
+      )}
+      <div style={{color:'#888',fontSize:12,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:8}}>{plan.name}</div>
+      <div style={{fontSize:'2.5rem',fontWeight:900,color:'#c9a227',lineHeight:1}}>
+        ${plan.price}
+        <span style={{fontSize:14,color:'#666'}}>{periodLabel}</span>
+      </div>
+      <div style={{color:'#aaa',fontSize:13,margin:'8px 0 4px',fontWeight:600}}>{generationsLabel}</div>
+      <div style={{color:'#666',fontSize:12,margin:'0 0 20px',lineHeight:1.4}}>{plan.description}</div>
       <ul style={{listStyle:'none',padding:0,margin:'0 0 24px'}}>
-        {features.map((f,i) => <li key={i} style={{color:'#aaa',fontSize:14,padding:'6px 0',borderBottom:'1px solid #1a1a1a'}}>✓ {f}</li>)}
+        {plan.features.map((f,i) => <li key={i} style={{color:'#aaa',fontSize:13,padding:'6px 0',borderBottom:'1px solid #1a1a1a'}}>✓ {f}</li>)}
       </ul>
-      <CheckoutModal plan={plan} label={label} price={price + period} />
-    </div>
-  )
-}
-
-function OneTimeCard({ plan, label, price, features }: { plan:string,label:string,price:string,features:string[] }) {
-  return (
-    <div style={{background:'#111',border:'1px solid rgba(201,162,39,.15)',borderRadius:16,padding:28}}>
-      <div style={{color:'#888',fontSize:12,fontWeight:700,textTransform:'uppercase',marginBottom:6}}>{label}</div>
-      <div style={{fontSize:'2rem',fontWeight:900,color:'#c9a227',marginBottom:12}}>{price}</div>
-      <ul style={{listStyle:'none',padding:0,margin:'0 0 20px'}}>
-        {features.map((f,i) => <li key={i} style={{color:'#aaa',fontSize:14,padding:'5px 0'}}>✓ {f}</li>)}
-      </ul>
-      <CheckoutModal plan={plan} label={label} price={price} />
+      <CheckoutModal plan={plan.id} label={plan.name} price={`$${plan.price}${periodLabel}`} />
     </div>
   )
 }
