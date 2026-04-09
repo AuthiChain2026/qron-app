@@ -1,3 +1,5 @@
+# why: Syncs the Stripe webhook secret and Supabase keys into Vercel production whenever secrets rotate, so qron.space never drifts out of configuration with the payments and database layer.
+# value: Keeps the paid QRON order pipeline — the primary QRON.space revenue surface — continuously operational, preventing checkout outages and protecting conversion on live marketing traffic.
 name: Set Vercel Production Env Vars
 
 on:

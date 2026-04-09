@@ -1,3 +1,5 @@
+# why: Registers or verifies the Stripe webhook at qron.space/api/webhook whenever the webhook handler or registration script changes, so payment events always route to the right endpoint.
+# value: Guarantees that paid QRON orders reliably trigger fulfillment — without this, Stripe events could silently drop and customers would pay but never receive their QRON.
 name: Register Stripe Webhook
 
 on:
