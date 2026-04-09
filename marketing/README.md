@@ -1,41 +1,47 @@
 # QRON.space Marketing System
 
 This directory is the **single source of truth** for how QRON.space — the
-sister product of AuthiChain — presents its demos, intake, and investor
-story inside the repo. Everything here keeps engineering, marketing, sales,
-and investor-facing material aligned with the live code that powers the
-QRON identity layer.
+sister product of AuthiChain — presents its product, demos, intake, and
+investor story inside the repository. Everything here is designed to keep
+engineering, marketing, sales, and investor-facing material aligned with the
+live code that powers the QRON identity layer.
 
 ## Purpose
 
 The marketing layer exists to make the QRON.space repo **self‑documenting,
 investor‑ready, and demo‑aligned**:
 
-- Every demo surface on the site carries a marketing header that states
+- Every industry demo on the site has a matching marketing header that states
   *the problem*, *the AuthiChain / QRON solution*, and *the business value*.
-- Every workflow carries `why` / `value` metadata so any reader — human or
-  agent — understands what the automation is for and what it unlocks
-  commercially.
-- A simple intake form captures inbound marketing, demo, and partnership
+- Every workflow and manifest carries `why` / `value` metadata so that any
+  reader — human or agent — can understand what each automation is for and
+  what it unlocks commercially.
+- A simple intake form captures inbound marketing / demo / partnership
   requests and routes them to the right team.
 - A demo-mapping table gives stakeholders a one-glance view of which
-  industries have demos and where the code lives.
+  industries have live demos and where the code lives.
 
 ## How demos map to industries
 
-QRON.space demos live under `app/demo/` and exercise the AuthiChain
-authentication flow through a branded QRON identity. Each demo shares the
-same verification loop:
+Each industry demo under `app/demos/<industry>/page.tsx` targets a single
+industry with its own data, visuals, and QRON storyline. The full mapping
+lives in [`demo-mapping.md`](./demo-mapping.md).
 
-1. **Target** — prospect selects an industry / target (brand, celebrity,
-   luxury, sport, culture).
-2. **Generate** — QRON builds a custom identity tied to the target.
-3. **Verify** — the user scans the generated QRON and AuthiChain confirms
-   authenticity in ~2.1s.
-4. **Convert** — user continues into checkout for a custom QRON order.
+Every industry demo follows the same arc:
 
-The canonical demo → industry list is maintained in
-[`demo-mapping.md`](./demo-mapping.md).
+1. **Issue** — the brand or manufacturer mints a QRON tied to the product
+   and anchored to AuthiChain.
+2. **Move** — the product moves through its supply chain; each hand-off is
+   signed on-chain.
+3. **Verify** — end customers, retailers, or regulators scan the QRON and
+   AuthiChain returns authenticity in ~2.1 seconds.
+4. **Convert** — every demo page CTAs into the unified QRON order flow at
+   `/demo`, turning inspiration into a custom QRON purchase.
+
+The unified QRON order demo at `app/demo/page.tsx` is the conversion funnel
+for every industry page — it surfaces the brand / celebrity / sport /
+culture / luxury targets defined in `lib/demo-targets.ts` and drives Stripe
+checkout for custom QRONs.
 
 ## How to use the intake form
 
@@ -48,12 +54,13 @@ Use the intake form when:
 - A prospect asks for a custom industry or brand demo.
 - An investor requests a briefing or data room access.
 - A partner wants to be featured in marketing material.
-- Sales needs a tailored QRON asset generated.
+- Sales needs a tailored QRON asset or storymode generated.
 
 ## How to write a new demo with a marketing header
 
-1. Add a new demo under `app/demo/` (or `app/demos/<industry>/`) following
-   the existing pattern.
+1. Create a new folder under `app/demos/<industry>/` and add a `page.tsx`
+   following the existing demos (`pharma`, `cannabis`, `luxury`,
+   `collectibles`, `supplychain`) as a template.
 2. **Prepend a marketing header block** to the very top of the `page.tsx`
    file, above `'use client'`:
 
@@ -67,8 +74,10 @@ Use the intake form when:
    ```
 
 3. Add a matching row in [`demo-mapping.md`](./demo-mapping.md).
-4. Link the new demo from the main marketing surfaces (landing page, demo
-   index, footer).
+4. Add a matching entry with `why` and `value` fields to
+   `outputs/qron-demo-manifest.json`.
+5. Link the new demo from `app/demos/page.tsx` (the demos index) so it shows
+   up in the industry gallery.
 
 ## File index
 

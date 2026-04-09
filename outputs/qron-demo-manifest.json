@@ -1,0 +1,52 @@
+[
+  {
+    "industry": "Pharmaceutical",
+    "demo_id": "qron-pharma",
+    "demo_path": "/app/demos/pharma",
+    "demo_url": "https://qron.space/demos/pharma",
+    "headline": "DSCSA-grade drug authentication",
+    "qron_theme": "Teal clinical — sterile precision, biotech luminescence",
+    "why": "Counterfeit and diverted drugs cost the global pharma industry over $200B a year and put patient safety at risk, while DSCSA compliance demands unit-level serialisation and instant audit readiness that legacy systems struggle to deliver.",
+    "value": "Every unit dose ships with a branded QRON that resolves to a DSCSA / FDA 21 CFR Part 11 aligned AuthiChain record — protecting patients, simplifying recalls, and turning authentication into a trust-building touchpoint at the pharmacy counter."
+  },
+  {
+    "industry": "Cannabis",
+    "demo_id": "qron-cannabis",
+    "demo_path": "/app/demos/cannabis",
+    "demo_url": "https://qron.space/demos/cannabis",
+    "headline": "Seed-to-sale, lab-to-consumer",
+    "qron_theme": "Cannabis botanical — emerald greens, trichome frost, living soil earth tones",
+    "why": "Legal cannabis consumers and dispensaries cannot easily verify seed-to-sale provenance, lab results, or licensed origin, leaving regulated markets exposed to diversion, untested product, and regulator penalties.",
+    "value": "QRON binds every package to its cultivator licence, lab results, and terpene profile, enabling compliant dispensary scanning, brand loyalty, and regulator-ready audit trails across state lines."
+  },
+  {
+    "industry": "Luxury Goods",
+    "demo_id": "qron-luxury",
+    "demo_path": "/app/demos/luxury",
+    "demo_url": "https://qron.space/demos/luxury",
+    "headline": "Boutique-to-resale provenance",
+    "qron_theme": "Gold marble classical — museum grandeur, candlelit prestige",
+    "why": "Luxury handbags, watches, and fashion are routinely counterfeited and fraudulently resold, leaving maisons, retailers, and secondhand buyers without a trusted chain of custody from boutique to resale.",
+    "value": "A branded QRON tag indistinguishable from the product's design language anchors every item to an immutable AuthiChain record — protecting resale value, enabling warranty transfer, and giving maisons a direct owner-to-brand relationship at every hand-off."
+  },
+  {
+    "industry": "Art & Collectibles",
+    "demo_id": "qron-collectibles",
+    "demo_path": "/app/demos/collectibles",
+    "demo_url": "https://qron.space/demos/collectibles",
+    "headline": "Provenance that survives resale",
+    "qron_theme": "Blue glass architecture — gallery-grade, translucent depth",
+    "why": "Blue-chip art, trading cards, sneakers, and limited drops rely on fragile paper COAs and slabs that can be forged, lost, or decoupled from the piece — destroying value and insurance confidence.",
+    "value": "Every collectible ships with a QRON tied to an AuthiChain digital twin of the COA, so galleries, auction houses, grading services, and collectors verify provenance with a single scan and keep valuation intact across every sale."
+  },
+  {
+    "industry": "Supply Chain",
+    "demo_id": "qron-supplychain",
+    "demo_path": "/app/demos/supplychain",
+    "demo_url": "https://qron.space/demos/supplychain",
+    "headline": "Factory-to-dock signed custody",
+    "qron_theme": "Industrial steel — machined textures, rotational symmetry, metallic gradients",
+    "why": "Global supply chains suffer from tamper, substitution, and diversion fraud across dozens of hand-offs, with importers and retailers unable to prove that what left the factory is what reached the dock.",
+    "value": "Every pallet and carton carries a QRON that signs every custody event — factory, port, customs, DC, retailer — on-chain with GPS and actor identity, flagging tamper attempts in real time and generating full audit trails on demand."
+  }
+]

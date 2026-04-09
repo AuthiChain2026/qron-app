@@ -17,27 +17,41 @@ or when writing investor / marketing material that references live demos.
 
 ## Current implementation status
 
-QRON.space ships a single unified interactive demo experience at
-`app/demo/page.tsx` that exercises multiple industry targets (brand, luxury,
-celebrity, sport, culture) through one UI. Industry-specific demos can
-either be added as new folders under `app/demos/*` or promoted out of the
-unified demo when volume justifies a dedicated surface.
+Every canonical industry has a dedicated demo surface under `app/demos/*`.
+The unified QRON order demo at `app/demo/page.tsx` remains the conversion
+funnel — every industry page CTAs into it.
 
-| Industry     | Target path              | Current surface                      | Status     |
-|--------------|--------------------------|---------------------------------------|------------|
-| Pharma       | /app/demos/pharma        | unified demo (`app/demo/page.tsx`)    | ⏳ Planned |
-| Luxury       | /app/demos/luxury        | unified demo (`app/demo/page.tsx`)    | ✅ Live (via target filter) |
-| Cannabis     | /app/demos/cannabis      | unified demo (`app/demo/page.tsx`)    | ⏳ Planned |
-| Collectibles | /app/demos/collectibles  | unified demo (`app/demo/page.tsx`)    | ⏳ Planned |
-| Supply Chain | /app/demos/supplychain   | _not yet implemented_                 | ⏳ Planned |
+| Industry     | Target path              | Current surface                       | Status  |
+|--------------|--------------------------|----------------------------------------|---------|
+| Pharma       | /app/demos/pharma        | `app/demos/pharma/page.tsx`            | Live |
+| Cannabis     | /app/demos/cannabis      | `app/demos/cannabis/page.tsx`          | Live |
+| Luxury       | /app/demos/luxury        | `app/demos/luxury/page.tsx`            | Live |
+| Collectibles | /app/demos/collectibles  | `app/demos/collectibles/page.tsx`      | Live |
+| Supply Chain | /app/demos/supplychain   | `app/demos/supplychain/page.tsx`       | Live |
+
+All five industry demos are indexed from `app/demos/page.tsx` and each
+carries a marketing header block (Problem / Solution / Business Value) at the
+top of its source file.
+
+## Related files
+
+- `app/demos/page.tsx` — industry demo gallery (entry point)
+- `app/demo/page.tsx` — unified QRON order demo (conversion funnel)
+- `outputs/qron-demo-manifest.json` — canonical manifest with `why`/`value`
+  metadata per industry, mirroring AuthiChain&rsquo;s
+  `outputs/storymode-demo-manifest.json`
+- `lib/demo-targets.ts` — brand/celebrity/sport/culture/luxury targets used
+  by the unified QRON order demo
 
 ## How to add a new demo
 
-1. Either add a new target to `lib/demo-targets.ts` (to extend the unified
-   demo) or create a dedicated folder at `app/demos/<industry>/page.tsx`.
+1. Create `app/demos/<industry>/page.tsx` following one of the existing
+   industry demos (`pharma`, `cannabis`, `luxury`, `collectibles`,
+   `supplychain`) as a template.
 2. Prepend the required marketing header block (see
    [`README.md`](./README.md) → *How to write a new demo with a marketing
    header*).
-3. Update the **Canonical industry → demo path** table above.
-4. Link the new demo from the main marketing surfaces (landing page, demo
-   index, footer).
+3. Add the new row to the **Canonical industry → demo path** table above.
+4. Add a matching entry with `why` and `value` fields to
+   `outputs/qron-demo-manifest.json`.
+5. Link the new demo from `app/demos/page.tsx` (the demos index).
