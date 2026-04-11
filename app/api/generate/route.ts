@@ -6,7 +6,7 @@ import { deductCredit } from '@/lib/business-tier'
 export const maxDuration = 120
 export const dynamic = 'force-dynamic'
 
-const CF_WORKER_URL = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
+const CF_WORKER_URL = process.env.QRON_WORKER_URL || 'https://qron-image-gen.undone-k.workers.dev'
 
 /** Preset prompts keyed by preset ID */
 const PRESET_PROMPTS: Record<string, string> = {
