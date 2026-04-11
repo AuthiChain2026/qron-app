@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const QRON_WORKER = process.env.QRON_WORKER_URL || 'https://qron-ai-api.undone-k.workers.dev'
+const QRON_WORKER = process.env.QRON_WORKER_URL || 'https://qron-image-gen.undone-k.workers.dev'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
