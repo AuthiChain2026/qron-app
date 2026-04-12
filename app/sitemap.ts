@@ -26,6 +26,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/gig`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/targeted`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/digital-product-passport`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/real-estate-qr-code`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
+    { url: `${BASE}/wedding-qr-code`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     // Industry verticals
     { url: `${BASE}/for/cannabis`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/for/restaurants`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
