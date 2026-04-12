@@ -86,6 +86,9 @@ export async function POST(req: NextRequest) {
 
     const sessionId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
+    // Store a reference instead of full base64 data URIs (which bloat Supabase and cause timeouts)
+    const storableUrl = imageUrl.startsWith('data:') ? `generated:${genData.id || sessionId}` : imageUrl
+
     // Log to Supabase (non-blocking)
     if (SUPABASE_URL && SUPABASE_ANON) {
       fetch(`${SUPABASE_URL}/rest/v1/guest_generations`, {
@@ -101,14 +104,14 @@ export async function POST(req: NextRequest) {
           session_id: sessionId,
           target_url: url,
           style,
-          image_url: imageUrl,
+          image_url: storableUrl,
           email: email || null,
           created_at: new Date().toISOString(),
         }),
       }).catch(() => {})
 
-      // Also upsert into qron_demos for the gallery
-      if (imageUrl) {
+      // Also upsert into qron_demos for the gallery (skip base64 data URIs)
+      if (storableUrl && !storableUrl.startsWith('generated:')) {
         fetch(`${SUPABASE_URL}/rest/v1/qron_demos`, {
           method: 'POST',
           headers: {

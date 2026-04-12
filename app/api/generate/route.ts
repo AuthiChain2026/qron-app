@@ -100,10 +100,11 @@ export async function POST(request: Request) {
     )
 
     const qronId = crypto.randomUUID()
+    const storableImageUrl = imageUrl.startsWith('data:') ? `generated:${qronId}` : imageUrl
     await admin.from('qron_generations').insert({
       id: qronId,
       user_id: session.user.id,
-      image_url: imageUrl,
+      image_url: storableImageUrl,
       destination_url: targetUrl,
       prompt: finalPrompt,
       preset_id: presetId || null,
