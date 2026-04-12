@@ -49,3 +49,10 @@ Cloudflare Workers in `workers/` — deployed independently, not part of Next.js
 - Use `getSession()` (deprecated) — use `getUser()` instead
 - Skip the mounted guard on client components with modals/portals
 - Modify Stripe price IDs without matching Dashboard changes
+
+## Content Registry (Notion)
+
+Before creating new files, check the Notion Content Registry to avoid duplication:
+https://www.notion.so/3959bfd5dd9e4b9cb741ef7c2ea7cd78
+
+If a similar asset exists, update it instead of creating a new one. If creating new, register it in the Content Registry immediately with Source, Type, Status, Project, and Priority.
