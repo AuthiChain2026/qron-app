@@ -55,5 +55,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/blog/restaurant-menu-qr-code`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/blog/restaurant-menu-qr-code-guide`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/blog/eu-digital-product-passport-2026`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/blog/qr-code-product-packaging-guide`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
   ]
 }
