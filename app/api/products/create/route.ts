@@ -4,6 +4,8 @@ import { randomUUID } from 'crypto'
 import nacl from 'tweetnacl'
 import { decodeUTF8 } from 'tweetnacl-util'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
