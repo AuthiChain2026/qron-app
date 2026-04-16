@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 import nacl from 'tweetnacl'
 import { decodeUTF8 } from 'tweetnacl-util'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * QRON Verification Endpoint
  * --------------------------------
