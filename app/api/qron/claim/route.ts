@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * QRON Ownership Claim Endpoint
  * --------------------------------
