@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { PLANS } from '@/lib/plans'
 import { createClient } from '@/utils/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
